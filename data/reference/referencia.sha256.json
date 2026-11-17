@@ -1,0 +1,41 @@
+{
+  "arquivos": {
+    "malha_pi_2022.parquet": "db1de9488059e93f2fc584bdbe0e2680911b80a9518cad96f97f56a60b439dfc",
+    "malha_pi_2022_gee.geojson": "bccef50d15630fcc37f793c6a4a4a25e6a09612a910fa417474b9d978dd9c0a9",
+    "municipios_semiarido.csv": "88917f322536466040b4e60c5d192ab0b557d0263098ba70b01cf760b6e4bd84"
+  },
+  "bibliotecas": {
+    "geopandas": "1.2.0",
+    "pandas": "3.1.1",
+    "pyarrow": "26.0.1",
+    "pyogrio": "0.13.0",
+    "shapely": "2.2.0"
+  },
+  "contagens": {
+    "escopo": 216,
+    "fora": 8,
+    "malha": 224,
+    "res150": 215,
+    "transicao": 1
+  },
+  "conteudo_sha256": "60c8ceb4a3bb2bb8e5104bb7b4d1524d686c7b34c67d28eb978b104d71953ec6",
+  "entradas": {
+    "PI_Municipios_2022.zip": "08f7857890d90fde936e2d3011dfc63de6ddaf6366f18aaef5a4881b9dabc0eb",
+    "semiarido_res150_2021.csv": "c91cafd8095d30b9c7966319fe3de55bd2a2080701fc2f046d366dd99746e60e",
+    "semiarido_transicao_res176_2024.csv": "8866d92817351282404c5ab3cefebe0a121cc3b4cbbd8b7829328641b8ed09d8"
+  },
+  "parametros": {
+    "crs_gee": "EPSG:4326",
+    "crs_origem": "EPSG:4674",
+    "incluir_transicao": true,
+    "malha_ano": 2022,
+    "polo": "2207801",
+    "tolerancia_graus": 0.001
+  },
+  "simplificacao": {
+    "var_area_max": 0.0037835964053329865,
+    "vertices_antes": 140971,
+    "vertices_depois": 17997
+  },
+  "versao": 1
+}

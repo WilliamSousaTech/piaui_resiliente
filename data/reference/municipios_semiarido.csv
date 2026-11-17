@@ -1,0 +1,217 @@
+cod_ibge,nome,uf,situacao,area_km2
+2200053,Acauã,PI,res150,1280.838
+2200103,Agricolândia,PI,res150,112.392
+2200202,Água Branca,PI,res150,96.843
+2200251,Alagoinha do Piauí,PI,res150,535.89
+2200277,Alegrete do Piauí,PI,res150,243.732
+2200301,Alto Longá,PI,res150,1743.331
+2200400,Altos,PI,res150,957.232
+2200459,Alvorada do Gurguéia,PI,res150,2131.506
+2200509,Amarante,PI,res150,1152.127
+2200608,Angical do Piauí,PI,res150,222.008
+2200707,Anísio de Abreu,PI,res150,337.877
+2200905,Aroazes,PI,res150,821.212
+2200954,Aroeiras do Itaim,PI,res150,316.235
+2201002,Arraial,PI,res150,682.727
+2201051,Assunção do Piauí,PI,res150,1690.703
+2201101,Avelino Lopes,PI,res150,1220.371
+2201176,Barra D'Alcântara,PI,res150,263.943
+2201200,Barras,PI,res150,1722.507
+2201309,Barreiras do Piauí,PI,res150,2168.713
+2201408,Barro Duro,PI,res150,159.436
+2201507,Batalha,PI,res150,1589.01
+2201556,Bela Vista do Piauí,PI,res150,499.092
+2201572,Belém do Piauí,PI,res150,243.234
+2201606,Beneditinos,PI,res150,937.098
+2201705,Bertolínia,PI,res150,1216.116
+2201739,Betânia do Piauí,PI,res150,579.576
+2201770,Boa Hora,PI,res150,336.954
+2201804,Bocaina,PI,res150,261.651
+2201903,Bom Jesus,PI,res150,5471.024
+2201919,Bom Princípio do Piauí,PI,res150,523.142
+2201929,Bonfim do Piauí,PI,res150,289.149
+2201945,Boqueirão do Piauí,PI,res150,269.786
+2201960,Brasileira,PI,res150,880.836
+2201988,Brejo do Piauí,PI,res150,2267.327
+2202000,Buriti dos Lopes,PI,res150,690.54
+2202026,Buriti dos Montes,PI,res150,2437.326
+2202059,Cabeceiras do Piauí,PI,res150,608.747
+2202075,Cajazeiras do Piauí,PI,res150,514.106
+2202091,Caldeirão Grande do Piauí,PI,res150,467.083
+2202109,Campinas do Piauí,PI,res150,783.842
+2202117,Campo Alegre do Fidalgo,PI,res150,657.796
+2202133,Campo Grande do Piauí,PI,res150,311.682
+2202174,Campo Largo do Piauí,PI,res150,478.078
+2202208,Campo Maior,PI,res150,1680.861
+2202251,Canavieira,PI,res150,2165.277
+2202307,Canto do Buriti,PI,res150,4325.643
+2202406,Capitão de Campos,PI,res150,571.658
+2202455,Capitão Gervásio Oliveira,PI,res150,1132.995
+2202505,Caracol,PI,res150,1610.959
+2202539,Caraúbas do Piauí,PI,res150,471.217
+2202554,Caridade do Piauí,PI,res150,498.793
+2202604,Castelo do Piauí,PI,res150,2378.847
+2202653,Caxingó,PI,res150,491.093
+2202703,Cocal,PI,res150,1294.133
+2202711,Cocal de Telha,PI,res150,310.291
+2202729,Cocal dos Alves,PI,res150,324.856
+2202737,Coivaras,PI,res150,484.46
+2202752,Colônia do Gurguéia,PI,res150,429.591
+2202778,Colônia do Piauí,PI,res150,950.193
+2202802,Conceição do Canindé,PI,res150,824.729
+2202851,Coronel José Dias,PI,res150,1926.103
+2202901,Corrente,PI,res150,3048.747
+2203008,Cristalândia do Piauí,PI,res150,1202.896
+2203107,Cristino Castro,PI,res150,1845.698
+2203206,Curimatá,PI,res150,2344.949
+2203230,Currais,PI,res150,3156.657
+2203255,Curralinhos,PI,res150,345.811
+2203271,Curral Novo do Piauí,PI,res150,755.251
+2203305,Demerval Lobão,PI,res150,216.807
+2203354,Dirceu Arcoverde,PI,res150,1005.571
+2203404,Dom Expedito Lopes,PI,res150,218.808
+2203420,Domingos Mourão,PI,res150,848.705
+2203453,Dom Inocêncio,PI,res150,3871.824
+2203503,Elesbão Veloso,PI,res150,1383.976
+2203602,Eliseu Martins,PI,res150,1097.79
+2203701,Esperantina,PI,res150,908.748
+2203750,Fartura do Piauí,PI,res150,713.046
+2203800,Flores do Piauí,PI,res150,946.719
+2203859,Floresta do Piauí,PI,res150,223.199
+2203909,Floriano,PI,res150,3407.979
+2204006,Francinópolis,PI,res150,268.704
+2204105,Francisco Ayres,PI,res150,656.475
+2204154,Francisco Macedo,PI,res150,179.245
+2204204,Francisco Santos,PI,res150,492.191
+2204303,Fronteiras,PI,res150,777.179
+2204352,Geminiano,PI,res150,440.606
+2204402,Gilbués,PI,res150,3495.692
+2204550,Guaribas,PI,res150,3118.231
+2204600,Hugo Napoleão,PI,res150,224.573
+2204659,Ilha Grande,PI,res150,129.696
+2204709,Inhuma,PI,res150,978.222
+2204808,Ipiranga do Piauí,PI,res150,529.417
+2204907,Isaías Coelho,PI,res150,800.688
+2205003,Itainópolis,PI,res150,827.62
+2205102,Itaueira,PI,res150,2554.179
+2205151,Jacobina do Piauí,PI,res150,1333.796
+2205201,Jaicós,PI,res150,866.788
+2205250,Jardim do Mulato,PI,res150,510.226
+2205276,Jatobá do Piauí,PI,res150,650.393
+2205300,Jerumenha,PI,res150,1865.94
+2205359,João Costa,PI,res150,1800.23
+2205409,Joaquim Pires,PI,res150,740.561
+2205458,Joca Marques,PI,res150,169.005
+2205508,José de Freitas,PI,res150,1538.172
+2205516,Juazeiro do Piauí,PI,res150,935.404
+2205524,Júlio Borges,PI,res150,1283.916
+2205532,Jurema,PI,res150,1271.881
+2205540,Lagoinha do Piauí,PI,res150,67.649
+2205557,Lagoa Alegre,PI,res150,394.205
+2205565,Lagoa do Barro do Piauí,PI,res150,1331.025
+2205573,Lagoa de São Francisco,PI,res150,155.86
+2205581,Lagoa do Piauí,PI,res150,427.841
+2205599,Lagoa do Sítio,PI,res150,805.018
+2205607,Landri Sales,PI,res150,1088.583
+2205706,Luís Correia,PI,transicao,1074.132
+2205805,Luzilândia,PI,res150,705.599
+2205854,Madeiro,PI,res150,178.842
+2205904,Manoel Emídio,PI,res150,1620.413
+2205953,Marcolândia,PI,res150,136.785
+2206050,Massapê do Piauí,PI,res150,530.169
+2206100,Matias Olímpio,PI,res150,226.785
+2206209,Miguel Alves,PI,res150,1392.123
+2206308,Miguel Leão,PI,res150,93.412
+2206357,Milton Brandão,PI,res150,1309.128
+2206407,Monsenhor Gil,PI,res150,567.86
+2206506,Monsenhor Hipólito,PI,res150,401.568
+2206605,Monte Alegre do Piauí,PI,res150,2417.382
+2206654,Morro Cabeça no Tempo,PI,res150,2207.658
+2206670,Morro do Chapéu do Piauí,PI,res150,328.408
+2206696,Murici dos Portelas,PI,res150,475.72
+2206704,Nazaré do Piauí,PI,res150,1315.841
+2206720,Nazária,PI,res150,362.376
+2206753,Nossa Senhora de Nazaré,PI,res150,356.872
+2206803,Nossa Senhora dos Remédios,PI,res150,357.896
+2206902,Novo Oriente do Piauí,PI,res150,525.906
+2206951,Novo Santo Antônio,PI,res150,443.872
+2207009,Oeiras,PI,res150,2703.138
+2207108,Olho D'Água do Piauí,PI,res150,183.603
+2207207,Padre Marcos,PI,res150,278.696
+2207306,Paes Landim,PI,res150,401.378
+2207355,Pajeú do Piauí,PI,res150,986.961
+2207405,Palmeira do Piauí,PI,res150,2024.02
+2207504,Palmeirais,PI,res150,1493.764
+2207553,Paquetá,PI,res150,432.572
+2207603,Parnaguá,PI,res150,3428.811
+2207702,Parnaíba,PI,res150,436.907
+2207751,Passagem Franca do Piauí,PI,res150,643.226
+2207777,Patos do Piauí,PI,res150,801.403
+2207793,Pau D'Arco do Piauí,PI,res150,430.023
+2207801,Paulistana,PI,res150,1941.111
+2207850,Pavussu,PI,res150,1090.697
+2207900,Pedro II,PI,res150,1544.413
+2207934,Pedro Laurentino,PI,res150,870.614
+2207959,Nova Santa Rita,PI,res150,909.734
+2208007,Picos,PI,res150,577.284
+2208106,Pimenteiras,PI,res150,4562.58
+2208205,Pio IX,PI,res150,1948.142
+2208304,Piracuruca,PI,res150,2368.935
+2208403,Piripiri,PI,res150,1407.192
+2208502,Porto,PI,res150,253.113
+2208601,Prata do Piauí,PI,res150,196.787
+2208650,Queimada Nova,PI,res150,1283.369
+2208700,Redenção do Gurguéia,PI,res150,2470.531
+2208809,Regeneração,PI,res150,1251.321
+2208858,Riacho Frio,PI,res150,2220.598
+2208874,Ribeira do Piauí,PI,res150,1012.479
+2209005,Rio Grande do Piauí,PI,res150,635.953
+2209104,Santa Cruz do Piauí,PI,res150,582.658
+2209153,Santa Cruz dos Milagres,PI,res150,978.547
+2209302,Santa Luz,PI,res150,1185.398
+2209351,Santana do Piauí,PI,res150,112.189
+2209377,Santa Rosa do Piauí,PI,res150,338.336
+2209401,Santo Antônio de Lisboa,PI,res150,385.286
+2209450,Santo Antônio dos Milagres,PI,res150,33.64
+2209500,Santo Inácio do Piauí,PI,res150,852.106
+2209559,São Braz do Piauí,PI,res150,656.042
+2209609,São Félix do Piauí,PI,res150,627.033
+2209658,São Francisco de Assis do Piauí,PI,res150,1072.311
+2209708,São Francisco do Piauí,PI,res150,1341.451
+2209757,São Gonçalo do Gurguéia,PI,res150,1385.255
+2209807,São Gonçalo do Piauí,PI,res150,150.495
+2209856,São João da Canabrava,PI,res150,480.537
+2209872,São João da Fronteira,PI,res150,817.111
+2209906,São João da Serra,PI,res150,994.224
+2209955,São João da Varjota,PI,res150,394.456
+2209971,São João do Arraial,PI,res150,213.377
+2210003,São João do Piauí,PI,res150,1527.497
+2210052,São José do Divino,PI,res150,319.367
+2210102,São José do Peixe,PI,res150,1287.174
+2210201,São José do Piauí,PI,res150,373.347
+2210300,São Julião,PI,res150,291.089
+2210359,São Lourenço do Piauí,PI,res150,673.822
+2210375,São Luis do Piauí,PI,res150,217.924
+2210383,São Miguel da Baixa Grande,PI,res150,444.528
+2210391,São Miguel do Fidalgo,PI,res150,813.444
+2210409,São Miguel do Tapuio,PI,res150,4988.973
+2210508,São Pedro do Piauí,PI,res150,518.288
+2210607,São Raimundo Nonato,PI,res150,2415.287
+2210623,Sebastião Barros,PI,res150,893.488
+2210631,Sebastião Leal,PI,res150,3148.857
+2210656,Sigefredo Pacheco,PI,res150,1031.101
+2210706,Simões,PI,res150,1076.055
+2210805,Simplício Mendes,PI,res150,1360.028
+2210904,Socorro do Piauí,PI,res150,761.854
+2210938,Sussuapara,PI,res150,205.194
+2210953,Tamboril do Piauí,PI,res150,1587.296
+2210979,Tanque do Piauí,PI,res150,398.007
+2211001,Teresina,PI,res150,1391.293
+2211100,União,PI,res150,1170.742
+2211209,Uruçuí,PI,res150,8413.016
+2211308,Valença do Piauí,PI,res150,1333.722
+2211357,Várzea Branca,PI,res150,450.429
+2211407,Várzea Grande,PI,res150,236.453
+2211506,Vera Mendes,PI,res150,341.974
+2211605,Vila Nova do Piauí,PI,res150,221.627
+2211704,Wall Ferraz,PI,res150,270.427

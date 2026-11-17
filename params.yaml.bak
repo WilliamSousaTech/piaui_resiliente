@@ -1,0 +1,100 @@
+# params.yaml — Piauí Resiliente · Fase 1 (Extração Satélite & Engenharia de Dados)
+# Fonte única de parâmetros. Sem segredos aqui (o projeto GEE vem de variável de ambiente).
+# Valor "VERIFICAR" = pendência: confirmar em fonte oficial antes de usar.
+# Datas no formato "AAAA-MM". Cortes de split são em MÊS-ALVO (mês previsto), não em mês de origem.
+# Itens marcados "proposta" são valores iniciais a calibrar na EDA.
+
+projeto:
+  nome: "Piauí Resiliente"
+  equipe: "V.I.G.I.A."
+  versao_params: "0.1.1"
+  maturidade: "MVP experimental — em calibração com S2iD/TCE-PI"
+  seed: 42
+
+escopo:
+  modo: "semiarido"                  # "semiarido" = extração e treino em todo o semiárido; "piloto" = só o piloto (testes rápidos em CPU)
+  arquivo_semiarido: "data/reference/municipios_semiarido.csv"   # cod_ibge:str(7), nome, fonte, data_consulta
+  fonte_semiarido: "Res. CONDEL/SUDENE 150/2021 + regra de transição; VERIFICAR lista vigente (1.427 vs 1.477)"
+  malha_municipal_ano: 2022
+  crs_origem: "EPSG:4674"
+  crs_gee: "EPSG:4326"
+  piloto:
+    nome: "Território Chapada Vale do Rio Itaim (polo: Paulistana)"
+    polo_cod_ibge: "2207801"         # Paulistana (código IBGE conferido)
+    arquivo: "data/reference/municipios_piloto.csv"
+    composicao_status: "VERIFICAR"   # composição declarada pela equipe; confirmar na SEPLAN-PI
+    usos: ["validacao_qualitativa", "auditoria_s2id", "demonstracao_interface"]
+
+janela:
+  inicio: "1981-01"
+  fim: "2025-12"                     # congelado; dados de 2026 ficam fora do dataset
+
+alvo:
+  tipo: "spi"
+  escala_spi_meses: 3
+  horizonte_h: 1                     # alvo = SPI-3 em (mes_origem + h)
+
+split:
+  por: "mes_alvo"
+  treino_fim: "2015-12"
+  val_fim: "2020-12"
+  teste_fim: "2025-12"
+  embargo_meses: 3                   # mínimo teórico = escala_spi_meses - 1; 3 mantido por margem
+  teste_liberado: false              # só true na avaliação final (Fase 2); leitores do teste devem recusar enquanto false
+
+spi:
+  distribuicao: "gama"
+  ajuste: "mle_floc0"
+  zero_inflado: true                 # H(x) = q + (1 - q) * G(x)
+  convencao_zero: "VERIFICAR"
+  ajustar_somente_em: "treino"
+  agrupar_por: ["cod_ibge", "mes_calendario"]
+  min_anos_treino: 30
+  min_positivos_ajuste: 10           # proposta
+  q_baixa_confianca: 0.5             # proposta: q acima disso => spi3_baixa_conf
+
+qualidade:
+  min_cobertura_dias_mes: 1.0        # proposta: mês incompleto vira NaN
+  min_cobertura_pixels: 0.8          # proposta
+  imputacao_precip: "mediana_mensal_treino"
+  max_meses_imputados_consecutivos: 2
+  min_fracao_meses_validos_municipio: 0.95   # proposta: abaixo disso => município "excluded" com motivo
+
+features:
+  max_lag_meses: 12                  # provisório; fecha no Item 9 (features.py)
+
+fontes:
+  chirps:
+    gee_id: "UCSB-CHG/CHIRPS/DAILY"
+    banda: "precipitation"
+    unidade: "mm/dia"
+    agregacao_mensal: "soma"
+    reducer_espacial: "media"        # VERIFICAR: ponderação por fração de pixel na doc de reduceRegion
+    escala_m: 5566                   # VERIFICAR via nominalScale()
+  inmet:
+    estacoes: "VERIFICAR"
+    uso: "validacao_cruzada_chirps"
+    sentinela_faltante: -9999        # VERIFICAR no arquivo real
+  mapbiomas:
+    colecao: 10
+    defasagem_anos: 1                # para prever em Y, usar o mapa de Y-1
+  s2id:
+    uso: "auditoria"
+    entra_como_feature: false
+    cobrade: ["1.4.1.1.0", "1.4.1.2.0"]
+
+gee:
+  projeto_env: "GEE_PROJECT"         # nome da variável de ambiente; nunca o valor
+  max_linhas_por_lote: 4000          # abaixo do limite de 5000 elementos do getInfo (VERIFICAR na doc)
+
+caminhos:
+  raw: "data/raw"
+  processed: "data/processed"
+  curated: "data/curated"
+  reference: "data/reference"
+  artifacts: "artifacts"
+  docs: "docs"
+
+manifest:
+  algoritmo_hash: "sha256"
+  arquivo: "data/curated/manifest.json"
