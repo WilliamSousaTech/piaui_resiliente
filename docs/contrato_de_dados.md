@@ -1,132 +1,304 @@
 # Contrato de Dados — Piauí Resiliente · Fase 1
 
-Versão 0.1.1 · 2026-11-14 · Status: **aprovado pela equipe (Item 0 encerrado)** · Depende de `params.yaml` ≥ 0.1.1
+Versão 0.2.2 · 2026-11-17 · Status: v0.2.0 aprovada pela equipe em 2026-11-15 (desenho "Do alerta à ação, com prova local"); v0.2.1 incorporou a diretriz de 2026-11-17 "100% dados oficiais e atualizados (zero dados fictícios)"; **v0.2.2 fecha D3 (H(0) = q) e o embargo (5 meses) e registra `splits.py` e `spi.py`; aguarda o OK de leitura** · Depende de `params.yaml` ≥ 0.2.1 (vigente).
 
 > **Aviso de maturidade:** MVP experimental — em calibração com S2iD/TCE-PI. Nenhum indicador derivado deste dataset tem eficácia operacional comprovada para decisão governamental.
 
-## 1. Escopo e uso
-- **Objetivo da Fase 1:** produzir um dataset mensal por município, com alvo SPI-3 sem vazamento, splits cronológicos e `manifest.json` com SHA-256. Nenhum modelo é treinado aqui.
-- **Extração e treino:** todo o semiárido piauiense (lista fixa; versão e data de consulta registradas no manifest).
-- **Piloto:** Território Chapada Vale do Rio Itaim (polo: Paulistana, `2207801`), usado para validação qualitativa, auditoria S2iD e demonstração. A composição é declarada pela equipe e está **VERIFICAR** na SEPLAN-PI. O piloto é subconjunto do semiárido e participa do treino, pois o split é temporal, não espacial.
-- **Fora do escopo:** modelos PyTorch, API, MLflow, geração de planos por IA generativa.
+## 1. Objetivo, diferencial e limites de uso
+
+### 1.1 Objetivo e escopo
+- **Objetivo da Fase 1:** produzir um dataset mensal por município, com alvos sem vazamento, splits cronológicos e `manifest.json` com SHA-256. Nenhum modelo é treinado aqui; o treino em PyTorch (Fase 2) e a interface (Fase 3) **consomem** este contrato.
+- **Extração e treino:** semiárido piauiense, lista fixa de **216 municípios** (215 da Res. CONDEL/SUDENE 150/2021 + Luís Correia, mantido pela regra de transição da Res. 176/2024). Com `escopo.incluir_transicao: false` cai para 215. Versão e data de consulta ficam no manifest.
+- **Piloto:** Território Chapada Vale do Rio Itaim (polo: Paulistana, `2207801`), para validação qualitativa, auditoria S2iD e demonstração. Composição declarada pela equipe, **VERIFICAR** na SEPLAN-PI. O piloto participa do treino (split temporal, não espacial). `data/reference/municipios_piloto.csv` só será gerado com a lista confirmada.
+- **Fora do escopo deste contrato:** API, MLflow, geração de planos por IA generativa.
+
+### 1.2 Diferencial: "Do alerta à ação, com prova local" (hipóteses a demonstrar, não fatos)
+Prever seca por município com um mês de antecedência **já existe** em ferramentas oficiais (Monitor de Secas da ANA, que descreve a condição atual; Índice Integrado de Seca do Cemaden, por município, com projeção para o mês seguinte). Por isso o SPI à frente, sozinho, **não** é o diferencial. Os pilares são:
+1. **Antecedência contra o decreto (a prova).** Por município, meses entre o primeiro alerta e o decreto de estiagem/seca do S2iD (seção 4.1). Ineditismo para o Piauí **não verificado**; não afirmar sem checar.
+2. **Cartão do município (a ação).** Nível de alerta, tendência com incerteza, reservatório monitorado (se houver) e checklist/rascunho técnico para a Defesa Civil. Na primeira versão o checklist vem de **modelo fixo** escrito pela equipe e ancorado na Lei 12.608/2012, na Lei 12.340/2010 (elementos do plano de contingência) e nas diretrizes do TCE-PI/MIDR. As diretrizes do TCE-PI/MIDR e os artigos exatos a citar são **VERIFICAR** (texto-fonte ainda não obtido): não citar artigo antes de conferir o texto legal. Os campos do município são preenchidos só com dado oficial. O documento é "rascunho técnico", nunca substitui o plano nem tem valor jurídico. IA generativa só entra depois, com revisão humana.
+3. **Camada de preparo.** Onde há ou não Plano de Contingência para a seca e/ou COMPDEC (MUNIC/IBGE; ICM/MIDR), como **contexto**, nunca como entrada do modelo. Município sem registro oficial aparece como **"sem informação oficial"**, nunca como "sem plano". Edição e ano de referência sempre visíveis. Disponibilidade por município no PI: **VERIFICAR**.
+
+### 1.3 Limites de uso (obrigatórios na interface e nos materiais)
+1. **SPI ≠ colapso de manancial.** O SPI-3 mede falta de chuva em 3 meses (seca meteorológica). Não prova que um açude vai secar. O estoque hídrico é um alvo separado (seção 3).
+2. **Horizonte de 1 mês.** O sistema trata variabilidade climática, não projeções de mudança climática de longo prazo. Proibido prometer "segurança frente a mudanças climáticas severas".
+3. **Persistência.** O SPI-3 de *t*+1 usa 3 meses de chuva e 2 deles (*t*−1 e *t*) já são conhecidos. Parte do acerto vem só de repetir o passado. Toda afirmação de ganho exige comparação com persistência e climatologia, e com o Cemaden quando houver acesso à série (**VERIFICAR**).
+4. **Quem usa.** Município sem Comdec não age sozinho; o usuário natural inclui a Defesa Civil estadual.
+5. **Incerteza sempre à vista** (MAE/RMSE ou probabilidades) e aviso de MVP em toda tela, API e relatório.
+
+### 1.4 Regra de transparência: zero dados fictícios (diretriz de 2026-11-17; substitui a regra "dados ilustrativos" da v0.2.0)
+1. **Rastreabilidade.** Todo valor exibido (interface, API, relatório, slide, demonstração) vem de uma fonte oficial da seção 2, passou na validação de schema e consta no `manifest.json` com SHA-256.
+2. **Nada simulado.** Não existe dado ilustrativo, de exemplo, aleatório ou de preenchimento em nenhuma camada (dados, artefatos, interface, slides). A marca "DADOS ILUSTRATIVOS" da v0.2.0 foi **revogada**: o que não é validado não aparece com valor.
+3. **Camada sem dado oficial validado** é omitida ou exibida como **"Indisponível — sem dado oficial validado"**, com o motivo (ex.: "sem reservatório monitorado pela ANA neste município").
+4. **Previsão do modelo** só é exibida depois que a avaliação auditada (CA-13) estiver registrada, sempre com MAE/RMSE ou probabilidade e aviso de MVP. Antes disso o painel diz "Indisponível — modelo em calibração".
+5. **Fixtures sintéticas** existem **somente em `tests/`**, porque testar código exige entradas controladas. Nunca em `data/`, `artifacts/`, interface ou apresentação.
+6. **Limitação não é motivo de omissão.** Dado oficial com limitação conhecida (SPI de treino in-sample, CHIRPS como produto de satélite e estações) é exibido com a limitação declarada.
+7. **"Atualizado" tem data.** Toda camada mostra fonte, período coberto e data de extração (do manifest). A janela do dataset está congelada em 2025-12 (`janela.fim`); ver D7.
+
+### 1.5 Níveis da demonstração (Campus Party, novembro de 2026; pitch com plataforma navegável; **data exata a registrar, D8**)
+| Nível | Conteúdo | Depende de | Dados |
+|---|---|---|---|
+| 1 | Mapa interativo dos 216 municípios, máquina do tempo 1981–2025 e mapa de calor município × mês, com SPI **observado** | Itens 2c a 5 | reais |
+| 2 | Histograma de antecedência contra os decretos S2iD (e camada de preparo MUNIC, se validada) | Nível 1 + Item 8 (+ MUNIC) | reais (validação); teste só uma vez (seção 4.1) |
+| 3 | Previsão com incerteza e cartão completo | Fase 2 (PyTorch) | reais **só se a avaliação auditada existir**; senão, "Indisponível" |
+
+Regra de corte: o que não estiver validado na data da apresentação aparece como "Indisponível", nunca simulado. Ordem de prioridade: Nível 1, Nível 2, camada MUNIC, cartão (parcial), Nível 3.
+
+### 1.6 Requisitos da interface (minimalista, tema claro e escuro)
+1. **Mapa coroplético** dos 216 municípios (risco/SPI) com filtro rápido **"em alerta de seca + sem Plano de Contingência (MUNIC/IBGE)"**. "Sem plano" só vale para município com registro oficial negativo; municípios "sem informação oficial" ficam em categoria própria.
+2. **Máquina do tempo 1981–2025** (`demo_observado`) com a prova de antecedência: quantos meses antes do decreto oficial do S2iD o alerta vermelho disparou (N de municípios e decretos visível; valores negativos reportados).
+3. **Cartão do município:** série histórica, previsão com faixa de incerteza (Nível 3), nível do reservatório quando monitorado, checklist e rascunho técnico para a Defesa Civil.
+4. Aviso de MVP em toda tela; cada painel mostra fonte, período e data de extração.
+5. A interface lê **apenas** artefatos listados no manifest e confere o SHA-256 na carga.
 
 ## 2. Fontes e decisões de referência
 
 | Item | Decisão | Status | Observação |
 |---|---|---|---|
-| Malha municipal | IBGE 2022 via `geobr.read_municipality(year=2022)` | CONFIRMADO | O geobr entrega SIRGAS2000 (EPSG:4674). Reprojetar para EPSG:4326 só para o GEE. Fixar versão do geobr e salvar cópia em `data/reference/` com SHA-256. |
-| Semiárido | Resolução CONDEL/SUDENE nº 150/2021 | PARCIAL | A resolução credenciou 1.427 municípios e retirou 50, mas esses 50 foram mantidos em regra de transição (prorrogada pela Res. 176/2024). O Quadro Geográfico IBGE 2025 lista 1.477. Definir qual lista vale para o PI e fixar uma versão (**D2**). |
-| Precipitação | CHIRPS diário via GEE: `UCSB-CHG/CHIRPS/DAILY`, banda `precipitation` | A CONFERIR | Conferir ID, banda e escala no primeiro `getInfo()`. |
-| Cobertura do solo | MapBiomas **Coleção 10** | **DECIDIDO (D1, 2026-11-14)** | A Coleção 9 cobre 1985–2023 e não atende alvos de 2025 com defasagem de 1 ano. A Coleção 10 cobre 1985–2024. Uma única coleção em todos os anos. |
-| Desastres | S2iD, COBRADE `1.4.1.1.0` (Estiagem) e `1.4.1.2.0` (Seca) | CONFIRMADO | Códigos conferidos na classificação oficial. O formato dos códigos no arquivo do S2iD é **VERIFICAR**. Uso: só auditoria. |
-| Estações | INMET (BDMEP) | VERIFICAR | Listar estações dentro ou perto do semiárido e conferir o formato real do arquivo (sentinela, decimal, encoding, fuso). Uso: validação cruzada do CHIRPS. |
+| Malha municipal | IBGE 2022, `PI_Municipios_2022.zip` (224 municípios, SIRGAS 2000, EPSG:4674) | CONFIRMADO | Lida de `data/reference/fonte/`, sem rede. Reprojetada para EPSG:4326 só para o GEE. `geobr` descartado. SHA-256 no selo (5.0). |
+| Semiárido | Anexo da Res. CONDEL/SUDENE 150/2021 (1.427; 215 no PI) + transição Res. 176/2024 (Luís Correia, `2205706`) | **RESOLVIDO PARA O PI (D2)**, com 2 resíduos | Luís Correia vem de fonte secundária (MeioNews): confirmar no PDF da Res. 176/2024. Vigência dos 50 municípios após 03/01/2025 não confirmada. Não bloqueiam. |
+| Precipitação | CHIRPS diário via GEE: `UCSB-CHG/CHIRPS/DAILY`, banda `precipitation` | **CONFIRMADO (sonda 2026-11-15)** | 16.709 imagens de 1981-01-01 a 2026-09-30, calendário completo; EPSG:4326; `nominalScale` 5565,97 m (`escala_m: 5566`); mínimo diário 0 (sem negativo ou sentinela na amostra); Luís Correia 32/32 pixels válidos; polo 66 pixels; menor município da amostra (`2209450`) 2 pixels; grade nativa e escala nominal diferem ≤ ~0,08%. A unidade (mm/dia) vem da documentação do catálogo (as propriedades da imagem não trazem unidade); valores plausíveis (polo: 223 mm em 2020-03 e ~2 mm em 2020-09). Amostra pequena: ponderação de borda **não provada** (`reducer_espacial: media`). |
+| Extração do CHIRPS | `src/data/extract_chirps.py` (`sonda`, `rodar`) e RAW imutável em `src/data/chirps_raw.py` | IMPLEMENTADO e testado offline; **execução real pendente** | `rodar --lote-teste` não retornou em ~23 min (diagnóstico em andamento; ver seção 11). Nenhum RAW real gravado ainda. |
+| Acesso ao GEE | Projeto Google Cloud registrado como **não comercial**, nível Comunidade (150 h de EECU), categoria Adaptação | CONFIRMADO | ID só em `GEE_PROJECT`. Reavaliar o enquadramento antes de uso operacional com órgãos públicos. |
+| Cobertura do solo | MapBiomas **Coleção 10** | DECIDIDO (D1) | Uma única coleção em todos os anos; defasagem de 1 ano. |
+| Desastres | S2iD/MIDR, COBRADE `1.4.1.1.0` (Estiagem) e `1.4.1.2.0` (Seca) | CONFIRMADO | Formato dos códigos e colunas: **VERIFICAR** (Item 8); **bloqueia o Nível 2**. Uso: auditoria e prova de antecedência; nunca feature. |
+| Estações | INMET (BDMEP) | VERIFICAR | Validação cruzada do CHIRPS (Item 6). Cobertura no semiárido desconhecida. |
+| Estoque de reservatórios | ANA/SAR, módulo Nordeste e Semiárido | **VERIFICAR (sonda)** | Cobertura fraca no PI (só parte dos reservatórios cadastrada; ANA monitora reservatórios de domínio da União). Conjunto monitorado parece variar entre boletins. O boletim traz o texto "seco" no lugar do volume. Endpoint e início da série: **VERIFICAR**. Município sem reservatório monitorado: a interface informa que não há dado (item 1.4.3). |
+| Água por satélite | JRC `JRC/GSW1_4/MonthlyHistory` (1984-03 a 2021-12) | VERIFICAR | Termina antes do fim do teste (2025). Fase posterior. |
+| Preparo municipal | MUNIC/IBGE (variável **MGRD05**, "O município possui Plano de Contingência e/ou Preservação para a seca?", edição 2020) e ICM/MIDR (que pondera essa variável com peso 2,0) | **VERIFICAR** | Contexto, não feature. A confirmar: edição e ano mais recentes disponíveis, variável para existência de COMPDEC, disponibilidade por `cod_ibge` no PI. Edição/ano de referência exibidos na interface. |
+| Diretrizes e normas do checklist | Lei 12.608/2012, Lei 12.340/2010, diretrizes TCE-PI/MIDR | Leis CONFIRMADAS; diretrizes **VERIFICAR** | Documento do TCE-PI ainda não obtido. Não citar artigos antes de conferir o texto. |
+| Previsores de chuva (ENSO, Atlântico) | Possíveis entradas para ganhar além da persistência | VERIFICAR | Fonte e forma a definir antes da Fase 2. |
+| Benchmarks | Monitor de Secas (ANA) e Índice Integrado de Seca (Cemaden) | VERIFICAR | Acesso a séries históricas por município a confirmar. |
 
-## 3. Unidade de amostra e alvo
+## 3. Unidade de amostra e alvos
 - **Linha:** (`cod_ibge`, `mes_origem` = *t*). Toda feature usa apenas dados ≤ *t*.
-- **Alvo:** `alvo_spi3_h1` = SPI-3 no mês *t*+1. O SPI-3 de um mês *m* usa a precipitação de *m*−2, *m*−1 e *m*.
-- **`mes_alvo`** = *t* + *h* (com *h* = 1). **O split é definido por `mes_alvo`.**
+- **`mes_alvo`** = *t* + *h* (*h* = 1). **O split é definido por `mes_alvo`.**
+
+### 3.1 Alvos (modelo multitarefa na Fase 2: tronco compartilhado e uma cabeça por alvo)
+| Cabeça | Alvo | Dados | Cobertura | Status |
+|---|---|---|---|---|
+| A | `alvo_spi3_h1` = SPI-3 em *t*+1 (seca meteorológica) | CHIRPS | 216 municípios | planejada |
+| A2 | `alvo_spi6_h1` = SPI-6 em *t*+1 (seca mais longa) | CHIRPS | 216 | SPI-6 calculado em `spi.py`; cabeça na Fase 2; sem dado novo |
+| B | Estoque de reservatórios (% de volume ou classe "crítico") | ANA/SAR | só municípios com reservatório monitorado e cobertura validada | **VERIFICAR** |
+| B' | Área de espelho d'água (substituto por satélite) | JRC + extensão | todos | **VERIFICAR**; fase posterior |
+| C | Decreto de estiagem/seca (S2iD) | S2iD | semiárido | fase posterior |
+
+Regras do multitarefa: perda **com máscara** (sem rótulo, não entra na perda; nunca preencher rótulo com 0); mesmos splits e embargos para todas as cabeças; baselines e métricas **por cabeça**; teste congelado vale para todas; ablação decide se cada cabeça fica. A cabeça B só vale onde há cobertura oficial validada; fora dela a interface mostra o SPI e informa que não há estimativa de estoque. Limiar de "colapso" (ex.: volume < 10%) é decisão da equipe (**D6**).
+
+**Baselines (somente comparativos; o núcleo é a rede PyTorch treinada do zero):** persistência, climatologia, Ridge e XGBoost/Random Forest, por cabeça.
 
 ## 4. Splits
 
 | Bloco | `mes_alvo` | Meses |
 |---|---|---|
-| treino | ≈1982-04 a 2015-12 (início depende de `max_lag_meses`) | ~405 |
-| embargo | 2016-01 a 2016-03 | 3 |
-| validação | 2016-04 a 2020-12 | 57 |
-| embargo | 2021-01 a 2021-03 | 3 |
-| teste congelado | 2021-04 a 2025-12 | 57 |
+| treino | ≈1982-04 a 2015-12 (início depende de `max_lag_meses` e, com SPI-6, desloca cerca de 3 meses; `splits.py` rotula como treino todo `mes_alvo` da janela até 2015-12 e o `features.py` descarta as linhas sem histórico) | ~405 |
+| embargo | 2016-01 a 2016-05 | 5 |
+| validação | 2016-06 a 2020-12 | 55 |
+| embargo | 2021-01 a 2021-05 | 5 |
+| teste congelado | 2021-06 a 2025-12 | 55 |
 
 Regras:
 1. Mesmos cortes para todos os municípios. Nunca há shuffle.
-2. Embargo de 3 meses. O mínimo teórico é 2, porque a janela do SPI-3 se sobrepõe em 2 meses; o 3 fica como margem.
-3. O teste fica em arquivo próprio, com hash no manifest, e só é lido quando `split.teste_liberado: true` (avaliação final da Fase 2).
-4. A EDA registra, por bloco, o número de linhas e o % de `spi3 ≤ -1`. Se o teste tiver poucos eventos de seca, as métricas dele são declaradas não conclusivas.
+2. Embargo de **5 meses para todas as cabeças** (mínimo sem sobreposição das janelas do alvo = maior janela do SPI − 1: 2 para o SPI-3 e 5 para o SPI-6). `config.py` e `splits.py` recusam embargo menor.
+3. O teste fica em arquivo próprio, com hash no manifest, e só é lido com `split.teste_liberado: true` (avaliação final da Fase 2).
+4. A EDA registra, por bloco, linhas e % de `spi3 ≤ -1`. Se o teste tiver poucos eventos de seca, as métricas dele são declaradas não conclusivas.
+5. Scalers, parâmetros Gama e qualquer estatística são ajustados **somente** no treino (≤ 2015-12).
+6. `src/data/splits.py` rotula cada `mes_alvo` (`train`, `val`, `test`, `embargo`), recusa meses fora da janela e recusa a leitura do bloco `test` com `teste_liberado: false`.
+
+### 4.1 Demonstração e antecedência sem violar o teste congelado
+1. **Arquivo de demonstração próprio** (`demo_observado`): SPI observado de todo o período 1981–2025, sem alvos, sem split e sem métricas, gerado com os mesmos parâmetros Gama do treino. A demonstração **não lê** o arquivo do teste congelado. O SPI de treino é in-sample (limitação registrada e exibida).
+2. **Antecedência** = meses entre o primeiro mês em que o SPI cruza o limiar de alerta e o mês do decreto, por município com ≥ 1 decreto COBRADE `1.4.1.1.0`/`1.4.1.2.0`. Valores negativos (alerta depois do decreto) são **reportados**, nunca descartados.
+3. O limiar de alerta é fixado e documentado na **validação** (2016-06 a 2020-12). A antecedência no período de teste é calculada **uma única vez**, na avaliação final, com `teste_liberado: true`.
+4. O histograma exibe N (municípios e decretos). Poucos decretos por município: análise estatística só no semiárido inteiro; qualitativa no piloto.
 
 ## 5. Schemas
 
-### 5.1 `raw_chirps_mensal` (RAW, imutável)
-`cod_ibge:str(7)`, `mes:datetime64[ns]` (dia 1), `precip_mm:float32` (soma mensal da média municipal), `dias_validos:int16`, `dias_no_mes:int16`, `pixels_validos_frac:float32`.
+### 5.0 Referência territorial (`data/reference/`) — Item 2b
+Gerada por `src/data/reference.py` a partir de `data/reference/fonte/`. Escrita atômica, imutável, com selo SHA-256.
+
+**Entradas (`data/reference/fonte/`):**
+| Arquivo | Conteúdo |
+|---|---|
+| `PI_Municipios_2022.zip` | Malha IBGE 2022 do PI: `CD_MUN`, `NM_MUN`, `SIGLA_UF`, `AREA_KM2`, EPSG:4674, 224 polígonos válidos |
+| `semiarido_res150_2021.csv` | Anexo da Res. 150/2021: `cod_ibge,uf,nome`, 1.427 linhas (215 do PI), UTF-8, LF |
+| `semiarido_transicao_res176_2024.csv` | Transição: `cod_ibge,uf,nome,fonte` (1 linha: `2205706`, PI, Luís Correia) |
+
+**Saídas:**
+| Arquivo | Linhas | Schema |
+|---|---|---|
+| `municipios_semiarido.csv` (`escopo.arquivo_semiarido`) | 216 (215 se `incluir_transicao: false`) | `cod_ibge:str(7)`, `nome:str`, `uf:str` ("PI"), `situacao:str` (`res150`\|`transicao`), `area_km2:float` (3 casas). Só municípios no escopo, ordenados por `cod_ibge`, UTF-8 sem BOM, LF. **Ler `cod_ibge` como texto.** |
+| `malha_pi_2022.parquet` | 224 | GeoParquet EPSG:4674: `cod_ibge:str(7)`, `nome`, `uf`, `area_km2:float64`, `geometry`, `situacao` (`res150`\|`transicao`\|`fora`), `no_escopo:bool` |
+| `malha_pi_2022_gee.geojson` | 216 | FeatureCollection EPSG:4326; propriedades `cod_ibge:str`, `nome`, `situacao`. Simplificada com `escopo.simplificacao_graus` (0,001° ≈ 110 m), topologia preservada. Medido: variação de área máx. 0,38%; 140.971 → 17.997 vértices; ~712 KB. |
+| `referencia.sha256.json` | — | Selo do conjunto: SHA-256 de saídas e entradas, parâmetros, contagens, métricas da simplificação, `conteudo_sha256` canônico e versões das bibliotecas. |
+
+**Classificação dos 224 municípios do PI:** 215 `res150`, 1 `transicao`, 8 `fora` (Antônio Almeida, Baixa Grande do Ribeiro, Cajueiro da Praia, Guadalupe, Marcos Parente, Porto Alegre do Piauí, Ribeiro Gonçalves, Santa Filomena).
+
+**Garantias verificadas por código:** códigos de 7 dígitos únicos com prefixo 22; todo código das listas existe na malha; nomes conferem; transição disjunta do anexo; polo `2207801` no escopo; estado parcial é erro; entradas ou parâmetros diferentes levantam `RefImutavelError`; arquivo alterado levanta `RefIntegridadeError`.
+
+### 5.1 `raw_chirps_mensal` (RAW, imutável) — **implementado (`src/data/chirps_raw.py`, v0.2.1)**
+`cod_ibge:str(7)`, `mes:datetime64[ns]` (dia 1), `precip_mm:float32`, `precip_max_dia_mm:float32`, `dias_chuva:float32`, `dias_validos:int16`, `dias_no_mes:int16`, `pixels_validos_frac:float32`.
+
+Definições (agregação **por pixel e depois média municipal**, na grade nativa do CHIRPS; decisões **D4** e **D5** fechadas):
+- `precip_mm`: soma mensal por pixel, média municipal.
+- `precip_max_dia_mm` (**D5**): média municipal do **máximo diário de cada pixel** no mês. Não é o máximo diário da média municipal (mais suavizado). Sinal de chuva extrema.
+- `dias_chuva` (**D5**): média municipal do número de dias com precipitação ≥ `fontes.chirps.limiar_dia_chuva_mm` (**1,0 mm**) por pixel. **float32**, porque a média entre pixels é fracionária. Sinal de veranico quando baixo.
+- `dias_validos` (**D4**): **mínimo** entre os pixels do município do nº de dias com dado (a máscara `selfMask` faz o mínimo valer só entre pixels com dado).
+- `pixels_validos_frac`: pixels com dado / pixels do município (0 a 1).
+
+Invariantes validadas em `validar` (violação = `RawSchemaError`, lote não é gravado; todas as violações são listadas de uma vez):
+- `precip_mm`, `precip_max_dia_mm` e `dias_chuva` são **NaN juntos ou nenhum**. `precip_mm` preenchido exige `dias_validos` > 0 e `pixels_validos_frac` > 0, e fica em [0, 2000] mm (teto de sanidade; acima disso é erro de unidade ou de soma).
+- `precip_max_dia_mm` ≥ 0 e ≤ `precip_mm` (tolerância de float32 `1e-3`); `dias_chuva` em [0, `dias_no_mes`]; `precip_mm = 0` implica `precip_max_dia_mm = 0` e `dias_chuva = 0`.
+- `dias_validos` em [0, `dias_no_mes`]; `pixels_validos_frac` em [0, 1]; `dias_no_mes` igual ao calendário; `mes` é o dia 1 às 00:00.
+- Códigos de 7 dígitos; grade **exatamente** município × mês do lote (sem linha faltando, sobrando ou duplicada).
+
+Convenção do extrator (`montar_linhas`, não é regra da `validar`): município sem pixel válido, com propriedade nula do GEE ou ausente do retorno vira trio NaN, `pixels_validos_frac = 0` e `dias_validos = 0`. Nunca 0 mm por imputação.
+
+Imutabilidade e execução:
+- Lotes em Parquet (escrita atômica) com selo `.sha256.json`. Lote idêntico é "pulado"; conteúdo diferente levanta erro; estado parcial é erro. O selo guarda também `meta` (proveniência: coleção, banda, limiar, versão do `ee`, data UTC e nº de imagens do GEE por mês); `meta` **não** entra no hash nem na comparação.
+- 216 municípios com no máximo 4.000 linhas por lote (`gee.max_linhas_por_lote`) ⇒ 18 meses por lote ⇒ **30 lotes** para 1981-01 a 2025-12 (540 meses).
+- `rodar` confere por SHA-256 os lotes já gravados sem chamar o GEE (retomável) e repete cada chamada ao GEE até 3 vezes (esperas de 5 s e 10 s). Ao final, confere a completude da janela com `ler_raw`.
+- Os 3 `reduceRegions` por mês (média, mínimo, contagem) e o `size()` das imagens ainda precisam de medição de tempo no GEE real (ver seção 11).
 
 ### 5.2 `curated_mensal`
 | Coluna | dtype | Descrição |
 |---|---|---|
 | `cod_ibge` | str(7) | código IBGE |
 | `mes_origem`, `mes_alvo` | datetime64[ns] | dia 1 |
-| `precip_mm` | float32 | após imputação causal |
+| `precip_mm`, `precip_max_dia_mm`, `dias_chuva` | float32 | após imputação causal |
 | `cobertura_dias`, `cobertura_pixels` | float32 | 0–1 |
 | `precip_mm_missing` | bool | imputado ou ausente |
-| `spi3` | float32 | SPI-3 em *t* |
-| `spi3_invalid`, `spi3_baixa_conf` | bool | ver seção 7 |
-| `alvo_spi3_h1` | float32 | SPI-3 em *t*+1 |
+| `spi3`, `spi6` | float32 | SPI em *t* |
+| `spi3_invalid`, `spi3_baixa_conf`, `spi6_invalid`, `spi6_baixa_conf` | bool | ver seção 7 |
+| `alvo_spi3_h1`, `alvo_spi6_h1` | float32 | SPI em *t*+1 |
 | `split` | category | `train`, `val`, `test`, `embargo` |
-| `mb_*` | float32 | MapBiomas do ano Y-1 (nomes definidos no Item 7) |
-| features de lag | float32 | definidas no Item 9 |
+| `mb_*` | float32 | MapBiomas do ano Y-1 (nomes no Item 7) |
+| features de lag | float32 | Item 9 |
 
 ### 5.3 Tabelas auxiliares
 - **`qualidade_municipio`:** `cod_ibge:str`, `frac_meses_validos:float32`, `excluded:bool`, `motivo:str`.
 - **`audit_s2id`** (nunca entra como feature): `cod_ibge:str`, `data_decreto:datetime64[ns]`, `cobrade:str`, `tipo:str`. Nomes de coluna **VERIFICAR** contra o arquivo real.
-- **`manifest.json`:** versão do dataset, data de criação (UTC), versões do Python e das bibliotecas, seed, SHA-256 do `params.yaml`, e por arquivo: caminho, SHA-256, nº de linhas, colunas e dtypes. Também: datas de corte e embargo, nº de linhas por bloco, fonte, versão e data da lista do semiárido, ano e versão da malha, coleção do MapBiomas e `"maturity"`.
+- **`demo_observado`:** `cod_ibge:str`, `mes:datetime64[ns]`, `spi3:float32`, `spi3_invalid:bool`, `spi3_baixa_conf:bool` (e equivalentes do SPI-6). Sem alvo, sem split.
+- **`manifest.json`:** versão do dataset, data (UTC), versões de Python e bibliotecas, seed, SHA-256 do `params.yaml`, e por arquivo: caminho, SHA-256, linhas, colunas e dtypes. Também: cortes e embargos, linhas por bloco, fonte e versão da lista do semiárido, ano da malha, `conteudo_sha256` da referência, coleção do MapBiomas, edição/ano da camada de preparo e `"maturity"`.
+
+### 5.4 Estoque de reservatórios (cabeça B) — schema **a definir após a sonda do SAR**
+Não definir colunas antes de ver o arquivo/API real. Pontos já conhecidos: valor textual "seco" deve virar evento "estoque zero", não dado faltante; o conjunto de reservatórios muda no tempo (painel desbalanceado); a máscara de perda cobre municípios sem reservatório monitorado.
+
+### 5.5 Camada de preparo municipal (MUNIC/ICM) — schema **a definir após ver o arquivo real**
+Regras já fixadas: chave `cod_ibge` como texto; três estados por município (`sim`, `nao`, `sem_informacao`); carrega edição e ano de referência; nunca é feature; nunca é preenchida por inferência (ausência de registro não vira "não").
 
 ## 6. Política de NaN e qualidade
 1. 0 mm real é diferente de máscara ou NaN. Nunca converter NaN em 0.
 2. O mês só é válido com `cobertura_dias` ≥ `min_cobertura_dias_mes` e `cobertura_pixels` ≥ `min_cobertura_pixels`.
 3. O relatório de cobertura (município × mês) é gerado **antes** de qualquer imputação.
-4. Imputação de `precip_mm`: mediana mensal calculada **só no treino**, até `max_meses_imputados_consecutivos`. Sempre com `precip_mm_missing = True`. Proibido `bfill` e `interpolate` que olhe o futuro.
+4. Imputação de `precip_mm`: mediana mensal calculada **só no treino**, até `max_meses_imputados_consecutivos`, sempre com `precip_mm_missing = True`. Proibido `bfill` e `interpolate` que olhe o futuro.
 5. Município com `frac_meses_validos` abaixo do limiar vira `excluded` com motivo registrado, nunca removido em silêncio.
-6. Município com polígono sem pixel válido retorna `null` no GEE. Isso é registrado e tratado como ausência.
+6. Município com polígono sem pixel válido retorna `null` no GEE: registrado e tratado como ausência.
+7. Na interface, mês/município com SPI inválido ou sem dado válido aparece como **"sem dado"**, nunca suavizado ou preenchido para exibição (seção 1.4).
 
-## 7. SPI-3 (método)
-1. `P(m)` = precipitação mensal do município. `S3(t) = P(t-2) + P(t-1) + P(t)`. Qualquer mês ausente na janela torna `S3(t)` NaN.
-2. Para cada (`cod_ibge`, mês-calendário do mês final), usar só os `S3` com mês final no **treino**. `q` = fração de zeros. A Gama é ajustada por máxima verossimilhança (`loc=0`) nos valores positivos.
-3. `H(x) = q + (1 − q)·G(x)` e `SPI = Φ⁻¹(H(x))`. Os parâmetros do treino são aplicados a validação e teste.
-4. **Convenção para x = 0** (`H(0) = q` ou outra) varia entre implementações. Decisão em `spi.convencao_zero` (**D3**), conferida contra a literatura no Item 5.
-5. Casos de borda:
-   - série toda zero, menos de `min_positivos_ajuste` positivos ou Gama sem convergir → `spi3_invalid = True` (nunca ±inf);
-   - `q > q_baixa_confianca` (típico de jun–out no semiárido) → `spi3_baixa_conf = True`.
-6. A calibração tem 34 pontos (jan/fev) ou 35 (mar–dez) por município × mês-calendário. É suficiente para ≥30, mas deixa o ajuste ruidoso.
-7. O SPI das linhas de treino é in-sample, porque a Gama foi ajustada com os mesmos dados. Registrado como limitação.
+## 7. SPI (método) — implementado em `src/data/spi.py`
+1. `P(m)` = precipitação mensal do município. `S_k(t) = soma de P(t-k+1) … P(t)`, com *k* em `spi.janelas_meses` (**[3, 6]**). Qualquer mês ausente na janela torna `S_k(t)` NaN; os primeiros *k*−1 meses também (SPI indisponível, `spiK_invalid = True`).
+2. Para cada (`cod_ibge`, mês-calendário do mês final, escala), usar só os `S_k` com mês final ≤ `split.treino_fim`. `q` = fração de zeros desse conjunto. Gama por máxima verossimilhança (`loc=0`, `scipy.stats.gamma.fit(floc=0)`) nos positivos.
+3. `H(x) = q + (1 − q)·G(x)` e `SPI = Φ⁻¹(H(x))`. Parâmetros do treino aplicados a todo o período. H é limitado a [1e-6, 1 − 1e-6]: |SPI| ≤ 4,75 e nunca há ±inf.
+4. **Convenção para x = 0 (D3, decidida): H(0) = q.** Como G(0) = 0, é a própria fórmula do item 3, com q = zeros/n (forma de distribuição mista descrita na documentação do EDO/JRC e do ESMValTool; o guia da OMM, WMO-No. 1090, é a referência geral do índice e seu trecho sobre zeros **não foi lido**). Variantes da literatura (q = zeros/(n+1); ponto médio do intervalo dos zeros) **não** são usadas; o efeito delas sobre alertas em meses secos pode ser medido depois como análise de sensibilidade.
+5. Uma célula (cod_ibge × mês-calendário × escala) é **inválida** (`valido = False`, SPI NaN, `spiK_invalid = True`) quando: amostras < `spi.min_anos_treino` (30); positivos < `spi.min_positivos_ajuste` (10); positivos todos iguais; ou o MLE não converge. `spiK_baixa_conf = True` quando `q > spi.q_baixa_confianca` (0,5, estritamente maior) e o SPI é válido.
+6. A calibração tem, no SPI-3, 34 pontos (jan/fev) ou 35 (mar–dez) por município × mês-calendário; no SPI-6, 34 (jan–mai) ou 35 (jun–dez).
+7. O SPI das linhas de treino é in-sample. Registrado como limitação.
+8. Saída de `calcular_spi`: SPI em formato longo (`cod_ibge`, `mes`, `spi3`, `spi3_invalid`, `spi3_baixa_conf`, `spi6`, …; mesmas colunas do `demo_observado`) e a tabela `spi_gamma_params` (seção 8). Com `parametros` fornecidos, apenas aplica (sem reajuste): é o caminho da inferência e da avaliação.
+9. **Verificado em séries sintéticas (testes):** alterar o futuro não muda parâmetros nem SPI passado; SPI de treino com média ~0 e desvio ~1; fórmula igual a uma conta independente. **Pendente com dado real:** qualidade do ajuste Gama (KS por célula) e fração de células inválidas, após o RAW real.
 
 ## 8. Artefatos de treino (`artifacts/`)
-- `spi_gamma_params`: `cod_ibge`, `mes_calendario`, `q`, `shape`, `scale`, `n_amostras`, `n_positivos`, `valido`.
-- `climatologia_precip`: `cod_ibge`, `mes_calendario`, `mediana_mm` (usada na imputação).
-- Scalers de features ficam para o Item 9 e a Fase 2, ajustados só no treino.
+- `spi_gamma_params`: `cod_ibge`, `mes_calendario`, `escala_meses`, `q`, `shape`, `scale`, `n_amostras`, `n_positivos`, `valido`.
+- `climatologia_precip`: `cod_ibge`, `mes_calendario`, `mediana_mm`.
+- Scalers de features: Item 9 e Fase 2, ajustados só no treino.
 
 ## 9. Regras para features
 - Lags com shift positivo; `rolling(..., center=False)`. Alterar valores em *t*+1…*t*+k não pode mudar features em ≤ *t* (CA-06).
-- MapBiomas: para o mês de origem no ano Y, usar o mapa de Y-1, mantendo **uma única coleção** em todos os anos.
-- S2iD: só auditoria. Não é feature.
+- MapBiomas: para o mês de origem no ano Y, usar o mapa de Y-1, com uma única coleção.
+- S2iD: só auditoria/antecedência. Não é feature. MUNIC/ICM: só contexto, não feature.
 
 ## 10. Limitações conhecidas
-- **SPI-3 em meses secos:** pouco informativo no semiárido (muitos zeros). As métricas da Fase 2 saem separadas por estação.
-- **MapBiomas retrospectivo:** o mapa de Y-1 pode ter sido classificado com filtros temporais que usam anos vizinhos. É um vazamento fraco e residual (**VERIFICAR** no documento metodológico do MapBiomas).
-- **Distribuição por bloco:** a validação pode conter a cauda da seca de 2012–2018 do Nordeste e o teste pode ter menos eventos. É uma hipótese a confirmar na EDA.
-- **CHIRPS:** ~5 km. Sem estações perto, a validação cruzada com o INMET fica limitada.
-- **Auditoria S2iD:** decretos são poucos por município. A auditoria é qualitativa no piloto e estatística só no semiárido inteiro.
+- **SPI em meses secos:** pouco informativo no semiárido (muitos zeros). Métricas da Fase 2 por estação.
+- **Zeros e D3:** com H(0) = q, um mês de chuva zero recebe SPI = Φ⁻¹(q), pouco negativo quando q é alto; daí a flag `baixa_conf`. O ajuste Gama pode ser fraco em células com muitos zeros, e |SPI| fica limitado a 4,75.
+- **SPI ≠ estoque hídrico** e **persistência**: ver seção 1.3.
+- **Ferramentas existentes:** o diferencial é hipótese até a comparação com os benchmarks (seção 2) ser feita.
+- **MapBiomas retrospectivo:** vazamento fraco e residual (**VERIFICAR** no documento metodológico).
+- **Distribuição por bloco:** a validação pode conter a cauda da seca de 2012–2018 e o teste ter menos eventos (hipótese a confirmar na EDA).
+- **CHIRPS:** pixel de 0,05° (~5,6 km, ~31 km²). Nenhum município do escopo é menor que 1 pixel, mas 6 têm menos de 4 (o menor da amostra tem 2). Produto de satélite combinado com estações, não medição pontual. Ponderação de borda não provada. Sem estações perto, a validação com INMET fica limitada.
+- **Indicadores extras do CHIRPS** (máximo diário e dias de chuva) são médias de métricas por pixel (D5), não métricas da média municipal.
+- **Estoque (B):** poucos reservatórios monitorados no PI, conjunto instável, poucos eventos no teste.
+- **Auditoria S2iD:** poucos decretos por município; qualitativa no piloto, estatística só no semiárido inteiro.
+- **Camada de preparo:** a MUNIC é uma fotografia de uma edição (a mais recente a confirmar); o município pode ter criado o plano depois. Por isso o ano de referência é sempre exibido.
+- **Janela de dados:** fixa em 2025-12 (D7). A interface não afirma a situação "atual" do município além dessa data.
+- **Lista do semiárido:** vigência dos 50 municípios pós 03/01/2025 não confirmada; Luís Correia com fonte secundária.
+- **Enquadramento do GEE:** uso não comercial (pesquisa). Reavaliar antes de uso operacional ou contratado.
+- **Números sobre planejamento municipal** citados em materiais são nacionais (não achados para o PI): Plano de Contingência em 27,4% dos municípios em 2023 (preliminar, anais de congresso); menos de 10% com três instrumentos alinhados; cerca de 60% sem estrutura de gestão de desastres. Não usar como dado do Piauí.
 
 ## 11. Pendências (`VERIFICAR`)
 | ID | Pendência | Resolve em |
 |---|---|---|
-| D1 | ~~Coleção do MapBiomas~~ — **resolvida: Coleção 10** | encerrada |
-| D2 | Lista do semiárido vigente para o PI (1.427 vs 1.477) e versão fixada | Item 1 |
-| D3 | Convenção do SPI para x = 0 | Item 5 |
-| — | Composição do território piloto (SEPLAN-PI) | Item 1 |
+| D1 | ~~Coleção do MapBiomas~~ — **Coleção 10** | encerrada |
+| D2 | ~~Lista do semiárido para o PI~~ — **215 + 1 = 216**. Resíduos: Luís Correia no PDF da Res. 176/2024 e vigência dos 50 após 03/01/2025 | resíduo não bloqueante |
+| D3 | ~~Convenção do SPI para x = 0~~ — **H(0) = q** | encerrada (v0.2.2) |
+| D4 | ~~`dias_validos`~~ — **mínimo entre pixels com dado** | encerrada (v0.2.1) |
+| D5 | ~~Indicadores extras e `limiar_dia_chuva_mm`~~ — **média municipal de métricas por pixel; limiar 1,0 mm** | encerrada (v0.2.1) |
+| D6 | Limiar operacional de "colapso" do manancial (ex.: < 10%) | após sonda do SAR |
+| D7 | Estender o `demo_observado` até 2026-09 (o CHIRPS já tem dados) ou manter `janela.fim = 2025-12`. Afeta o apelo de "atualizado" na apresentação. Decisão da equipe | antes do `demo_observado` |
+| D8 | Data exata da apresentação na Campus Party e corte de escopo | agora |
+| — | **Extração real do CHIRPS:** `rodar --lote-teste` sem retorno em ~23 min. Hipóteses em ordem: (1) cada consulta de 216 polígonos é lenta; (2) uma chamada travada ou em nova tentativa; (3) parada antes do laço (inicialização ou envio da malha). Confirmar com o traceback do Ctrl+C e as linhas `DIAG` de `diag_tempo.py` antes de mudar o código | agora (bloqueia Nível 1) |
+| — | SAR: endpoint, início da série, reservatórios do PI no escopo, tratamento de "seco" | sonda do SAR |
+| — | Composição do piloto (SEPLAN-PI) e `municipios_piloto.csv` | quando a lista chegar |
 | — | Estações INMET; formato do arquivo | Item 6 |
-| — | Formato do código COBRADE e colunas no S2iD | Item 8 |
+| — | Formato do código COBRADE e colunas no S2iD (**bloqueia o Nível 2**) | Item 8 |
+| — | MUNIC/ICM: edição, variável de plano de contingência e de COMPDEC, disponibilidade por `cod_ibge` no PI | ingestão MUNIC |
+| — | Diretrizes do TCE-PI e do MIDR (texto-fonte); previsores oceânicos; acesso a séries do Cemaden/Monitor de Secas | antes da Fase 2 |
+| — | ~~Embargo adequado para a cabeça A2 (SPI-6)~~ — **5 meses para todas as cabeças** | encerrada (v0.2.2) |
+| — | Qualidade do ajuste Gama nos dados reais (KS por célula, % de células inválidas) | após o RAW real |
+| — | `scipy` no `requirements.txt` (dependência do `spi.py`) | agora |
 
 ## 12. Critérios de aceite
-Os critérios **CA-01 a CA-10** do System Prompt da Fase 1 valem para este contrato. Em especial:
-- CA-01 → seção 4
-- CA-02 e CA-03 → seção 7
-- CA-04 → seção 8
-- CA-05 → seção 6
-- CA-06 → seção 9
-- CA-07 e CA-08 → manifest e RAW imutável
+Os **CA-01 a CA-10** do System Prompt da Fase 1 valem para este contrato: CA-01 → seção 4; CA-02 e CA-03 → seção 7; CA-04 → seção 8; CA-05 → seção 6; CA-06 → seção 9; CA-07 e CA-08 → manifest e RAW imutável.
+
+Critérios adicionais:
+- **CA-11 Zero dados fictícios (reescrito na v0.2.1).** Dado qualquer artefato exibido (interface, API, relatório, slide), então cada valor é rastreável a um arquivo com SHA-256 no manifest e a uma fonte da seção 2; camada sem dado oficial validado aparece omitida ou "Indisponível", nunca com valor ilustrativo. *Erro:* valor sem rastreio, ou fixture sintética fora de `tests/` → falha de revisão.
+- **CA-12 Demo sem teste.** Dado o gerador do `demo_observado`, quando executa, então não lê o arquivo do teste congelado e não escreve alvo, split ou métrica.
+- **CA-13 Baselines.** Dada qualquer métrica de modelo, então vem acompanhada de persistência e climatologia (e Ridge/XGBoost por cabeça), com incerteza. Sem comparação, o resultado não é declarado ganho.
+- **CA-14 Antecedência única no teste.** O cálculo de antecedência no período de teste ocorre uma vez, após fixar o limiar na validação.
+- **CA-15 Preparo sem inferência (v0.2.1).** Dado um município sem registro MUNIC/ICM, então a interface mostra "sem informação oficial", e o filtro "sem Plano de Contingência" não o inclui. *Erro:* tratar ausência de registro como ausência de plano.
 
 ## 13. Fontes consultadas
-- Resolução CONDEL/SUDENE nº 150/2021: https://www.gov.br/sudene/pt-br/centrais-de-conteudo/resolucao1502021.pdf
+- SPI (método): OMM, Standardized Precipitation Index User Guide, WMO-No. 1090 (2012): https://public.wmo.int/en/resources/library/standardized-precipitation-index-user-guide · EDO/JRC, factsheet SPI: https://edo.jrc.ec.europa.eu/documents/factsheets/factsheet_spi_ado.pdf · ESMValTool, SPI: https://esmvaltool.readthedocs.io/en/v1.1.0.dev1/namelists/namelist_spi.html
+- Res. CONDEL/SUDENE nº 150/2021: https://www.gov.br/sudene/pt-br/centrais-de-conteudo/resolucao1502021.pdf (PDF local em `data/reference/fonte/`)
+- Res. CONDEL/SUDENE nº 176/2024 (transição): fonte secundária (MeioNews) para Luís Correia; **confirmar no PDF oficial**
 - Quadro Geográfico IBGE 2025, Semiárido: https://www.ibge.gov.br/apps/quadrogeografico/pdf/qg_2025_080_semiarido.pdf
-- IBGE, Semiárido Brasileiro (Res. 176/2024): https://www.ibge.gov.br/geociencias/cartas-e-mapas/redes-geograficas/15974-semiarido-brasileiro.html
-- geobr: https://ipeagit.github.io/geobr/
-- MapBiomas Coleção 9: https://brasil.mapbiomas.org/en/?p=873
+- IBGE, Semiárido Brasileiro: https://www.ibge.gov.br/geociencias/cartas-e-mapas/redes-geograficas/15974-semiarido-brasileiro.html
+- IBGE, Malha Municipal 2022 (`PI_Municipios_2022.zip`, baixado pela equipe)
+- Sonda do CHIRPS no GEE (2026-11-15): saída registrada na seção 2 (coleção `UCSB-CHG/CHIRPS/DAILY`)
 - MapBiomas Coleção 10 (factsheet): https://brasil.mapbiomas.org/wp-content/uploads/sites/4/2025/09/Factsheet-Amazonia_C10_15.09.pdf
 - COBRADE: https://www.cetran.pr.gov.br/sites/cetran/arquivos_restritos/files/migrados/File/Leis/Codificacao_e_Classificacao_Brasileira_de_Desastres_COBRADE2.pdf
+- ANA, Manual do SAR: https://www.ana.gov.br/sar/arquivos/manual-sar_v1-0.pdf/@@download/file/Manual%20SAR_V1.1.pdf
+- ANA, boletim mensal de açudes do semiárido (ex.: 03/2026): https://www.gov.br/ana/pt-br/sala-de-situacao/acudes-do-semiarido/boletins/mensal/03_2026.pdf
+- Monitor de Secas (ANA/FUNCEME): https://www.jornaldosudoeste.com/?p=156222
+- Cemaden, boletim de secas (05/2026): https://www.gov.br/cemaden/pt-br/assuntos/monitoramento/impactos-seca/monitoramento-de-seca-para-o-brasil/monitoramento-de-secas-e-impactos-no-brasil-2013-maio-2026/Boletim_secas_05_2026.pdf
+- Lei 12.608/2012: https://legis.senado.leg.br/norma/589531/publicacao/15760049 · Lei 12.340/2010: https://www.legisweb.com.br/legislacao/?id=87625
+- MIDR, nota técnica do ICM: https://www.gov.br/mdr/pt-br/assuntos/protecao-e-defesa-civil/NotasTcnicasMetodologiaICM.pdf
+- IFPI, monitoramento de reservatórios do PI por satélite: https://seer.ufu.br/index.php/caminhosdegeografia/article/download/66989/36954/322263
+
+## 14. Histórico de versões
+- **0.2.2 (2026-11-17):** D3 fechada (H(0) = q) e embargo de 5 meses para todas as cabeças (validação 2016-06 a 2020-12 e teste 2021-06 a 2025-12, 55 meses cada); `split.embargo_meses`, `spi.janelas_meses` e `spi.convencao_zero` no `params.yaml` 0.2.1 e na config; `splits.py` (seção 4) e `spi.py` (seção 7) registrados; regras de célula inválida, limite de H e baixa confiança; pendências novas (ajuste Gama em dado real, `scipy`).
+- **0.2.1 (2026-11-17):** diretriz "zero dados fictícios" (1.4 reescrita; "DADOS ILUSTRATIVOS" revogada; CA-11 reescrito; novo CA-15); requisitos da interface (1.6) e regra de corte por nível (1.5); camada de preparo MUNIC/ICM detalhada (1.2, seção 2, 5.5) com estado "sem informação oficial"; resultados da sonda do CHIRPS e status da extração (seção 2); RAW do CHIRPS passa de proposta a **implementado**, com D4 e D5 fechadas, invariantes, lotes (30) e `meta` do selo (5.1); baselines Ridge/XGBoost (3.1); pendências D7 e D8 e diagnóstico da extração (seção 11); `params.yaml` 0.2.0 existe (seção 15).
+- **0.2.0 (2026-11-15):** objetivo, diferencial e limites de uso (seção 1); regra "dados ilustrativos"; níveis da demonstração; alvos multitarefa A, A2, B, B', C (seção 3.1); demonstração sem violar o teste congelado e antecedência (4.1); RAW do CHIRPS com `precip_max_dia_mm` e `dias_chuva` (5.1, proposta); SPI-6; `demo_observado`; CA-11 a CA-14; pendências D4 a D6.
+- **0.1.2 (2026-11-15):** referência territorial; escopo fixado em 216; malha IBGE local; GEE registrado como não comercial; `escopo.incluir_transicao` e `escopo.simplificacao_graus`.
+- **0.1.1 (2026-11-14):** D1 resolvido (MapBiomas Coleção 10); Item 0 encerrado.
+
+## 15. Parâmetros do `params.yaml` 0.2.1
+| Chave | Valor | Estado |
+|---|---|---|
+| `projeto.versao_params` | `0.2.1` | criada (versão mínima da config: 0.2.1) |
+| `fontes.chirps.reducer_espacial` | `media` | criada (sonda 2026-11-15) |
+| `fontes.chirps.escala_m` | `5566` | criada (`nominalScale` = 5565,97 m) |
+| `fontes.chirps.limiar_dia_chuva_mm` | `1.0` | criada (validada em `config.py`: > 0 e ≤ 50) |
+| `split.embargo_meses` | `5` | alterada de 3 (maior janela do SPI − 1) |
+| `spi.janelas_meses` | `[3, 6]` | criada (crescente; deve conter `alvo.escala_spi_meses`) |
+| `spi.convencao_zero` | `q` | resolvida (D3) |
+| `alerta.limiar_spi` | `-1.0` (proposta; fixar na validação) | prevista; Item 8 / antecedência |
+| `fontes.sar.*`, `fontes.munic.*` | a definir após as sondas e a leitura dos arquivos reais | prevista |
+| `escopo.piloto.composicao_status`, `fontes.inmet.estacoes` | `VERIFICAR` | pendências reais da config |
