@@ -1,6 +1,6 @@
 # Contrato de Dados — Piauí Resiliente · Fase 1
 
-Versão 0.2.3 · 2026-11-17 · Status: v0.2.0 aprovada pela equipe em 2026-11-15 (desenho "Do alerta à ação, com prova local"); v0.2.1 incorporou a diretriz de 2026-11-17 "100% dados oficiais e atualizados (zero dados fictícios)"; v0.2.2 fechou D3 (H(0) = q) e o embargo (5 meses); **v0.2.3 fecha D9 e D10 e registra `quality.py` (seção 6); aguarda o OK de leitura** · Depende de `params.yaml` ≥ 0.2.1 (vigente).
+Versão 0.2.4 · 2026-11-17 · Status: v0.2.0 aprovada pela equipe em 2026-11-15 (desenho "Do alerta à ação, com prova local"); v0.2.1 incorporou a diretriz de 2026-11-17 "100% dados oficiais e atualizados (zero dados fictícios)"; v0.2.2 fechou D3 (H(0) = q) e o embargo (5 meses); v0.2.3 fechou D9 e D10 (`quality.py`, seção 6); **v0.2.4 registra `manifest.py` (5.3) e o `.gitattributes`; aguarda o OK de leitura** · Depende de `params.yaml` ≥ 0.2.1 (vigente).
 
 > **Aviso de maturidade:** MVP experimental — em calibração com S2iD/TCE-PI. Nenhum indicador derivado deste dataset tem eficácia operacional comprovada para decisão governamental.
 
@@ -178,7 +178,11 @@ Imutabilidade e execução:
 - **`qualidade_municipio`:** `cod_ibge:str`, `frac_meses_validos:float32` (meses válidos de `janela.inicio` a `split.treino_fim` ÷ meses desse intervalo, D10), `excluded:bool`, `motivo:str`.
 - **`audit_s2id`** (nunca entra como feature): `cod_ibge:str`, `data_decreto:datetime64[ns]`, `cobrade:str`, `tipo:str`. Nomes de coluna **VERIFICAR** contra o arquivo real.
 - **`demo_observado`:** `cod_ibge:str`, `mes:datetime64[ns]`, `spi3:float32`, `spi3_invalid:bool`, `spi3_baixa_conf:bool` (e equivalentes do SPI-6). Sem alvo, sem split.
-- **`manifest.json`:** versão do dataset, data (UTC), versões de Python e bibliotecas, seed, SHA-256 do `params.yaml`, e por arquivo: caminho, SHA-256, linhas, colunas e dtypes. Também: cortes e embargos, linhas por bloco, fonte e versão da lista do semiárido, ano da malha, `conteudo_sha256` da referência, coleção do MapBiomas, edição/ano da camada de preparo e `"maturity"`.
+- **`manifest.json`** (`src/data/manifest.py`; destino em `manifest.arquivo`). Campos: `versao_manifest` (1), `algoritmo_hash`, `gerado_em_utc`, `maturity` (aviso de MVP experimental, obrigatório), `projeto` (nome, equipe, `versao_params`, `seed`), `params_sha256`, `dataset_sha256`, `ambiente` (Python e versões das bibliotecas), `janela`, `split` (cortes, `embargo_meses` e `teste_liberado`, de `splits.cortes`), `alvo` (escala, horizonte e `janelas_spi`), `escopo` (modo, `incluir_transicao`, fonte do semiárido, ano da malha), `referencia` (`conteudo_sha256`, contagens, entradas e parâmetros, lidos do selo `referencia.sha256.json`), `fontes` (CHIRPS, MapBiomas, S2iD), `arquivos`, e opcionalmente `linhas_por_bloco` e `extras` (ex.: edição e ano da camada de preparo). Em `arquivos`, cada nome lógico traz `caminho` (relativo à raiz, em POSIX) e `sha256`; Parquet traz também `linhas`, `colunas` e `dtypes` (tipos Arrow).
+  - **Hash:** texto (`.py .md .txt .toml .yaml .yml .json .geojson .csv .html .css .js`, a mesma lista do `.gitattributes`) é calculado sobre o conteúdo normalizado em LF; binários, sobre os bytes brutos. `dataset_sha256` = hash dos pares (nome, SHA-256) mais `params_sha256`.
+  - **Segurança dos caminhos:** caminho absoluto, `..`, barra invertida, unidade do Windows e qualquer saída da raiz (inclusive por link simbólico) são recusados, na geração e na leitura. O manifest não lista a si mesmo.
+  - **Imutabilidade:** mesmo `dataset_sha256` = "ja_existente" (não reescreve); outro conjunto exige `substituir=True`.
+  - **Verificação:** `verificar_manifest` recalcula todos os hashes (e o `params.yaml`, se pedido) e lista todos os problemas; `caminho_verificado(nome)` confere só o arquivo pedido e devolve o caminho. A interface abre dados somente por `caminho_verificado` (seção 1.6, item 5).
 
 ### 5.4 Estoque de reservatórios (cabeça B) — schema **a definir após a sonda do SAR**
 Não definir colunas antes de ver o arquivo/API real. Pontos já conhecidos: valor textual "seco" deve virar evento "estoque zero", não dado faltante; o conjunto de reservatórios muda no tempo (painel desbalanceado); a máscara de perda cobre municípios sem reservatório monitorado.
@@ -260,7 +264,7 @@ Regras já fixadas: chave `cod_ibge` como texto; três estados por município (`
 | — | ~~`scipy` no `requirements.txt`~~ — **`scipy==1.18.1`** | encerrada (v0.2.3) |
 | — | Calibrar os limiares de `qualidade.*` (`min_cobertura_*`, 0,95, máx. de meses imputados) com o RAW real: o CHIRPS quase não tem lacunas, então o esperado é poucos meses inválidos | após o RAW real |
 | — | Comentário do `params.yaml` e docstring do `spi.py` ainda dizem "padrão OMM" para H(0) = q; alinhar ao §7 (trecho da OMM não lido) | próxima alteração nesses arquivos |
-| — | Quebra de linha: `.gitattributes` com `eol=lf` e hash do `manifest.py` sobre texto normalizado em LF (hash do `params.yaml` e dos CSVs de referência) | Item do `.gitattributes` |
+| — | ~~Quebra de linha~~ — **`.gitattributes` com `eol=lf` (teste incluído) e hash de texto normalizado em LF no `manifest.py`** | encerrada (v0.2.4) |
 
 ## 12. Critérios de aceite
 Os **CA-01 a CA-10** do System Prompt da Fase 1 valem para este contrato: CA-01 → seção 4; CA-02 e CA-03 → seção 7; CA-04 → seção 8; CA-05 → seção 6; CA-06 → seção 9; CA-07 e CA-08 → manifest e RAW imutável.
@@ -291,6 +295,7 @@ Critérios adicionais:
 - IFPI, monitoramento de reservatórios do PI por satélite: https://seer.ufu.br/index.php/caminhosdegeografia/article/download/66989/36954/322263
 
 ## 14. Histórico de versões
+- **0.2.4 (2026-11-17):** `manifest.py` registrado (5.3: campos, hash de texto normalizado em LF, `dataset_sha256`, segurança de caminhos, imutabilidade e verificação); `.gitattributes` com `eol=lf`; pendência de quebra de linha encerrada.
 - **0.2.3 (2026-11-17):** `quality.py` registrado (seção 6 reescrita: mês válido, D9, imputação causal com contador de meses seguidos, D10); `cobertura_mensal` (5.3); `climatologia_precip` com 3 medianas e `n_amostras` (seção 8); SPI sobre série válida (5.2 e seção 7); limitações da imputação (seção 10); D9, D10 e `scipy` encerradas; novas pendências de calibração, comentário "OMM" e quebra de linha.
 - **0.2.2 (2026-11-17):** D3 fechada (H(0) = q) e embargo de 5 meses para todas as cabeças (validação 2016-06 a 2020-12 e teste 2021-06 a 2025-12, 55 meses cada); `split.embargo_meses`, `spi.janelas_meses` e `spi.convencao_zero` no `params.yaml` 0.2.1 e na config; `splits.py` (seção 4) e `spi.py` (seção 7) registrados; regras de célula inválida, limite de H e baixa confiança; pendências novas (ajuste Gama em dado real, `scipy`).
 - **0.2.1 (2026-11-17):** diretriz "zero dados fictícios" (1.4 reescrita; "DADOS ILUSTRATIVOS" revogada; CA-11 reescrito; novo CA-15); requisitos da interface (1.6) e regra de corte por nível (1.5); camada de preparo MUNIC/ICM detalhada (1.2, seção 2, 5.5) com estado "sem informação oficial"; resultados da sonda do CHIRPS e status da extração (seção 2); RAW do CHIRPS passa de proposta a **implementado**, com D4 e D5 fechadas, invariantes, lotes (30) e `meta` do selo (5.1); baselines Ridge/XGBoost (3.1); pendências D7 e D8 e diagnóstico da extração (seção 11); `params.yaml` 0.2.0 existe (seção 15).
