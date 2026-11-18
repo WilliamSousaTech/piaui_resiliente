@@ -18,7 +18,7 @@ from pydantic import (AfterValidator, BaseModel, ConfigDict, Field, PlainValidat
                       field_validator, model_validator)
 
 PENDENTE = "VERIFICAR"
-VERSAO_MINIMA = (0, 2, 0)
+VERSAO_MINIMA = (0, 2, 1)
 CHIRPS_INICIO = pd.Period("1981-01", freq="M")
 
 
@@ -130,6 +130,7 @@ class Split(_Base):
 
 
 class Spi(_Base):
+    janelas_meses: tuple[StrictInt, ...] = Field(min_length=1)  # escalas do SPI calculadas (A = alvo, A2 = SPI-6)
     distribuicao: Literal["gama"]
     ajuste: Literal["mle_floc0"]
     zero_inflado: StrictBool
@@ -139,6 +140,15 @@ class Spi(_Base):
     min_anos_treino: StrictInt = Field(ge=1)
     min_positivos_ajuste: StrictInt = Field(ge=2)
     q_baixa_confianca: float = Field(gt=0, lt=1)
+
+    @field_validator("janelas_meses")
+    @classmethod
+    def _janelas(cls, v):
+        if any(not 1 <= k <= 24 for k in v):
+            raise ValueError("cada janela deve estar entre 1 e 24 meses")
+        if any(a >= b for a, b in zip(v, v[1:])):
+            raise ValueError("use janelas estritamente crescentes e sem repetição")
+        return v
 
 
 class Qualidade(_Base):
@@ -259,8 +269,11 @@ class Config(_Base):
             raise ValueError("janela.inicio anterior a 1981-01 (início do CHIRPS)")
         if not (j.inicio < s.treino_fim < s.val_fim < s.teste_fim <= j.fim):
             raise ValueError("datas fora de ordem: inicio < treino_fim < val_fim < teste_fim <= fim")
-        if s.embargo_meses < self.alvo.escala_spi_meses - 1:
-            raise ValueError("split.embargo_meses menor que escala_spi_meses - 1 (janela do SPI se sobrepõe)")
+        if self.alvo.escala_spi_meses not in self.spi.janelas_meses:
+            raise ValueError("alvo.escala_spi_meses precisa constar em spi.janelas_meses")
+        if s.embargo_meses < max(self.spi.janelas_meses) - 1:
+            raise ValueError("split.embargo_meses menor que (maior spi.janelas_meses - 1): "
+                             "a janela do SPI se sobrepõe ao treino")
         if (_idx(s.val_fim) - _idx(s.treino_fim) <= s.embargo_meses
                 or _idx(s.teste_fim) - _idx(s.val_fim) <= s.embargo_meses):
             raise ValueError("o embargo consome todo o bloco de validação ou de teste")

@@ -7,7 +7,7 @@
 projeto:
   nome: "Piauí Resiliente"
   equipe: "V.I.G.I.A."
-  versao_params: "0.2.0"
+  versao_params: "0.2.1"
   maturidade: "MVP experimental — em calibração com S2iD/TCE-PI"
   seed: 42
 
@@ -41,14 +41,15 @@ split:
   treino_fim: "2015-12"
   val_fim: "2020-12"
   teste_fim: "2025-12"
-  embargo_meses: 3                   # mínimo teórico = escala_spi_meses - 1; 3 mantido por margem
+  embargo_meses: 5                   # >= (maior spi.janelas_meses) - 1: SPI-6 exige 5 (SPI-3 exigiria 2); vale para todas as cabeças
   teste_liberado: false              # só true na avaliação final (Fase 2); leitores do teste devem recusar enquanto false
 
 spi:
+  janelas_meses: [3, 6]              # SPI-3 (cabeça A, alvo) e SPI-6 (cabeça A2); crescente, deve conter alvo.escala_spi_meses
   distribuicao: "gama"
   ajuste: "mle_floc0"
   zero_inflado: true                 # H(x) = q + (1 - q) * G(x)
-  convencao_zero: "VERIFICAR"
+  convencao_zero: "q"                # D3: H(0) = q, com q = zeros/n (padrão OMM 2012); vocabulário validado em spi.py
   ajustar_somente_em: "treino"
   agrupar_por: ["cod_ibge", "mes_calendario"]
   min_anos_treino: 30

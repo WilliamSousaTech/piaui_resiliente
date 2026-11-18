@@ -1,5 +1,4 @@
 """Testes de src/data/config.py (Item 1). Rodam sem internet e sem GEE."""
-import copy
 import re
 from pathlib import Path
 
@@ -12,8 +11,7 @@ from src.data.config import (Config, ConfigError, PendenciaError, exigir_resolvi
                              load_config)
 
 PARAMS_REAL = Path(__file__).resolve().parents[1] / "params.yaml"
-CHAVES_PENDENTES = [("escopo", "piloto", "composicao_status"),
-                    ("spi", "convencao_zero"), ("fontes", "inmet", "estacoes")]
+CHAVES_PENDENTES = [("escopo", "piloto", "composicao_status"), ("fontes", "inmet", "estacoes")]
 
 
 @pytest.fixture
@@ -48,15 +46,16 @@ def test_params_real_carrega():
     assert cfg.fontes.mapbiomas.defasagem_anos >= 1
 
 
-def test_params_real_versao_0_2_0():
+def test_params_real_versao_0_2_1():
     cfg = load_config(PARAMS_REAL)
-    assert cfg.projeto.versao_params == "0.2.0"
+    assert cfg.projeto.versao_params == "0.2.1"
+    assert cfg.spi.janelas_meses == (3, 6) and cfg.spi.convencao_zero == "q"
+    assert cfg.split.embargo_meses == 5 and cfg.alvo.escala_spi_meses in cfg.spi.janelas_meses
     assert cfg.fontes.chirps.limiar_dia_chuva_mm == 1.0
     assert cfg.escopo.incluir_transicao is True
     assert cfg.escopo.simplificacao_graus == 0.001
     assert "escopo.fonte_semiarido" not in cfg.pendencias()  # fonte descrita sem travar módulos
-    assert set(cfg.pendencias()) == {"escopo.piloto.composicao_status", "spi.convencao_zero",
-                                     "fontes.inmet.estacoes"}
+    assert set(cfg.pendencias()) == {"escopo.piloto.composicao_status", "fontes.inmet.estacoes"}
 
 
 # 2-14. violações do contrato -------------------------------------------------
@@ -87,7 +86,8 @@ VIOLACOES = [
     ("lote acima de 5000", ("gee", "max_linhas_por_lote"), 5001, "max_linhas_por_lote"),
     ("versao antiga", ("projeto", "versao_params"), "0.1.0", "versão antiga"),
     ("versao 0.1.1 antiga", ("projeto", "versao_params"), "0.1.1", "versão antiga"),
-    ("versao 0.1.2 antiga", ("projeto", "versao_params"), "0.1.2", "mínimo 0.2.0"),
+    ("versao 0.1.2 antiga", ("projeto", "versao_params"), "0.1.2", "mínimo 0.2.1"),
+    ("versao 0.2.0 antiga", ("projeto", "versao_params"), "0.2.0", "mínimo 0.2.1"),
     ("versao malformada", ("projeto", "versao_params"), "abc", "versao_params"),
     ("incluir_transicao texto", ("escopo", "incluir_transicao"), "sim", "escopo.incluir_transicao"),
     ("incluir_transicao inteiro", ("escopo", "incluir_transicao"), 1, "escopo.incluir_transicao"),
@@ -101,6 +101,18 @@ VIOLACOES = [
     ("limiar de dia de chuva acima do maximo", ("fontes", "chirps", "limiar_dia_chuva_mm"), 50.1, "limiar_dia_chuva_mm"),
     ("limiar de dia de chuva texto", ("fontes", "chirps", "limiar_dia_chuva_mm"), "1.0", "limiar_dia_chuva_mm"),
     ("limiar de dia de chuva booleano", ("fontes", "chirps", "limiar_dia_chuva_mm"), True, "limiar_dia_chuva_mm"),
+    ("janelas vazia", ("spi", "janelas_meses"), [], "spi.janelas_meses"),
+    ("janelas repetidas", ("spi", "janelas_meses"), [3, 3], "estritamente crescentes"),
+    ("janelas decrescentes", ("spi", "janelas_meses"), [6, 3], "estritamente crescentes"),
+    ("janela zero", ("spi", "janelas_meses"), [0, 3], "entre 1 e 24"),
+    ("janela 25", ("spi", "janelas_meses"), [3, 25], "entre 1 e 24"),
+    ("janela texto", ("spi", "janelas_meses"), [3, "6"], "spi.janelas_meses"),
+    ("janela decimal", ("spi", "janelas_meses"), [3, 6.0], "spi.janelas_meses"),
+    ("janela booleana", ("spi", "janelas_meses"), [3, True], "spi.janelas_meses"),
+    ("janelas escalar", ("spi", "janelas_meses"), 3, "spi.janelas_meses"),
+    ("janelas sem a escala do alvo", ("spi", "janelas_meses"), [6], "alvo.escala_spi_meses precisa constar"),
+    ("embargo curto para SPI-6", ("split", "embargo_meses"), 4, "embargo_meses menor"),
+    ("janela 7 exige embargo 6", ("spi", "janelas_meses"), [3, 7], "embargo_meses menor"),
     ("sem aviso de maturidade", ("projeto", "maturidade"), "produção", "experimental"),
     ("seed booleano", ("projeto", "seed"), True, "projeto.seed"),
     ("colecao texto sem VERIFICAR", ("fontes", "mapbiomas", "colecao"), "dez", "colecao"),
@@ -145,7 +157,9 @@ def test_treino_curto_abaixo_do_minimo(tmp_path, base):
 ACEITOS = [(("alvo", "horizonte_h"), 1), (("alvo", "horizonte_h"), 12),
            (("janela", "inicio"), "1981-01"), (("fontes", "mapbiomas", "colecao"), 10),
            (("fontes", "mapbiomas", "colecao"), "VERIFICAR"),
-           (("projeto", "versao_params"), "0.2.0"),
+           (("projeto", "versao_params"), "0.2.1"), (("projeto", "versao_params"), "0.2.2"),
+           (("spi", "janelas_meses"), [3]), (("spi", "janelas_meses"), [3, 6]),
+           (("spi", "janelas_meses"), [1, 3, 6]), (("split", "embargo_meses"), 5),
            (("fontes", "chirps", "limiar_dia_chuva_mm"), 0.1),
            (("fontes", "chirps", "limiar_dia_chuva_mm"), 50.0),
            (("fontes", "chirps", "limiar_dia_chuva_mm"), 1),  # inteiro é aceito (pydantic converte)
