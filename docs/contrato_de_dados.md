@@ -1,6 +1,6 @@
 # Contrato de Dados — Piauí Resiliente · Fase 1
 
-Versão 0.2.4 · 2026-11-17 · Status: v0.2.0 aprovada pela equipe em 2026-11-15 (desenho "Do alerta à ação, com prova local"); v0.2.1 incorporou a diretriz de 2026-11-17 "100% dados oficiais e atualizados (zero dados fictícios)"; v0.2.2 fechou D3 (H(0) = q) e o embargo (5 meses); v0.2.3 fechou D9 e D10 (`quality.py`, seção 6); **v0.2.4 registra `manifest.py` (5.3) e o `.gitattributes`; aguarda o OK de leitura** · Depende de `params.yaml` ≥ 0.2.1 (vigente).
+Versão 0.2.5 · 2026-11-17 · Status: v0.2.0 aprovada pela equipe em 2026-11-15 (desenho "Do alerta à ação, com prova local"); v0.2.1 incorporou a diretriz de 2026-11-17 "100% dados oficiais e atualizados (zero dados fictícios)"; v0.2.2 fechou D3 (H(0) = q) e o embargo (5 meses); v0.2.3 fechou D9 e D10 (`quality.py`, seção 6); v0.2.4 registrou `manifest.py` (5.3) e o `.gitattributes`; **v0.2.5 registra `build_demo.py` (4.1, 5.3, 8), fecha D11 (município excluído) e D7 (janela até 2025-12) e fixa o local dos artefatos; aguarda o OK de leitura** · Depende de `params.yaml` ≥ 0.2.1 (vigente).
 
 > **Aviso de maturidade:** MVP experimental — em calibração com S2iD/TCE-PI. Nenhum indicador derivado deste dataset tem eficácia operacional comprovada para decisão governamental.
 
@@ -105,7 +105,8 @@ Regras:
 6. `src/data/splits.py` rotula cada `mes_alvo` (`train`, `val`, `test`, `embargo`), recusa meses fora da janela e recusa a leitura do bloco `test` com `teste_liberado: false`.
 
 ### 4.1 Demonstração e antecedência sem violar o teste congelado
-1. **Arquivo de demonstração próprio** (`demo_observado`): SPI observado de todo o período 1981–2025, sem alvos, sem split e sem métricas, gerado com os mesmos parâmetros Gama do treino. A demonstração **não lê** o arquivo do teste congelado. O SPI de treino é in-sample (limitação registrada e exibida).
+1. **Arquivo de demonstração próprio** (`demo_observado`): SPI observado de todo o período 1981–2025, sem alvos, sem split e sem métricas, gerado com os mesmos parâmetros Gama do treino. A demonstração **não lê** o arquivo do teste congelado. O SPI de treino é in-sample (limitação registrada e exibida). Gerado por `src/data/build_demo.py` (`python -m src.data.build_demo`) a partir do RAW do CHIRPS, na ordem: qualidade (seção 6) → SPI sobre a série válida (seção 7, D9) → regra D11 → gravação imutável → manifest. Não importa `splits.rotular`, `splits.bloco` nem `exigir_teste_liberado` (CA-12, testado).
+   - **D11 (município excluído por D10):** permanece nos 216, com `spi3`/`spi6` = NaN, `spiK_invalid = True` e `spiK_baixa_conf = False` em todos os meses. A interface mostra "sem dado". A regra é aplicada marcando `valido = False` nas células de `spi_gamma_params` do município, de modo que `calcular_spi(serie, cfg, parametros=spi_gamma_params)` reproduz o `demo_observado` exatamente. Cobertura, qualidade e climatologia do município continuam publicadas (auditoria).
 2. **Antecedência** = meses entre o primeiro mês em que o SPI cruza o limiar de alerta e o mês do decreto, por município com ≥ 1 decreto COBRADE `1.4.1.1.0`/`1.4.1.2.0`. Valores negativos (alerta depois do decreto) são **reportados**, nunca descartados.
 3. O limiar de alerta é fixado e documentado na **validação** (2016-06 a 2020-12). A antecedência no período de teste é calculada **uma única vez**, na avaliação final, com `teste_liberado: true`.
 4. O histograma exibe N (municípios e decretos). Poucos decretos por município: análise estatística só no semiárido inteiro; qualitativa no piloto.
@@ -177,7 +178,18 @@ Imutabilidade e execução:
 - **`cobertura_mensal`** (relatório município × mês, gerado antes de imputar): `cod_ibge:str`, `mes:datetime64[ns]`, `cobertura_dias:float32` (`dias_validos / dias_no_mes`), `cobertura_pixels:float32`, `valido:bool`, `motivo:str` (critérios reprovados entre `sem_dado`, `cobertura_dias`, `cobertura_pixels`, separados por `+`; vazio se válido).
 - **`qualidade_municipio`:** `cod_ibge:str`, `frac_meses_validos:float32` (meses válidos de `janela.inicio` a `split.treino_fim` ÷ meses desse intervalo, D10), `excluded:bool`, `motivo:str`.
 - **`audit_s2id`** (nunca entra como feature): `cod_ibge:str`, `data_decreto:datetime64[ns]`, `cobrade:str`, `tipo:str`. Nomes de coluna **VERIFICAR** contra o arquivo real.
-- **`demo_observado`:** `cod_ibge:str`, `mes:datetime64[ns]`, `spi3:float32`, `spi3_invalid:bool`, `spi3_baixa_conf:bool` (e equivalentes do SPI-6). Sem alvo, sem split.
+- **`demo_observado`:** `cod_ibge:str`, `mes:datetime64[ns]`, `spi3:float32`, `spi3_invalid:bool`, `spi3_baixa_conf:bool` (e equivalentes do SPI-6). Sem alvo, sem split. Grade completa município × mês da janela, ordenada por (`cod_ibge`, `mes`).
+- **Local dos artefatos gerados por `build_demo`** (pastas de `caminhos` do `params.yaml`; Parquet, escrita atômica, imutáveis: existente e idêntico = `ja_existente`, diferente = erro, sem gravar nenhum dos que faltam):
+
+  | Artefato | Arquivo |
+  |---|---|
+  | `demo_observado` | `data/curated/demo_observado.parquet` |
+  | `cobertura_mensal` | `data/processed/cobertura_mensal.parquet` |
+  | `qualidade_municipio` | `data/processed/qualidade_municipio.parquet` |
+  | `spi_gamma_params` | `artifacts/spi_gamma_params.parquet` |
+  | `climatologia_precip` | `artifacts/climatologia_precip.parquet` |
+
+  O manifest do demo lista esses cinco, os lotes do RAW (`raw_chirps/<lote>.parquet`) e a referência territorial (`referencia/<arquivo>`: CSV do escopo, malha em Parquet, GeoJSON do GEE e selo), e traz em `extras.demo`: `n_municipios`, `n_meses`, `n_excluidos`, `escalas_spi`, `spi_calibrado_ate` e `spi_treino_in_sample = true`. O resumo impresso pela CLI repete o aviso de maturidade.
 - **`manifest.json`** (`src/data/manifest.py`; destino em `manifest.arquivo`). Campos: `versao_manifest` (1), `algoritmo_hash`, `gerado_em_utc`, `maturity` (aviso de MVP experimental, obrigatório), `projeto` (nome, equipe, `versao_params`, `seed`), `params_sha256`, `dataset_sha256`, `ambiente` (Python e versões das bibliotecas), `janela`, `split` (cortes, `embargo_meses` e `teste_liberado`, de `splits.cortes`), `alvo` (escala, horizonte e `janelas_spi`), `escopo` (modo, `incluir_transicao`, fonte do semiárido, ano da malha), `referencia` (`conteudo_sha256`, contagens, entradas e parâmetros, lidos do selo `referencia.sha256.json`), `fontes` (CHIRPS, MapBiomas, S2iD), `arquivos`, e opcionalmente `linhas_por_bloco` e `extras` (ex.: edição e ano da camada de preparo). Em `arquivos`, cada nome lógico traz `caminho` (relativo à raiz, em POSIX) e `sha256`; Parquet traz também `linhas`, `colunas` e `dtypes` (tipos Arrow).
   - **Hash:** texto (`.py .md .txt .toml .yaml .yml .json .geojson .csv .html .css .js`, a mesma lista do `.gitattributes`) é calculado sobre o conteúdo normalizado em LF; binários, sobre os bytes brutos. `dataset_sha256` = hash dos pares (nome, SHA-256) mais `params_sha256`.
   - **Segurança dos caminhos:** caminho absoluto, `..`, barra invertida, unidade do Windows e qualquer saída da raiz (inclusive por link simbólico) são recusados, na geração e na leitura. O manifest não lista a si mesmo.
@@ -212,7 +224,7 @@ Regras já fixadas: chave `cod_ibge` como texto; três estados por município (`
 9. **Verificado em séries sintéticas (testes):** alterar o futuro não muda parâmetros nem SPI passado; SPI de treino com média ~0 e desvio ~1; fórmula igual a uma conta independente. **Pendente com dado real:** qualidade do ajuste Gama (KS por célula) e fração de células inválidas, após o RAW real.
 
 ## 8. Artefatos de treino (`artifacts/`)
-- `spi_gamma_params`: `cod_ibge`, `mes_calendario`, `escala_meses`, `q`, `shape`, `scale`, `n_amostras`, `n_positivos`, `valido`.
+- `spi_gamma_params`: `cod_ibge`, `mes_calendario`, `escala_meses`, `q`, `shape`, `scale`, `n_amostras`, `n_positivos`, `valido`. Município excluído (D11) tem `valido = False` em todas as suas células.
 - `climatologia_precip`: `cod_ibge`, `mes_calendario`, `mediana_mm`, `mediana_max_dia_mm`, `mediana_dias_chuva`, `n_amostras` (meses válidos do treino na célula; 0 deixa a mediana NaN).
 - Scalers de features: Item 9 e Fase 2, ajustados só no treino.
 
@@ -225,6 +237,7 @@ Regras já fixadas: chave `cod_ibge` como texto; três estados por município (`
 - **SPI em meses secos:** pouco informativo no semiárido (muitos zeros). Métricas da Fase 2 por estação.
 - **Zeros e D3:** com H(0) = q, um mês de chuva zero recebe SPI = Φ⁻¹(q), pouco negativo quando q é alto; daí a flag `baixa_conf`. O ajuste Gama pode ser fraco em células com muitos zeros, e |SPI| fica limitado a 4,75.
 - **Imputação:** valor imputado não é observação. A mediana usa todos os anos do treino, inclusive os posteriores ao mês imputado (estatística de treino, como um scaler). Lacuna acima de `max_meses_imputados_consecutivos` fica NaN, e o modelo precisa tratar NaN com máscara.
+- **Município excluído (D11):** aparece como "sem dado" e sem alerta; isso não significa ausência de seca. O tratamento do município excluído nas features e no treino da Fase 2 ainda não foi definido (pendência na seção 11).
 - **SPI ≠ estoque hídrico** e **persistência**: ver seção 1.3.
 - **Ferramentas existentes:** o diferencial é hipótese até a comparação com os benchmarks (seção 2) ser feita.
 - **MapBiomas retrospectivo:** vazamento fraco e residual (**VERIFICAR** no documento metodológico).
@@ -248,10 +261,11 @@ Regras já fixadas: chave `cod_ibge` como texto; três estados por município (`
 | D4 | ~~`dias_validos`~~ — **mínimo entre pixels com dado** | encerrada (v0.2.1) |
 | D5 | ~~Indicadores extras e `limiar_dia_chuva_mm`~~ — **média municipal de métricas por pixel; limiar 1,0 mm** | encerrada (v0.2.1) |
 | D6 | Limiar operacional de "colapso" do manancial (ex.: < 10%) | após sonda do SAR |
-| D7 | Estender o `demo_observado` até 2026-09 (o CHIRPS já tem dados) ou manter `janela.fim = 2025-12`. Afeta o apelo de "atualizado" na apresentação. Decisão da equipe | antes do `demo_observado` |
+| D7 | ~~Estender o `demo_observado` até 2026-09 ou manter `janela.fim = 2025-12`~~ — **mantida 2025-12** (padrão aprovado em 2026-11-17). Reabrir só se a equipe pedir: como o RAW real ainda não foi extraído, mudar `janela.fim` agora não custa retrabalho, e depois exige novo RAW e novo manifest | encerrada (v0.2.5), reabrível até a extração |
 | D8 | Data exata da apresentação na Campus Party e corte de escopo | agora |
 | D9 | ~~SPI sobre série válida ou imputada~~ — **série válida; imputação só para features** | encerrada (v0.2.3) |
 | D10 | ~~Janela da exclusão de município por cobertura~~ — **só o treino** | encerrada (v0.2.3) |
+| D11 | ~~SPI do município excluído~~ — **NaN, `invalid = True`, `baixa_conf = False`; município fica nos 216 como "sem dado"** | encerrada (v0.2.5) |
 | — | **Extração real do CHIRPS:** `rodar --lote-teste` sem retorno em ~23 min. Hipóteses em ordem: (1) cada consulta de 216 polígonos é lenta; (2) uma chamada travada ou em nova tentativa; (3) parada antes do laço (inicialização ou envio da malha). Confirmar com o traceback do Ctrl+C e as linhas `DIAG` de `diag_tempo.py` antes de mudar o código | agora (bloqueia Nível 1) |
 | — | SAR: endpoint, início da série, reservatórios do PI no escopo, tratamento de "seco" | sonda do SAR |
 | — | Composição do piloto (SEPLAN-PI) e `municipios_piloto.csv` | quando a lista chegar |
@@ -263,6 +277,7 @@ Regras já fixadas: chave `cod_ibge` como texto; três estados por município (`
 | — | Qualidade do ajuste Gama nos dados reais (KS por célula, % de células inválidas) | após o RAW real |
 | — | ~~`scipy` no `requirements.txt`~~ — **`scipy==1.18.1`** | encerrada (v0.2.3) |
 | — | Calibrar os limiares de `qualidade.*` (`min_cobertura_*`, 0,95, máx. de meses imputados) com o RAW real: o CHIRPS quase não tem lacunas, então o esperado é poucos meses inválidos | após o RAW real |
+| — | Tratamento do município excluído (D11) nas features e no treino da Fase 2 (omitir da amostra ou manter com máscara) | Item de features |
 | — | Comentário do `params.yaml` e docstring do `spi.py` ainda dizem "padrão OMM" para H(0) = q; alinhar ao §7 (trecho da OMM não lido) | próxima alteração nesses arquivos |
 | — | ~~Quebra de linha~~ — **`.gitattributes` com `eol=lf` (teste incluído) e hash de texto normalizado em LF no `manifest.py`** | encerrada (v0.2.4) |
 
@@ -271,7 +286,7 @@ Os **CA-01 a CA-10** do System Prompt da Fase 1 valem para este contrato: CA-01 
 
 Critérios adicionais:
 - **CA-11 Zero dados fictícios (reescrito na v0.2.1).** Dado qualquer artefato exibido (interface, API, relatório, slide), então cada valor é rastreável a um arquivo com SHA-256 no manifest e a uma fonte da seção 2; camada sem dado oficial validado aparece omitida ou "Indisponível", nunca com valor ilustrativo. *Erro:* valor sem rastreio, ou fixture sintética fora de `tests/` → falha de revisão.
-- **CA-12 Demo sem teste.** Dado o gerador do `demo_observado`, quando executa, então não lê o arquivo do teste congelado e não escreve alvo, split ou métrica.
+- **CA-12 Demo sem teste.** Dado o gerador do `demo_observado`, quando executa, então não lê o arquivo do teste congelado e não escreve alvo, split ou métrica (`tests/test_build_demo.py`: nenhuma coluna de alvo, bloco ou métrica; `rotular`, `bloco` e `exigir_teste_liberado` trocados por funções que falham e o gerador roda igual).
 - **CA-13 Baselines.** Dada qualquer métrica de modelo, então vem acompanhada de persistência e climatologia (e Ridge/XGBoost por cabeça), com incerteza. Sem comparação, o resultado não é declarado ganho.
 - **CA-14 Antecedência única no teste.** O cálculo de antecedência no período de teste ocorre uma vez, após fixar o limiar na validação.
 - **CA-15 Preparo sem inferência (v0.2.1).** Dado um município sem registro MUNIC/ICM, então a interface mostra "sem informação oficial", e o filtro "sem Plano de Contingência" não o inclui. *Erro:* tratar ausência de registro como ausência de plano.
@@ -295,6 +310,7 @@ Critérios adicionais:
 - IFPI, monitoramento de reservatórios do PI por satélite: https://seer.ufu.br/index.php/caminhosdegeografia/article/download/66989/36954/322263
 
 ## 14. Histórico de versões
+- **0.2.5 (2026-11-17):** `build_demo.py` registrado (4.1: fluxo qualidade → SPI → D11 → gravação → manifest; 5.3: local dos cinco artefatos, manifest do demo e `extras.demo`); D11 fechada (município excluído com SPI NaN, `valido = False` nos parâmetros; seção 8); D7 fechada em 2025-12 (reabrível até a extração); limitação do município excluído (seção 10) e nova pendência para a Fase 2 (seção 11); CA-12 com o teste que o comprova.
 - **0.2.4 (2026-11-17):** `manifest.py` registrado (5.3: campos, hash de texto normalizado em LF, `dataset_sha256`, segurança de caminhos, imutabilidade e verificação); `.gitattributes` com `eol=lf`; pendência de quebra de linha encerrada.
 - **0.2.3 (2026-11-17):** `quality.py` registrado (seção 6 reescrita: mês válido, D9, imputação causal com contador de meses seguidos, D10); `cobertura_mensal` (5.3); `climatologia_precip` com 3 medianas e `n_amostras` (seção 8); SPI sobre série válida (5.2 e seção 7); limitações da imputação (seção 10); D9, D10 e `scipy` encerradas; novas pendências de calibração, comentário "OMM" e quebra de linha.
 - **0.2.2 (2026-11-17):** D3 fechada (H(0) = q) e embargo de 5 meses para todas as cabeças (validação 2016-06 a 2020-12 e teste 2021-06 a 2025-12, 55 meses cada); `split.embargo_meses`, `spi.janelas_meses` e `spi.convencao_zero` no `params.yaml` 0.2.1 e na config; `splits.py` (seção 4) e `spi.py` (seção 7) registrados; regras de célula inválida, limite de H e baixa confiança; pendências novas (ajuste Gama em dado real, `scipy`).
