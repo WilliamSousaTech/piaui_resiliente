@@ -35,6 +35,186 @@
       "revisado_por": "William",
       "revisado_em_utc": "2026-11-19T15:42:52Z"
     },
+    "2200103": {
+      "cod_ibge": "2200103",
+      "nome": "Agricolândia",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Agricolândia (2200103)\nMês de referência: julho de 2026\nSPI-3 observado: −0,83 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 6,1 mm\nChuva nos 12 meses até o mês de referência: 1.131,8 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Agricolândia, julho de 2026, classe Próximo do normal, SPI-3 −0,83, chuva no mês 6,1 mm. Nos últimos 12 meses a precipitação acumulada foi 1.131,8 mm e 2 de 10 meses ficaram em seca. O cenário pede organizar a equipe, monitorar continuamente as chuvas e reservatórios e informar a população sobre o uso da água.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "O SPI-3 de −0,83 indica que a situação ainda está dentro do esperado, mas requer definir responsáveis e canais de contato entre defesa civil, saúde, assistência social, agricultura e obras para agir rapidamente se a condição mudar."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Com chuva de 6,1 mm no mês e nível de reservatórios ainda incerto, o acompanhamento mensal do SPI, da precipitação e dos volumes monitorados pela ANA permite detectar quedas e ajustar ações."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A baixa precipitação de 6,1 mm e a ocorrência de 2 meses de seca nos últimos 10 reforçam a necessidade de orientar a população sobre economia de água e os pontos de distribuição para evitar rupturas no abastecimento."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2200202": {
+      "cod_ibge": "2200202",
+      "nome": "Água Branca",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Água Branca (2200202)\nMês de referência: julho de 2026\nSPI-3 observado: −0,91 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 7,2 mm\nChuva nos 12 meses até o mês de referência: 1.075,3 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Água Branca, julho de 2026, classe Próximo do normal, SPI-3 −0,91 e chuva no mês 7,2 mm. Nos últimos 12 meses a chuva acumulada foi 1.075,3 mm e 2 de 10 meses registraram seca. Isso pede organizar as informações e acompanhar a evolução da precipitação e dos reservatórios.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −0,91 e chuva baixa, é necessário reunir a Defesa Civil e setores envolvidos para definir quem decide e quem executa as ações durante a estiagem."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "O índice indica que a seca ainda pode avançar; revisar o plano verifica se há cobertura para falta de água e aponta ajustes necessários."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com 7,2 mm de chuva este mês, listar açudes, poços, cisternas e carro-pipa ajuda a saber a disponibilidade e quem depende de cada fonte."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI −0,91 e a chuva reduzida exigem monitorar mensalmente a precipitação e os níveis dos reservatórios para detectar tendências."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Dois meses recentes de seca indicam risco para quem depende de carro-pipa ou cisternas; mapear essas comunidades permite priorizar atendimentos."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A baixa precipitação de 7,2 mm requer orientar a população sobre economia de água e os pontos de distribuição para evitar falta."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2200301": {
+      "cod_ibge": "2200301",
+      "nome": "Alto Longá",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Alto Longá (2200301)\nMês de referência: julho de 2026\nSPI-3 observado: −0,84 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 11,0 mm\nChuva nos 12 meses até o mês de referência: 1.054,4 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Alto Longá, julho de 2026, classe Próximo do normal, SPI-3 −0,84, chuva no mês 11,0 mm. Nos últimos 12 meses a chuva acumulada foi 1.054,4 mm e houveram 2 meses em seca. O cenário pede organização das informações e monitoramento constante.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −0,84 e chuva de 11,0 mm, é necessário reunir a equipe municipal e definir quem acompanha a situação e quem comunica as áreas de saúde, assistência e obras."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "A classe Próximo do normal indica que o plano pode precisar ajustes para a seca; conferir se há cobertura para falta de água ajuda a evitar lacunas."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com apenas 11,0 mm de chuva este mês, listar açudes, poços e pontos de carro-pipa permite saber o volume disponível e quem depende de cada fonte."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI −0,84 e a baixa chuva exigem acompanhar mensalmente a precipitação e os níveis dos reservatórios para detectar variações rápidas."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Dois meses em seca nos últimos 10 indicam risco para áreas que já dependem de carro-pipa ou cisterna; mapear essas comunidades orienta intervenções prioritárias."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A chuva de 11,0 mm sinaliza necessidade de orientar a população sobre economia de água e pontos de distribuição enquanto se acompanha a situação."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2200509": {
+      "cod_ibge": "2200509",
+      "nome": "Amarante",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Amarante (2200509)\nMês de referência: julho de 2026\nSPI-3 observado: −0,92 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 9,4 mm\nChuva nos 12 meses até o mês de referência: 967,5 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Amarante, julho de 2026, classe Próximo do normal, SPI-3 −0,92 e chuva no mês 9,4 mm. Nos últimos 12 meses a chuva acumulada foi 967,5 mm e houve 2 meses em seca. O cenário pede organizar a equipe, monitorar a chuva e reservas e informar a população.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "O SPI −0,92 indica leve déficit de chuva; definir responsáveis agora facilita a resposta rápida caso a situação evolua."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Com chuva de 9,4 mm no mês, acompanhar mensalmente o SPI e os níveis dos reservatórios ajuda a detectar quedas críticas de água."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A baixa precipitação reduz a disponibilidade; orientar a população sobre economia e pontos de distribuição evita falta de água."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Foram 2 meses em seca nos últimos 10; mapear açudes, poços e carro-pipa e quem depende deles permite planejar uso racional."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "A seca recente pode afetar quem já depende de carro-pipa ou cisterna; identificar essas áreas define prioridades de atendimento."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2200608": {
+      "cod_ibge": "2200608",
+      "nome": "Angical do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Angical do Piauí (2200608)\nMês de referência: julho de 2026\nSPI-3 observado: −1,00 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 6,3 mm\nChuva nos 12 meses até o mês de referência: 1.029,3 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 3 de 10",
+      "resumo": "Angical do Piauí em julho de 2026 tem SPI-3 de −1,00 (classe: Seca moderada) e chuva no mês de 6,3 mm. Nos últimos 12 meses a chuva acumulada foi 1.029,3 mm e 3 dos 10 meses registraram seca moderada ou pior. Isso pede organização das equipes, levantamento de recursos hídricos e acompanhamento constante da situação.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "O SPI indica seca moderada e a chuva do mês foi baixa; reunir a equipe permite definir quem decide, quem executa e os contatos para agir rapidamente se a condição piorar."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com 6,3 mm de chuva no mês e três meses de seca nos últimos 12, é essencial listar açudes, poços, cisternas e carro-pipa para saber a disponibilidade real e quem depende de cada fonte."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "A seca moderada já afetou três meses; mapear comunidades que dependem de carro-pipa ou cisterna ajuda a priorizar o atendimento caso a escassez se prolongue."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "A chuva de 6,3 mm e o SPI de −1,00 mostram necessidade de monitorar mensalmente a precipitação e os níveis dos reservatórios para detectar quedas críticas a tempo."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "A situação de seca moderada exige verificar se o plano de contingência cobre falta de água; ajustes agora evitam lacunas quando a estiagem se intensificar."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
     "2200905": {
       "cod_ibge": "2200905",
       "nome": "Aroazes",
@@ -58,6 +238,78 @@
       ],
       "modelo": "claude-sonnet-5-5 (redigido na sessão de desenvolvimento, sem chamada de API)",
       "gerado_em_utc": "2026-11-19T12:36:33Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2201002": {
+      "cod_ibge": "2201002",
+      "nome": "Arraial",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Arraial (2201002)\nMês de referência: julho de 2026\nSPI-3 observado: −0,95 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 10,1 mm\nChuva nos 12 meses até o mês de referência: 927,0 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Arraial, julho de 2026, classe Próximo do normal, SPI-3 −0,95 e chuva no mês 10,1 mm. Nos últimos 12 meses a chuva totalizou 927,0 mm e houveram 2 meses em seca. O cenário pede organização das equipes e acompanhamento constante dos indicadores de água.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −0,95 e chuva baixa, é preciso reunir a Defesa Civil e setores ligados à água para definir responsáveis e contatos antes que a situação evolua."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva de 10,1 mm indica disponibilidade limitada; listar açudes, poços e carro-pipas ajuda a saber quem depende de cada fonte agora."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O volume de 927,0 mm nos 12 meses e os 2 meses de seca reforçam a necessidade de monitorar mensalmente chuva e níveis dos reservatórios."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com poucos meses de seca já registrados, mapear quem depende de carro-pipa ou cisternas permite priorizar apoio caso a estiagem persista."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A chuva reduzida de 10,1 mm exige orientação imediata sobre economia de água e pontos de distribuição para evitar escassez."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2201051": {
+      "cod_ibge": "2201051",
+      "nome": "Assunção do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Assunção do Piauí (2201051)\nMês de referência: julho de 2026\nSPI-3 observado: −1,02 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 5,7 mm\nChuva nos 12 meses até o mês de referência: 664,8 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 1 de 8",
+      "resumo": "Assunção do Piauí, julho de 2026, classe Seca moderada, SPI-3 observado −1,02, chuva no mês 5,7 mm. Nos últimos 12 meses a chuva acumulada foi 664,8 mm e houve 1 mês em seca. O cenário pede organização das equipes e levantamento das fontes e comunidades vulneráveis, além de monitoramento contínuo e comunicação à população.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "O SPI indica seca moderada e a chuva do mês foi baixa (5,7 mm). Reunir a Defesa Civil e setores envolvidos ajuda a definir papéis e contatos para agir rapidamente se a situação evoluir."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com apenas 5,7 mm de chuva e um histórico de 1 mês em seca, é urgente saber quais açudes, poços e carro-pipa ainda têm volume ou vazão para planejar o abastecimento."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "A seca moderada pode afetar quem depende de carro-pipa ou cisternas; mapear essas comunidades permite priorizar o atendimento caso a escassez se mantenha."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "A baixa precipitação (5,7 mm) e o SPI −1,02 exigem acompanhamento mensal da chuva e dos níveis dos reservatórios para detectar quedas críticas a tempo."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação de seca moderada e orientações de uso da água ajuda a reduzir o consumo e prepara a população para possíveis restrições."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
       "tentativas": 1,
       "status": "pendente_revisao",
       "revisado_por": null,
@@ -95,6 +347,514 @@
       "revisado_por": null,
       "revisado_em_utc": null
     },
+    "2201309": {
+      "cod_ibge": "2201309",
+      "nome": "Barreiras do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Barreiras do Piauí (2201309)\nMês de referência: julho de 2026\nSPI-3 observado: −1,12 (classe: Seca moderada)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 0,0 mm\nChuva nos 12 meses até o mês de referência: 1.069,1 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 1 de 9",
+      "resumo": "Barreiras do Piauí registrou SPI-3 −1,12 (classe: Seca moderada) e chuva no mês de 0,0 mm em julho de 2026. Nos últimos 12 meses a precipitação acumulada foi 1.069,1 mm e houve 1 mês em seca entre as leituras confiáveis. Como a leitura tem baixa confiança, o índice pode exagerar; priorize acompanhar a situação e organizar as respostas.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −1,12 e ausência de chuva, a equipe precisa definir responsáveis e contatos para coordenar as ações durante a seca."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "Verificar se o plano existente cobre a falta de água evita lacunas quando a seca se mantiver."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Listar açudes, poços, cisternas e carro-pipa ajuda a saber o volume disponível e quem depende de cada fonte diante da baixa precipitação."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Mapear quem usa carro-pipa ou cisterna permite priorizar atendimento se a escassez persistir."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação e orientações de economia de água reduz o consumo enquanto a chuva continua ausente."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Registrar mensalmente SPI, chuva e níveis dos reservatórios permite detectar mudanças e ajustar as ações rapidamente."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2201408": {
+      "cod_ibge": "2201408",
+      "nome": "Barro Duro",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Barro Duro (2201408)\nMês de referência: julho de 2026\nSPI-3 observado: −0,92 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 8,9 mm\nChuva nos 12 meses até o mês de referência: 1.122,1 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Barro Duro, julho de 2026, classe Próximo do normal, SPI-3 -0,92 e chuva no mês 8,9 mm. Nos últimos 12 meses a chuva acumulada foi 1.122,1 mm e ocorreram 2 de 10 meses em seca. O cenário pede organização das informações e acompanhamento contínuo da água.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI -0,92 próximo do normal e chuva baixa, é necessário reunir a Defesa Civil e setores ligados à água para definir responsáveis e contatos antes que a seca se intensifique."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Dois meses em seca nos últimos 10 indicam vulnerabilidade; listar açudes, poços, cisternas e carro-pipas permite saber o volume disponível e quem depende de cada fonte."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "A chuva do mês foi 8,9 mm e o SPI está em -0,92; monitorar mensalmente esses indicadores e os níveis dos reservatórios ajuda a detectar quedas críticas a tempo."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com 2 de 10 meses em seca, algumas comunidades podem depender de carro-pipa ou cisterna; mapear essas áreas orienta prioridades caso a estiagem persista."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A baixa precipitação de 8,9 mm requer alertar a população sobre uso racional da água e informar pontos e horários de distribuição para evitar escassez."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2201606": {
+      "cod_ibge": "2201606",
+      "nome": "Beneditinos",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Beneditinos (2201606)\nMês de referência: julho de 2026\nSPI-3 observado: −0,75 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 9,1 mm\nChuva nos 12 meses até o mês de referência: 1.129,1 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Beneditinos, julho de 2026, classe Próximo do normal, SPI-3 −0,75, chuva no mês 9,1 mm. Nos últimos 12 meses a chuva acumulada foi 1.129,1 mm e houve 2 meses em seca (SPI-3 ≤-1,0). Isso requer organizar a equipe de Defesa Civil, monitorar continuamente a precipitação e os reservatórios e manter a população informada.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −0,75 e chuva de 9,1 mm, a equipe precisa definir responsáveis para coordenar ações de monitoramento e apoio à população durante a seca."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "A baixa chuva de 9,1 mm e o SPI próximo do normal indicam a necessidade de registrar mensalmente a precipitação e os níveis dos reservatórios para detectar mudanças."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com 2 meses em seca nos últimos 10, é importante conhecer os açudes, poços e carro-pipa disponíveis e quem depende deles para planejar distribuição."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "A ocorrência de 2 meses de seca destaca a necessidade de mapear as áreas que já dependem de carro-pipa ou cisterna e priorizar seu atendimento."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A chuva de 9,1 mm e o SPI próximo do normal pedem orientações à população sobre economia de água e pontos de distribuição para evitar falta."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2201770": {
+      "cod_ibge": "2201770",
+      "nome": "Boa Hora",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Boa Hora (2201770)\nMês de referência: julho de 2026\nSPI-3 observado: −0,75 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 16,6 mm\nChuva nos 12 meses até o mês de referência: 1.236,2 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 1 de 12",
+      "resumo": "Boa Hora, julho de 2026, classe Próximo do normal, SPI-3 observado −0,75 e chuva no mês 16,6 mm. Nos últimos 12 meses a chuva acumulada foi 1.236,2 mm e houve 1 mês em seca (SPI-3 ≤ −1,0). Isso requer organizar a equipe, mapear recursos hídricos e acompanhar continuamente as leituras.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com o SPI próximo do normal e a chuva do mês baixa, é preciso reunir a Defesa Civil e setores ligados à água para definir quem acompanha a situação e quem executa as ações de apoio."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A lista de fontes de água e seus volumes ajuda a saber o quanto está disponível frente à chuva de 16,6 mm e ao histórico de 1 mês em seca, permitindo planejar distribuição."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI −0,75 e a chuva de 16,6 mm indicam necessidade de monitorar mensalmente o índice e os níveis dos reservatórios para detectar mudanças rápidas."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com apenas 1 mês em seca nos últimos 12, é importante mapear as áreas que dependem de carro-pipa ou cisterna para priorizar apoio se a falta de água se intensificar."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação de seca e orientações de uso racional da água evita desperdício enquanto o município acompanha a chuva e os reservatórios."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2201903": {
+      "cod_ibge": "2201903",
+      "nome": "Bom Jesus",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Bom Jesus (2201903)\nMês de referência: julho de 2026\nSPI-3 observado: −1,04 (classe: Seca moderada)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 0,0 mm\nChuva nos 12 meses até o mês de referência: 993,0 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 1 de 9",
+      "resumo": "Bom Jesus, julho de 2026, classe Seca moderada, SPI-3 −1,04, chuva no mês 0,0 mm. Nos últimos 12 meses a chuva acumulada foi 993,0 mm e houve 1 mês em seca entre as leituras confiáveis. O SPI tem baixa confiança, podendo exagerar, e pede organização e monitoramento contínuo.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −1,04 e chuva zero, é preciso convocar a Defesa Civil e setores parceiros para definir quem decide, quem executa e os contatos de emergência durante a seca."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A ausência de chuva neste mês exige mapear açudes, poços, cisternas, adutoras e pontos de carro-pipa e saber quem depende de cada fonte para priorizar o abastecimento."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Mesmo com baixa confiança, o acompanhamento mensal do SPI, da chuva e dos níveis dos reservatórios permite detectar rapidamente mudanças na disponibilidade de água."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com 1 mês em seca nos últimos 12, é essencial mapear comunidades que já dependem de carro-pipa ou cisterna para definir quem será atendido primeiro se a estiagem persistir."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A chuva de 0,0 mm e a classificação de seca moderada demandam informar a população sobre os pontos e horários de distribuição e os cuidados para economizar água."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2202075": {
+      "cod_ibge": "2202075",
+      "nome": "Cajazeiras do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Cajazeiras do Piauí (2202075)\nMês de referência: julho de 2026\nSPI-3 observado: −0,81 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 10,7 mm\nChuva nos 12 meses até o mês de referência: 905,3 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Cajazeiras do Piauí, julho de 2026, classe Próximo do normal, SPI-3 observado −0,81, chuva no mês 10,7 mm. Nos últimos 12 meses a chuva acumulada foi 905,3 mm e houve 2 meses com SPI-3 ≤-1,0. É preciso organizar a equipe, mapear recursos hídricos e monitorar a situação.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI-3 de −0,81 e chuva de 10,7 mm é necessário definir responsáveis e contatos para agir rapidamente se a condição mudar."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A presença de 2 meses em seca nos últimos 12 meses e a chuva anual de 905,3 mm tornam urgente listar açudes, poços, cisternas e pontos de carro-pipa e quem depende deles."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI-3 atual e a chuva baixa exigem monitoramento mensal da precipitação e dos níveis dos reservatórios para detectar tendências."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Com apenas 10,7 mm de chuva no mês, a população precisa de orientação sobre uso econômico da água e pontos de distribuição."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Os 2 meses recentes de seca indicam que comunidades que dependem de carro-pipa ou cisterna devem ser mapeadas para priorizar apoio caso a condição persista."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2202109": {
+      "cod_ibge": "2202109",
+      "nome": "Campinas do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Campinas do Piauí (2202109)\nMês de referência: julho de 2026\nSPI-3 observado: −0,72 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 4,7 mm\nChuva nos 12 meses até o mês de referência: 719,9 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 8",
+      "resumo": "Campinas do Piauí, julho de 2026, classe Próximo do normal, SPI-3 observado −0,72, chuva no mês 4,7 mm. Nos últimos 12 meses a chuva acumulada foi 719,9 mm e não houve meses em seca. O cenário pede organizar equipes, revisar planos e acompanhar a precipitação e os reservatórios.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com a leitura de baixa confiança, é importante reunir a Defesa Civil municipal e os setores envolvidos para definir quem decide, quem executa e registrar os telefones de contato durante a estiagem."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "Verificar se o Plano de Contingência já cobre a falta de água ajuda a identificar lacunas e a incluir as medidas necessárias antes que a situação evolua."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Listar açudes, poços, cisternas, adutoras e pontos de carro-pipa permite saber o volume disponível e quem depende de cada fonte, essencial para planejamento imediato."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Acompanhar mensalmente o SPI, a chuva de 4,7 mm e o nível dos reservatórios fornece dados atualizados para ajustar as ações conforme a realidade."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar nos canais municipais a situação atual, os pontos de distribuição e as orientações de economia ajuda a população a usar a água de forma consciente agora."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2202604": {
+      "cod_ibge": "2202604",
+      "nome": "Castelo do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Castelo do Piauí (2202604)\nMês de referência: julho de 2026\nSPI-3 observado: −0,73 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 9,7 mm\nChuva nos 12 meses até o mês de referência: 943,5 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 1 de 9",
+      "resumo": "Castelo do Piauí, julho de 2026, classe Próximo do normal, SPI-3 observado −0,73 e chuva no mês 9,7 mm. Nos últimos 12 meses a chuva totalizou 943,5 mm e houve 1 de 9 meses em seca. Essa situação pede organização interna e acompanhamento constante dos recursos hídricos.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −0,73 e chuva baixa, é necessário reunir a Defesa Civil e setores envolvidos para definir papéis e contatos durante a estiagem."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva de 9,7 mm e apenas 1 mês de seca indicam que o município deve mapear açudes, poços e carro-pipa para saber quem depende de cada fonte."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI observado e a chuva mensal exigem monitoramento mensal do SPI, da precipitação e dos níveis dos reservatórios para detectar mudanças rapidamente."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com 1 mês em seca nos últimos 9, identificar quem já depende de carro-pipa ou cisterna ajuda a priorizar apoio caso a falta de água se intensifique."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A baixa precipitação de 9,7 mm requer orientação à população sobre economia de água e pontos de distribuição para evitar escassez."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2202778": {
+      "cod_ibge": "2202778",
+      "nome": "Colônia do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Colônia do Piauí (2202778)\nMês de referência: julho de 2026\nSPI-3 observado: −0,86 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 6,3 mm\nChuva nos 12 meses até o mês de referência: 768,1 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Colônia do Piauí, julho de 2026, classe Próximo do normal, SPI -0,86, chuva no mês 6,3 mm. Nos últimos 12 meses a chuva total foi 768,1 mm e 2 de 10 meses ficaram em seca. Isso pede organização e acompanhamento dos recursos hídricos e da população.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "A classificação Próximo do normal e a chuva baixa de 6,3 mm indicam que a situação pode mudar; reunir a Defesa Civil e setores envolvidos ajuda a definir papéis e contatos para agir rapidamente se a seca avançar."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com 2 meses em seca nos últimos 10, é necessário saber quais açudes, poços e pontos de carro-pipa ainda têm volume suficiente e quem depende deles para priorizar ações."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI -0,86 e a chuva de 6,3 mm mostram que o monitoramento mensal do índice e dos níveis de reservatório é essencial para detectar quedas e orientar medidas corretivas."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "A presença de meses secos indica risco para áreas que dependem de carro-pipa ou cisternas; mapear essas comunidades permite planejar apoio imediato se a disponibilidade de água reduzir."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A chuva de 6,3 mm e a classificação Próximo do normal demandam informar a população sobre a situação, pontos de distribuição e boas práticas de economia para evitar falta de água."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 3,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2202901": {
+      "cod_ibge": "2202901",
+      "nome": "Corrente",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Corrente (2202901)\nMês de referência: julho de 2026\nSPI-3 observado: −0,80 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 0,0 mm\nChuva nos 12 meses até o mês de referência: 977,6 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 9",
+      "resumo": "Corrente, julho de 2026, classe Próximo do normal, SPI -0,80, chuva do mês 0,0 mm. Nos últimos 12 meses a chuva total foi 977,6 mm e não houve meses em seca. Com leitura de baixa confiança e risco de déficit hídrico, é preciso organizar a Defesa Civil e acompanhar as condições de água.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "O SPI -0,80 e a chuva de 0,0 mm indicam início de déficit e a leitura tem baixa confiança; definir responsáveis permite monitorar e coordenar as ações imediatamente."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "É necessário confirmar se o plano já contempla falta de água, já que o SPI aponta risco e a leitura pode estar exagerada."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com chuva de 0,0 mm, conhecer volumes e vazões de açudes, poços, cisternas e carro-pipa ajuda a planejar o abastecimento das áreas atendidas."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "A leitura de baixa confiança e a ausência de chuva exigem registro mensal do SPI, da precipitação e dos níveis dos reservatórios monitorados."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A falta de chuva no mês requer informar a população sobre a situação, os pontos de distribuição e os cuidados para economizar água."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 3,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2203230": {
+      "cod_ibge": "2203230",
+      "nome": "Currais",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Currais (2203230)\nMês de referência: julho de 2026\nSPI-3 observado: −0,97 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 1,5 mm\nChuva nos 12 meses até o mês de referência: 984,8 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 1 de 9",
+      "resumo": "Currais, julho de 2026, classe Próximo do normal, SPI-3 −0,97 e chuva no mês 1,5 mm. Nos últimos 12 meses a chuva total foi 984,8 mm e houve 1 mês em seca. Como a leitura tem baixa confiança, o SPI pode exagerar; priorizar organização e acompanhamento dos recursos hídricos.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com a leitura de baixa confiança, é necessário reunir a equipe municipal e definir quem acompanha a situação da água e quem toma as decisões."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "Verificar se o plano atual cobre falta de água evita lacunas, já que o SPI próximo do normal pode não refletir a realidade da estiagem."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Listar açudes, poços, cisternas e carro-pipa com seus volumes ajuda a entender a disponibilidade quando a chuva de 1,5 mm pode ser insuficiente."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Monitorar mensalmente o SPI, a chuva de 1,5 mm e os níveis dos reservatórios permite detectar rapidamente mudanças na condição hídrica."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Mapear quem depende de carro-pipa ou cisterna orienta a priorização caso a seca se prolongue, considerando que já houve 1 mês em seca."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação e orientar a economia de água prepara a população para usar melhor os poucos recursos disponíveis agora."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2203404": {
+      "cod_ibge": "2203404",
+      "nome": "Dom Expedito Lopes",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Dom Expedito Lopes (2203404)\nMês de referência: julho de 2026\nSPI-3 observado: −0,92 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 3,3 mm\nChuva nos 12 meses até o mês de referência: 761,4 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 9",
+      "resumo": "Dom Expedito Lopes, julho de 2026, classe Próximo do normal, SPI-3 −0,92, chuva no mês 3,3 mm. Nos últimos 12 meses a chuva total foi 761,4 mm e não houve meses em seca. O cenário pede organização interna e acompanhamento constante das condições hídricas.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI próximo do normal e chuva baixa este mês, é essencial convocar a Defesa Civil e setores ligados à água para definir papéis e contatos antes de qualquer deterioração."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva de 3,3 mm indica pouca reposição; listar açudes, poços, cisternas e carro-pipa ajuda a saber a disponibilidade atual e quem depende de cada fonte."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O índice SPI-3 −0,92 e a chuva mensal devem ser monitorados mensalmente para detectar quedas rápidas no volume dos reservatórios monitorados pela ANA."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com pouca chuva, mapear quem já usa carro-pipa ou cisterna permite planejar apoio prioritário caso a condição de seca se prolongue."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação de pouca chuva (3,3 mm) e orientar a economia de água evita desperdício enquanto o município avalia a disponibilidade dos recursos."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2203503": {
+      "cod_ibge": "2203503",
+      "nome": "Elesbão Veloso",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Elesbão Veloso (2203503)\nMês de referência: julho de 2026\nSPI-3 observado: −1,22 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 7,4 mm\nChuva nos 12 meses até o mês de referência: 955,4 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 4 de 10",
+      "resumo": "Elesbão Veloso, julho de 2026, classe Seca moderada, SPI-3 −1,22, chuva no mês 7,4 mm. Nos últimos 12 meses a chuva acumulada foi 955,4 mm e 4 de 10 meses registraram seca. Essa combinação pede organização das ações e acompanhamento constante da situação hídrica.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI-3 −1,22 e 4 meses em seca, é preciso reunir a Defesa Civil e setores envolvidos para definir quem decide, executa e os contatos de emergência durante a estiagem."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva baixa de 7,4 mm e a situação de seca exigem listar açudes, poços, cisternas e pontos de carro-pipa, indicando volume ou vazão e as comunidades atendidas."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com 4 meses em seca, identificar quem depende de carro-pipa ou cisterna ajuda a mapear as áreas mais vulneráveis e planejar quem será atendido primeiro."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI de −1,22 e a chuva de 7,4 mm requerem monitorar mensalmente a precipitação e os níveis dos reservatórios para detectar mudanças rápidas."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação de seca, os pontos e horários de distribuição de água e as orientações de economia evita uso inadequado e reduz pressão sobre os recursos limitados."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2203859": {
+      "cod_ibge": "2203859",
+      "nome": "Floresta do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Floresta do Piauí (2203859)\nMês de referência: julho de 2026\nSPI-3 observado: −0,88 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 5,3 mm\nChuva nos 12 meses até o mês de referência: 718,5 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 9",
+      "resumo": "Floresta do Piauí, julho de 2026, classe Próximo do normal, SPI-3 −0,88, chuva no mês 5,3 mm. Nos últimos 12 meses a chuva total foi 718,5 mm e não houve meses em seca. É necessário organizar o monitoramento e manter a população informada.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com o SPI próximo do normal e a chuva baixa, definir responsáveis agora facilita a coordenação caso a situação evolua."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "A condição atual pede verificação do Plano de Contingência para confirmar que inclui procedimentos para falta de água."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva de 5,3 mm indica necessidade de mapear açudes, poços, cisternas e carro-pipa para saber a oferta disponível."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Monitorar mensalmente o SPI, a precipitação e os níveis dos reservatórios ajuda a identificar mudanças rápidas no abastecimento."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 3,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
     "2204006": {
       "cod_ibge": "2204006",
       "nome": "Francinópolis",
@@ -127,6 +887,638 @@
       "revisado_por": null,
       "revisado_em_utc": null
     },
+    "2204105": {
+      "cod_ibge": "2204105",
+      "nome": "Francisco Ayres",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Francisco Ayres (2204105)\nMês de referência: julho de 2026\nSPI-3 observado: −0,81 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 10,2 mm\nChuva nos 12 meses até o mês de referência: 964,7 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Francisco Ayres, julho de 2026, classe Próximo do normal, SPI-3 −0,81, chuva no mês 10,2 mm. Nos últimos 12 meses a chuva acumulada foi 964,7 mm e houve 2 de 10 meses em seca. Isso pede organização e acompanhamento das fontes de água e da população.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −0,81 e chuva de 10,2 mm, a equipe deve se reunir para definir responsáveis e canais de comunicação durante a seca."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva baixa indica necessidade de mapear açudes, poços, cisternas e pontos de carro-pipa para saber o volume disponível e quem depende de cada fonte."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O valor de SPI −0,81 e a chuva de 10,2 mm exigem monitoramento mensal da precipitação e dos níveis dos reservatórios para detectar mudanças."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A situação com 10,2 mm de chuva requer orientação da população sobre economia de água e divulgação dos pontos e horários de distribuição."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2204402": {
+      "cod_ibge": "2204402",
+      "nome": "Gilbués",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Gilbués (2204402)\nMês de referência: julho de 2026\nSPI-3 observado: −1,09 (classe: Seca moderada)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 0,0 mm\nChuva nos 12 meses até o mês de referência: 1.053,3 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 1 de 9",
+      "resumo": "Gilbués, julho de 2026, classe Seca moderada, SPI -1,09, chuva do mês 0,0 mm. Nos últimos 12 meses a chuva total foi 1.053,3 mm e 1 de 9 meses ficou em seca. O cenário pede organizar equipes, mapear recursos e acompanhar a evolução da chuva e dos reservatórios.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI -1,09 e chuva zero, é urgente convocar a Defesa Civil e setores chave para definir responsáveis e contatos durante a seca."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A baixa chuva e a classificação de seca exigem listar açudes, poços, cisternas e carro-pipa, indicando volumes e quem depende de cada fonte."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com 1 de 9 meses em seca, deve-se mapear as áreas que já dependem de carro-pipa ou cisternas para priorizar atendimentos se a estiagem persistir."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI pode exagerar por baixa confiança; monitorar mensalmente a chuva e o nível dos reservatórios permite ajustes rápidos nas ações."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Chuvas zero e classificação de seca exigem informar a população sobre restrição de uso, pontos de distribuição e horários para evitar problemas de abastecimento."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2204550": {
+      "cod_ibge": "2204550",
+      "nome": "Guaribas",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Guaribas (2204550)\nMês de referência: julho de 2026\nSPI-3 observado: −0,73 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 0,1 mm\nChuva nos 12 meses até o mês de referência: 1.051,1 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 1 de 9",
+      "resumo": "Guaribas, julho de 2026, classe Próximo do normal, SPI -0,73 e chuva 0,1 mm. Nos últimos 12 meses a chuva acumulada foi 1.051,1 mm e houve 1 de 9 meses em seca. Com leitura de baixa confiança, o SPI pode exagerar; recomenda-se organizar a equipe e monitorar a situação.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "A baixa confiança no SPI indica que a avaliação pode mudar; reunir a Defesa Civil e setores ligados ajuda a definir quem age e como comunicar rapidamente."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "A chuva de 0,1 mm mostra necessidade de registrar mensalmente o SPI e os níveis de reservatórios para detectar variações e orientar ações."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Com pouca chuva registrada, informar a população sobre uso racional da água evita desperdícios enquanto se acompanha a evolução da seca."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Um mês com 0,1 mm e 1 de 9 meses em seca aponta risco para áreas que dependem de carro-pipa ou cisternas; mapear quem precisa permite priorizar atendimentos."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Conhecer açudes, poços e outros recursos é essencial quando a chuva mensal é quase nula, para planejar redistribuição caso a situação se mantenha."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2204600": {
+      "cod_ibge": "2204600",
+      "nome": "Hugo Napoleão",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Hugo Napoleão (2204600)\nMês de referência: julho de 2026\nSPI-3 observado: −0,93 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 8,4 mm\nChuva nos 12 meses até o mês de referência: 1.040,8 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Hugo Napoleão, julho de 2026, SPI-3 −0,93 (classe Próximo do normal) e chuva no mês 8,4 mm. Nos últimos 12 meses a chuva acumulada foi 1.040,8 mm e houve 2 meses em seca (SPI-3 ≤ -1,0). O cenário pede organização das equipes e monitoramento contínuo da água e da população.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI próximo do normal e chuva baixa, é necessário definir responsáveis e contatos para agir rapidamente caso a seca se intensifique."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "A leitura de SPI −0,93 e chuva 8,4 mm indica necessidade de observar mensalmente a precipitação e os níveis dos reservatórios para detectar mudanças."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A chuva reduzida e a ocorrência de 2 meses em seca tornam importante informar a população sobre economia de água e pontos de distribuição."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com apenas 1.040,8 mm nos últimos 12 meses, mapear açudes, poços e carro-pipa ajuda a entender a disponibilidade e quem depende de cada fonte."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2204709": {
+      "cod_ibge": "2204709",
+      "nome": "Inhuma",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Inhuma (2204709)\nMês de referência: julho de 2026\nSPI-3 observado: −0,96 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 5,3 mm\nChuva nos 12 meses até o mês de referência: 840,4 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 9",
+      "resumo": "Inhuma, julho de 2026, classe Próximo do normal, SPI -0,96, chuva 5,3 mm. Nos últimos 12 meses a chuva totalizou 840,4 mm e não houve meses em seca. Isso pede organização e acompanhamento.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "O SPI -0,96 e a chuva de 5,3 mm indicam necessidade de alinhar responsáveis e contatos entre setores antes de qualquer deterioração."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Conhecer volumes e atendimentos de açudes, poços, cisternas e carro-pipa permite planejar o uso da água diante da baixa chuva deste mês."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O monitoramento mensal do SPI, da chuva de 5,3 mm e dos níveis dos reservatórios ajuda a detectar mudanças rápidas."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A chuva de 5,3 mm pode reduzir a disponibilidade de água e a população precisa saber pontos, horários e medidas de economia."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2204808": {
+      "cod_ibge": "2204808",
+      "nome": "Ipiranga do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Ipiranga do Piauí (2204808)\nMês de referência: julho de 2026\nSPI-3 observado: −0,97 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 4,1 mm\nChuva nos 12 meses até o mês de referência: 784,7 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 9",
+      "resumo": "Ipiranga do Piauí, julho de 2026, classe Próximo do normal, SPI-3 observado −0,97, chuva no mês 4,1 mm. Nos últimos 12 meses a chuva acumulada foi 784,7 mm e não houve meses em seca. Isso pede organizar a equipe, mapear recursos hídricos e monitorar continuamente.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −0,97 e chuva de 4,1 mm, a situação indica leve déficit; definir responsáveis e contatos facilita a ação rápida caso a condição evolua."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva baixa no mês e o total de 784,7 mm nos últimos 12 meses tornam essencial saber quais fontes ainda têm volume e quem delas depende para planejar a distribuição."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Dado SPI −0,97 e chuva de 4,1 mm, o acompanhamento mensal da precipitação e dos reservatórios permite detectar quedas antes que a escassez se agrave."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A chuva reduzida de 4,1 mm pode limitar o abastecimento; orientar a população sobre uso consciente e pontos de distribuição ajuda a evitar desperdício."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2204907": {
+      "cod_ibge": "2204907",
+      "nome": "Isaías Coelho",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Isaías Coelho (2204907)\nMês de referência: julho de 2026\nSPI-3 observado: −0,86 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 4,2 mm\nChuva nos 12 meses até o mês de referência: 690,6 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 8",
+      "resumo": "Isaías Coelho, julho de 2026, classe Próximo do normal, SPI -0,86, chuva no mês 4,2 mm. Nos últimos 12 meses a chuva acumulada foi 690,6 mm e não houve meses em seca (0 de 8). É necessário organizar a equipe, mapear recursos hídricos e monitorar a situação.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI próximo ao normal e leitura de baixa confiança, a equipe deve definir responsáveis agora para agir rapidamente se a condição mudar."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva de 4,2 mm indica pouca reposição; listar açudes, poços e carro-pipa ajuda a saber onde há disponibilidade para a população."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Acompanhar mensalmente o SPI e os níveis dos reservatórios permite detectar rapidamente qualquer queda adicional de água."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Sem meses em seca, ainda é preciso mapear quem depende de carro-pipa ou cisterna para priorizar atendimento caso a estiagem se intensifique."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação e orientações de uso econômico evita desperdício enquanto a chuva permanece baixa."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 3,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2205151": {
+      "cod_ibge": "2205151",
+      "nome": "Jacobina do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Jacobina do Piauí (2205151)\nMês de referência: julho de 2026\nSPI-3 observado: −0,81 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 2,3 mm\nChuva nos 12 meses até o mês de referência: 555,2 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 8",
+      "resumo": "Jacobina do Piauí, julho de 2026, SPI-3 –0,81 (classe Próximo do normal) com chuva no mês de 2,3 mm. Nos últimos 12 meses a chuva acumulada foi 555,2 mm e não houve meses em seca. Como a leitura tem baixa confiança e pode exagerar, é preciso organizar o monitoramento e o apoio à população.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "A leitura de baixa confiança indica que o SPI pode não refletir a realidade; reunir a equipe ajuda a definir quem acompanha os dados e quem aciona apoio se a situação mudar."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com 2,3 mm de chuva no mês, conhecer os açudes, poços e pontos de carro-pipa permite identificar rapidamente onde a oferta de água pode ficar comprometida."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI de –0,81 e a chuva reduzida exigem verificação mensal dos índices e dos volumes dos reservatórios para detectar alterações antes que se agravem."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Mesmo sem meses em seca, a baixa precipitação pode impactar áreas que dependem de carro-pipa ou cisterna; mapear essas comunidades facilita a resposta rápida."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação, os pontos de distribuição e as recomendações de economia ajuda a população a usar a água de forma consciente enquanto os indicadores são acompanhados."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2205250": {
+      "cod_ibge": "2205250",
+      "nome": "Jardim do Mulato",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Jardim do Mulato (2205250)\nMês de referência: julho de 2026\nSPI-3 observado: −0,97 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 6,1 mm\nChuva nos 12 meses até o mês de referência: 1.008,3 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Jardim do Mulato, julho de 2026, classe Próximo do normal, SPI-3 −0,97, chuva no mês 6,1 mm. Nos últimos 12 meses a chuva acumulada foi 1.008,3 mm e houve 2 meses em seca. O cenário pede organização das equipes e acompanhamento constante dos recursos hídricos.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −0,97 e chuva de 6,1 mm, a situação requer que a Defesa Civil e setores parceiros definam papéis e contatos para agir caso a seca se intensifique."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "O plano pode não contemplar falta de água; revisar permite identificar e incluir as medidas necessárias, visto que já ocorreram 2 meses de seca."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Listar açudes, poços, cisternas e carro-pipa ajuda a saber volumes disponíveis e quem depende de cada fonte, importante após 2 meses críticos."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Monitorar mensalmente o SPI, a chuva de 6,1 mm e os níveis dos reservatórios permite detectar variações e ajustar ações rapidamente."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação, pontos de distribuição e orientações de economia é essencial, considerando a chuva baixa de 6,1 mm e o risco de escassez."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2205540": {
+      "cod_ibge": "2205540",
+      "nome": "Lagoinha do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Lagoinha do Piauí (2205540)\nMês de referência: julho de 2026\nSPI-3 observado: −0,83 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 7,9 mm\nChuva nos 12 meses até o mês de referência: 1.088,1 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Lagoinha do Piauí, julho de 2026, SPI-3 −0,83 (classe Próximo do normal) e chuva no mês 7,9 mm. Nos últimos 12 meses a chuva acumulada foi 1.088,1 mm e houve 2 meses em seca. Esses dados pedem organização das equipes e acompanhamento constante das condições hídricas.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −0,83 e chuva baixa, é preciso reunir a Defesa Civil e setores ligados à água para definir quem decide, executa e os contatos de apoio durante a estiagem."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva de 7,9 mm indica baixa disponibilidade; listar açudes, poços, cisternas e pontos de carro-pipa ajuda a saber o volume disponível e quem depende de cada fonte."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI próximo do normal e a chuva reduzida exigem monitorar mensalmente o índice e os níveis dos reservatórios para detectar variações que possam requerer ação rápida."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com 2 meses em seca nos últimos 10, identificar quem depende de carro-pipa ou cisterna permite priorizar o atendimento caso a falta de água se mantenha."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A chuva de 7,9 mm e o SPI −0,83 demandam informar a população sobre a situação, pontos e horários de distribuição e orientações de uso econômico da água."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2205599": {
+      "cod_ibge": "2205599",
+      "nome": "Lagoa do Sítio",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Lagoa do Sítio (2205599)\nMês de referência: julho de 2026\nSPI-3 observado: −1,06 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 5,7 mm\nChuva nos 12 meses até o mês de referência: 807,3 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 1 de 9",
+      "resumo": "Lagoa do Sítio, julho de 2026, classe Seca moderada, SPI-3 −1,06 e chuva no mês 5,7 mm. Nos últimos 12 meses a chuva totalizou 807,3 mm e houve 1 mês em seca. O cenário pede organização das informações e monitoramento próximo da situação hídrica.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI-3 −1,06 e chuva baixa, é preciso reunir a Defesa Civil e os setores envolvidos para definir quem decide, quem executa e registrar telefones de contato durante a seca."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva de 5,7 mm indica pressão sobre os recursos hídricos; listar açudes, poços, cisternas e pontos de carro-pipa ajuda a saber quem depende de cada fonte."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com apenas 1 mês em seca nos últimos 12, é importante mapear as comunidades que já dependem de carro-pipa ou cisterna para priorizar apoio caso a falta de água persista."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A baixa precipitação (5,7 mm) exige orientação imediata sobre uso racional da água, pontos de distribuição e horários, evitando desgaste desnecessário dos estoques."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI-3 −1,06 e a chuva reduzida demandam registro mensal da chuva e dos níveis dos reservatórios monitorados, para detectar variações e ajustar ações conforme necessário."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2206605": {
+      "cod_ibge": "2206605",
+      "nome": "Monte Alegre do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Monte Alegre do Piauí (2206605)\nMês de referência: julho de 2026\nSPI-3 observado: −0,83 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 0,0 mm\nChuva nos 12 meses até o mês de referência: 990,5 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 1 de 9",
+      "resumo": "Monte Alegre do Piauí, julho de 2026, classe Próximo do normal, SPI-3 −0,83, chuva no mês 0,0 mm. Nos últimos 12 meses a chuva total foi 990,5 mm e houve 1 de 9 meses em seca. Como a leitura tem baixa confiança, recomenda-se focar na organização das informações e no acompanhamento constante da situação hídrica.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "A leitura de baixa confiança indica que o SPI pode estar exagerado; reunir a equipe permite definir quem monitorará a chuva e os reservatórios e quem tomará decisões rápidas caso o cenário piore."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com 0,0 mm de chuva este mês, conhecer todas as fontes de água e quem depende delas ajuda a planejar a distribuição e a identificar possíveis faltas antes que se agravem."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI de −0,83 e a ausência de chuva neste mês exigem monitoramento mensal para validar se a situação está se estabilizando ou se requer intervenções adicionais."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Um mês sem chuva pode impactar quem já depende de carro-pipa ou cisternas; mapear essas comunidades permite priorizar apoio caso a seca persista."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação de seca, os pontos de distribuição e as medidas de economia ajuda a reduzir o consumo e a preparar a população para eventuais restrições de água."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2206902": {
+      "cod_ibge": "2206902",
+      "nome": "Novo Oriente do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Novo Oriente do Piauí (2206902)\nMês de referência: julho de 2026\nSPI-3 observado: −1,21 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 4,8 mm\nChuva nos 12 meses até o mês de referência: 896,1 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 4 de 10",
+      "resumo": "Novo Oriente do Piauí, julho de 2026, classe Seca moderada, SPI-3 −1,21, chuva no mês 4,8 mm. Nos últimos 12 meses a chuva total foi 896,1 mm e houve 4 meses em seca. Essa situação pede organizar a equipe, mapear recursos hídricos e monitorar continuamente.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "A seca moderada e os 4 meses em seca indicam a necessidade de definir quem decide e quem executa as ações de resposta imediata."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com apenas 4,8 mm de chuva este mês, é crucial saber quais fontes de água ainda têm volume e quem depende delas."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "A baixa precipitação aumenta o risco de falta de água para quem já depende de carro-pipa ou cisterna; mapear essas comunidades orienta prioridades."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI −1,21 e a chuva reduzida exigem monitorar mensalmente a chuva e os níveis dos reservatórios para detectar deterioração."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação de seca e os pontos de distribuição ajuda a economizar água e a preparar a população para eventuais restrições."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2206951": {
+      "cod_ibge": "2206951",
+      "nome": "Novo Santo Antônio",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Novo Santo Antônio (2206951)\nMês de referência: julho de 2026\nSPI-3 observado: −0,83 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 9,6 mm\nChuva nos 12 meses até o mês de referência: 994,0 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 1 de 11",
+      "resumo": "Novo Santo Antônio, julho de 2026, classe Próximo do normal, SPI −0,83 e chuva do mês 9,6 mm. Nos últimos 12 meses a chuva total foi 994,0 mm e houve 1 mês em seca. É preciso organizar a equipe, mapear recursos hídricos e monitorar a situação.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI próximo do normal e chuva baixa, a Defesa Civil deve se reunir para definir quem decide, quem executa e quais contatos usar caso a seca se intensifique."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A quantidade de chuva nos últimos 12 meses foi 994,0 mm e já ocorreu 1 mês de seca; listar açudes, poços, cisternas e carro-pipa ajuda a saber o volume disponível e quem depende de cada fonte."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI de −0,83 indica leve déficit; acompanhar mensalmente o SPI, a chuva de 9,6 mm e os níveis dos reservatórios permite detectar rapidamente mudanças no suprimento."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com 1 mês de seca recente, é urgente mapear as comunidades que dependem de carro-pipa ou cisterna para priorizar atendimentos caso a estiagem continue."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A chuva de 9,6 mm e o SPI próximo do normal exigem orientações à população sobre uso racional da água e pontos de distribuição para evitar escassez."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2207009": {
+      "cod_ibge": "2207009",
+      "nome": "Oeiras",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Oeiras (2207009)\nMês de referência: julho de 2026\nSPI-3 observado: −0,98 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 6,6 mm\nChuva nos 12 meses até o mês de referência: 810,0 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Oeiras, julho de 2026, classe Próximo do normal, SPI-3 = −0,98, chuva no mês = 6,6 mm. Nos últimos 12 meses a chuva acumulada foi 810,0 mm e 2 de 10 meses apresentaram SPI-3 ≤ −1,0. Isso requer organizar a equipe, mapear recursos hídricos e monitorar continuamente as leituras.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI próximo do normal e chuva de 6,6 mm, além de 2 meses em seca, é necessário definir quem decide, executa e os contatos para acompanhar a situação."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A baixa chuva do mês indica risco nos estoques; listar açudes, poços, cisternas e carro-pipa mostra quem depende de cada fonte."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Como o SPI pode variar e a chuva está baixa, o monitoramento mensal da precipitação e dos volumes dos reservatórios ajuda a detectar mudanças rapidamente."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Com apenas 6,6 mm de chuva e histórico de meses secos, a população precisa de orientações sobre uso racional e pontos de distribuição."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Já houve 2 meses em seca; mapear quem depende de carro-pipa ou cisterna permite priorizar o atendimento se a escassez persistir."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2207108": {
+      "cod_ibge": "2207108",
+      "nome": "Olho D'Água do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Olho D'Água do Piauí (2207108)\nMês de referência: julho de 2026\nSPI-3 observado: −0,90 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 9,2 mm\nChuva nos 12 meses até o mês de referência: 1.087,5 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Olho D'Água do Piauí, julho de 2026, classe Próximo do normal, SPI -0,90, chuva 9,2 mm. Nos últimos 12 meses a chuva acumulada foi 1.087,5 mm e 2 de 10 meses ficaram em seca. O cenário pede organizar responsáveis, revisar planos e monitorar recursos de água.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI -0,90 e chuva 9,2 mm, a seca ainda pode afetar a população; reunir a equipe permite definir quem age e como contatar rapidamente."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "O índice indica que a situação está próxima do normal, mas a falta de chuva recente pode exigir ajustes no plano de seca."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva baixa de 9,2 mm deixa o abastecimento vulnerável; listar açudes, poços e carro-pipa ajuda a saber onde agir."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O volume de 1.087,5 mm nos últimos 12 meses e os 2 meses em seca indicam necessidade de observar a evolução mensal da água."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Informar sobre a situação de seca e orientações de uso evita desperdício enquanto a chuva permanece baixa."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2207751": {
+      "cod_ibge": "2207751",
+      "nome": "Passagem Franca do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Passagem Franca do Piauí (2207751)\nMês de referência: julho de 2026\nSPI-3 observado: −0,97 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 8,4 mm\nChuva nos 12 meses até o mês de referência: 1.093,4 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "Passagem Franca do Piauí, julho de 2026, SPI-3 -0,97 (classe Próximo do normal) e chuva no mês de 8,4 mm. Nos últimos 12 meses a chuva acumulada foi 1.093,4 mm e houveram 2 de 10 meses em seca. O cenário pede organizar a equipe, mapear recursos hídricos e acompanhar continuamente as condições climáticas e de reservatórios.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "A leitura indica que a seca ainda não é severa, mas a proximidade do normal exige definir quem lidera e quem executa as ações de monitoramento e apoio ao longo da estiagem."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com 8,4 mm de chuva no mês, saber quais açudes, poços e carro-pipas ainda têm volume suficiente ajuda a priorizar o abastecimento das comunidades dependentes."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O índice próximo do normal e a chuva baixa exigem registrar mensalmente o SPI, a precipitação e o nível dos reservatórios para detectar rapidamente qualquer queda nos recursos hídricos."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Dois meses em seca nos últimos 10 apontam que algumas áreas já sentem falta de água; mapear quem depende de carro-pipa ou cisterna permite agir rápido caso a condição se agrave."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A pouca chuva de 8,4 mm e a possibilidade de novos períodos secos tornam importante informar a população sobre economia de água e pontos de distribuição para evitar escassez inesperada."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 3,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2207777": {
+      "cod_ibge": "2207777",
+      "nome": "Patos do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Patos do Piauí (2207777)\nMês de referência: julho de 2026\nSPI-3 observado: −0,87 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 4,3 mm\nChuva nos 12 meses até o mês de referência: 584,6 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 8",
+      "resumo": "Patos do Piauí, julho de 2026, classe Próximo do normal, SPI-3 observado −0,87 e chuva no mês 4,3 mm. Nos últimos 12 meses a chuva acumulada foi 584,6 mm e não houve meses em seca. O cenário pede organização das equipes e acompanhamento constante dos indicadores de água.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com a leitura de baixa confiança e SPI próximo do normal, a equipe precisa se reunir e definir responsáveis e contatos para agir rapidamente caso a situação evolua."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "É preciso confirmar se o Plano de Contingência cobre a seca, já que a leitura pode não refletir a realidade e ajustes podem ser necessários."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Identificar açudes, poços, cisternas e pontos de carro-pipa ajuda a mapear a disponibilidade de água enquanto se verifica a real extensão da seca."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O monitoramento mensal do SPI, da chuva e dos níveis dos reservatórios permite detectar mudanças e agir antes que a escassez se agrave."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação, os pontos de distribuição e orientações de uso econômico ajuda a população a adaptar o consumo enquanto se aguarda a evolução dos indicadores."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
     "2207801": {
       "cod_ibge": "2207801",
       "nome": "Paulistana",
@@ -155,6 +1547,178 @@
       "revisado_por": "William Sousa",
       "revisado_em_utc": "2026-11-19T12:44:09Z"
     },
+    "2208106": {
+      "cod_ibge": "2208106",
+      "nome": "Pimenteiras",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Pimenteiras (2208106)\nMês de referência: julho de 2026\nSPI-3 observado: −1,10 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 4,6 mm\nChuva nos 12 meses até o mês de referência: 665,5 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 1 de 9",
+      "resumo": "Pimenteiras, julho de 2026, classe Seca moderada, SPI-3 −1,10 e chuva no mês 4,6 mm. Nos últimos 12 meses a chuva acumulada foi 665,5 mm e houve 1 mês em seca. É preciso organizar a equipe, mapear recursos hídricos e monitorar a situação continuamente.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "O SPI −1,10 indica seca moderada e a chuva do mês foi baixa (4,6 mm); definir responsáveis e contatos ajuda a coordenar a resposta municipal."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com a seca moderada e apenas 1 mês em seca nos últimos 12, conhecer volumes e dependentes das fontes permite priorizar o abastecimento."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "A baixa chuva e a classificação de seca aumentam o risco para quem depende de carro-pipa ou cisterna; mapear essas áreas orienta o apoio imediato."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Diante do SPI −1,10 e da chuva de 4,6 mm, observar mensalmente a precipitação e os níveis dos reservatórios permite ajustar as ações conforme a evolução."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2208601": {
+      "cod_ibge": "2208601",
+      "nome": "Prata do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Prata do Piauí (2208601)\nMês de referência: julho de 2026\nSPI-3 observado: −1,17 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 8,6 mm\nChuva nos 12 meses até o mês de referência: 1.012,9 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 3 de 10",
+      "resumo": "Prata do Piauí registra Seca moderada em julho de 2026 com SPI-3 de −1,17 e chuva no mês de 8,6 mm. Nos últimos 12 meses a chuva totaliza 1.012,9 mm e houve 3 meses com SPI-3 ≤ −1,0. O cenário pede organizar a equipe, mapear recursos hídricos e monitorar a situação continuamente.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "A classificação de seca moderada indica necessidade de definir papéis e contatos entre saúde, assistência social, agricultura e obras para coordenar as ações de resposta à estiagem."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com 8,6 mm de chuva neste mês, é essencial saber quais açudes, poços, cisternas e pontos de carro-pipa ainda têm volume disponível e quem depende deles."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI de −1,17 e a chuva reduzida exigem observação mensal dos índices e dos níveis dos reservatórios para detectar agravamentos rapidamente."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Três meses de seca nos últimos 10 aumentam o risco de falta de água em áreas que já dependem de carro-pipa ou cisternas; mapear esses locais orienta prioridades."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação de seca moderada e orientar sobre economia de água ajuda a reduzir a demanda enquanto os recursos hídricos são avaliados."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2208809": {
+      "cod_ibge": "2208809",
+      "nome": "Regeneração",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Regeneração (2208809)\nMês de referência: julho de 2026\nSPI-3 observado: −1,15 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 5,3 mm\nChuva nos 12 meses até o mês de referência: 927,4 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 4 de 10",
+      "resumo": "Regeneração, julho de 2026, classe Seca moderada, SPI-3 −1,15 e chuva no mês 5,3 mm. Nos últimos 12 meses a chuva acumulada foi 927,4 mm e 4 de 10 meses apresentaram SPI ≤ −1,0. O cenário pede organizar equipes, mapear recursos hídricos e acompanhar a situação com atenção.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −1,15 e 4 meses de seca recente, é essencial convocar a Defesa Civil e setores ligados à água para definir responsáveis e contatos durante a estiagem."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "A classificação de seca moderada indica necessidade de checar se o plano atual inclui medidas para falta de água e apontar eventuais lacunas."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva baixa de 5,3 mm e a sequência de meses secos tornam crucial listar açudes, poços, cisternas e pontos de carro-pipa e quem depende de cada fonte."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com 4 meses em seca, deve-se mapear comunidades que já dependem de carro-pipa ou cisternas para priorizar atendimentos caso a situação persista."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A baixa precipitação e a seca moderada requerem informar a população sobre cuidados no uso da água e os pontos de distribuição disponíveis."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2208858": {
+      "cod_ibge": "2208858",
+      "nome": "Riacho Frio",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Riacho Frio (2208858)\nMês de referência: julho de 2026\nSPI-3 observado: −0,79 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 0,0 mm\nChuva nos 12 meses até o mês de referência: 1.041,2 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 1 de 9",
+      "resumo": "Riacho Frio, julho de 2026, classe Próximo do normal, SPI-3 −0,79 e chuva no mês 0,0 mm. Nos últimos 12 meses a chuva total foi 1.041,2 mm e houve 1 mês em seca. Como a leitura tem baixa confiança e pode exagerar, é preciso organizar a equipe e monitorar a situação.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −0,79 e pouca chuva, a Defesa Civil precisa definir quem decide, quem executa e os contatos de emergência para a seca."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "A classe Próximo do normal indica que o plano de contingência deve ser verificado para cobrir falta de água e, se necessário, incluir lacunas."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva zero no mês indica risco de escassez; listar açudes, poços e carro-pipas ajuda a saber onde está o volume disponível e quem depende."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Mesmo com leitura de baixa confiança, acompanhar mensalmente o SPI, a chuva e o nível dos reservatórios permite detectar mudanças rapidamente."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação, os pontos de distribuição e as recomendações de economia evita uso excessivo enquanto a seca pode se intensificar."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2209104": {
+      "cod_ibge": "2209104",
+      "nome": "Santa Cruz do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Santa Cruz do Piauí (2209104)\nMês de referência: julho de 2026\nSPI-3 observado: −0,84 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 6,0 mm\nChuva nos 12 meses até o mês de referência: 723,5 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 8",
+      "resumo": "Santa Cruz do Piauí, julho de 2026, SPI-3 −0,84 (Próximo do normal) com chuva de 6,0 mm. Nos últimos 12 meses a chuva acumulada foi 723,5 mm e não houve meses em seca. Como a leitura tem baixa confiança, o SPI pode exagerar; portanto, priorize organizar a equipe e acompanhar os indicadores.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "A leitura tem baixa confiança e o SPI pode exagerar; reunir a equipe permite definir quem acompanha a situação e quem responde a eventuais necessidades."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Com chuva de 6,0 mm no mês, é essencial registrar SPI e níveis dos reservatórios mensalmente para detectar mudanças reais no abastecimento."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação e orientações ajuda a evitar desperdício de água enquanto se verifica se a estiagem está se intensificando."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Mapear quem depende de carro-pipa ou cisterna permite planejar apoio rápido caso a seca se torne mais crítica."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
     "2209153": {
       "cod_ibge": "2209153",
       "nome": "Santa Cruz dos Milagres",
@@ -182,6 +1746,118 @@
       ],
       "modelo": "claude-sonnet-5-5 (redigido na sessão de desenvolvimento, sem chamada de API)",
       "gerado_em_utc": "2026-11-19T12:36:33Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2209302": {
+      "cod_ibge": "2209302",
+      "nome": "Santa Luz",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Santa Luz (2209302)\nMês de referência: julho de 2026\nSPI-3 observado: −0,87 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 0,7 mm\nChuva nos 12 meses até o mês de referência: 1.037,7 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 9",
+      "resumo": "Santa Luz, julho de 2026, classe Próximo do normal, SPI-3 −0,87, chuva no mês 0,7 mm. Nos últimos 12 meses a chuva acumulada foi 1.037,7 mm e não houve meses em seca (SPI ≤ −1,0). É necessário organizar a equipe, mapear recursos hídricos e acompanhar a precipitação e reservatórios.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "A leitura tem baixa confiança e a chuva foi apenas 0,7 mm; definir responsáveis e canais de contato agora ajuda a coordenar ações caso a situação evolua."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "Com SPI próximo do normal e baixa confiança, verifica-se se o plano de contingência inclui a seca e identifica-se o que falta acrescentar."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Chuva baixa e confiança incerta exigem conhecer todas as fontes de água e quem delas depende para planejar alternativas."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "A chuva de 0,7 mm e a possibilidade de exagero no SPI tornam essencial monitorar mensalmente precipitação e níveis dos reservatórios."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A baixa precipitação e a leitura incerta justificam orientar a população sobre uso racional da água e os pontos de distribuição disponíveis."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 3,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2209450": {
+      "cod_ibge": "2209450",
+      "nome": "Santo Antônio dos Milagres",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Santo Antônio dos Milagres (2209450)\nMês de referência: julho de 2026\nSPI-3 observado: −1,03 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 5,7 mm\nChuva nos 12 meses até o mês de referência: 1.028,7 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 3 de 10",
+      "resumo": "Santo Antônio dos Milagres, julho de 2026, classe Seca moderada, SPI-3 −1,03, chuva no mês 5,7 mm. Nos últimos 12 meses a chuva total foi 1.028,7 mm e 3 de 10 meses ficaram em seca. O cenário pede organização das equipes, levantamento das fontes de água e monitoramento contínuo.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI-3 −1,03 e chuva de 5,7 mm, a seca está moderada; reunir a equipe permite definir papéis e contatos para agir rapidamente se a situação evoluir."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A quantidade de água disponível precisa ser conhecida porque a seca já afetou 3 dos últimos 10 meses e a chuva do mês foi baixa (5,7 mm)."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Algumas áreas dependem de carro-pipa ou cisterna; identificar quem tem menos acesso ajuda a priorizar atendimentos enquanto a seca persiste."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI −1,03 e a chuva de 5,7 mm indicam necessidade de acompanhar mensalmente a precipitação e os níveis dos reservatórios para detectar quedas."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação da seca, os pontos de distribuição e as orientações de uso racional é essencial porque a chuva foi apenas 5,7 mm e a seca moderada pode reduzir o abastecimento."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2209500": {
+      "cod_ibge": "2209500",
+      "nome": "Santo Inácio do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Santo Inácio do Piauí (2209500)\nMês de referência: julho de 2026\nSPI-3 observado: −0,90 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 5,5 mm\nChuva nos 12 meses até o mês de referência: 728,8 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 8",
+      "resumo": "Em Santo Inácio do Piauí, julho de 2026, o SPI-3 foi −0,90 (classe Próximo do normal) com 5,5 mm de chuva no mês. Nos últimos 12 meses a chuva acumulou 728,8 mm e não houve meses em seca. Como a leitura tem baixa confiança e pode exagerar, é necessário organizar o monitoramento e a comunicação antes de qualquer medida mais drástica.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "A leitura de baixa confiança indica que a situação pode mudar; reunir a equipe permite definir quem acompanha os indicadores e quem age caso o quadro evolua."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "Com a seca ainda não confirmada, verificar se o plano cobre falta de água evita lacunas e facilita ajustes rápidos se o SPI piorar."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Conhecer açudes, poços e carro-pipa e quem depende deles ajuda a priorizar recursos caso a disponibilidade de água diminua."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Registrar mensalmente o SPI, a chuva de 5,5 mm e os níveis dos reservatórios permite detectar rapidamente alterações reais na disponibilidade hídrica."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Mapear quem já depende de carro-pipa ou cisterna prepara a ação de apoio imediato se a escassez se confirmar."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação e orientações de uso racional da água reduz riscos de consumo excessivo enquanto se aguarda a confirmação dos indicadores."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
       "tentativas": 1,
       "status": "pendente_revisao",
       "revisado_por": null,
@@ -219,6 +1895,402 @@
       "revisado_por": null,
       "revisado_em_utc": null
     },
+    "2209757": {
+      "cod_ibge": "2209757",
+      "nome": "São Gonçalo do Gurguéia",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: São Gonçalo do Gurguéia (2209757)\nMês de referência: julho de 2026\nSPI-3 observado: −1,08 (classe: Seca moderada)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 0,0 mm\nChuva nos 12 meses até o mês de referência: 1.017,5 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 9",
+      "resumo": "São Gonçalo do Gurguéia, julho de 2026, classe seca moderada, SPI-3 observado −1,08, chuva no mês 0,0 mm. Nos últimos 12 meses a chuva acumulada foi 1.017,5 mm e nenhum dos 9 meses confiáveis ficou em seca (SPI-3 ≤-1,0). Exige organizar a equipe, mapear recursos hídricos e monitorar continuamente a situação.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "O SPI indica seca moderada e a chuva do mês foi 0,0 mm; reunir a equipe agora define quem decide e quem executa as ações diante desse cenário."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com chuva zero neste mês e SPI negativo, listar açudes, poços, cisternas e carro-pipa permite conhecer a disponibilidade de água para a população."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "A seca pode afetar quem depende de carro-pipa ou cisterna; mapear essas comunidades ajuda a priorizar o atendimento se a condição se mantiver."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "A leitura tem baixa confiança e pode exagerar; acompanhar a chuva e os níveis dos reservatórios todo mês fornece dados reais para ajustar as medidas."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "O plano de contingência pode não contemplar falta de água; verificar agora permite incluir as ações necessárias para a seca moderada."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2209807": {
+      "cod_ibge": "2209807",
+      "nome": "São Gonçalo do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: São Gonçalo do Piauí (2209807)\nMês de referência: julho de 2026\nSPI-3 observado: −0,95 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 6,2 mm\nChuva nos 12 meses até o mês de referência: 1.040,6 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "São Gonçalo do Piauí, julho de 2026, SPI-3 observado −0,95 (classe Próximo do normal) com chuva no mês de 6,2 mm. Nos últimos 12 meses a chuva acumulada foi 1.040,6 mm e houveram 2 meses em seca. O cenário pede organizar a equipe, revisar planos, monitorar chuvas e reservatórios e informar a população.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −0,95 e chuva de 6,2 mm, a seca pode se intensificar; reunir a equipe permite coordenar ações e registrar contatos para agir rapidamente."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "O índice próximo do normal indica que o plano pode precisar ajustes para falta de água; conferir assegura que as medidas de seca estejam previstas."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "A chuva de 6,2 mm e o SPI baixo exigem vigilância mensal dos níveis dos reservatórios para detectar quedas e orientar medidas."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com 2 meses em seca, é necessário mapear quem depende de carro-pipa ou cisternas para priorizar apoio caso a falta de água aumente."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A baixa precipitação de 6,2 mm justifica orientar a população sobre economia e pontos de distribuição, evitando desperdício."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 3,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2209856": {
+      "cod_ibge": "2209856",
+      "nome": "São João da Canabrava",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: São João da Canabrava (2209856)\nMês de referência: julho de 2026\nSPI-3 observado: −0,87 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 6,5 mm\nChuva nos 12 meses até o mês de referência: 714,3 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 9",
+      "resumo": "São João da Canabrava, julho de 2026, SPI-3 observado −0,87 (classe Próximo do normal) e chuva no mês 6,5 mm. Nos últimos 12 meses a chuva totalizou 714,3 mm e não houve meses em seca. O cenário pede organização das equipes, monitoramento dos recursos hídricos e comunicação à população.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI próximo do normal e pouca chuva no mês, é necessário reunir a Defesa Civil e setores envolvidos para definir responsabilidades e contatos antes de qualquer agravamento."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A baixa precipitação de 6,5 mm requer listar açudes, poços, cisternas e carro-pipa para saber volumes disponíveis e quem depende de cada fonte."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI de −0,87 e a chuva limitada demandam monitorar mensalmente o SPI, a precipitação e os níveis dos reservatórios para detectar mudanças rapidamente."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Sem meses de seca nos últimos 12, ainda é importante mapear comunidades que dependem de carro-pipa ou cisterna para priorizar apoio caso a estiagem se intensifique."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Com apenas 6,5 mm de chuva, a população precisa de orientações sobre uso consciente da água e informações sobre pontos e horários de distribuição."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 3,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2209906": {
+      "cod_ibge": "2209906",
+      "nome": "São João da Serra",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: São João da Serra (2209906)\nMês de referência: julho de 2026\nSPI-3 observado: −1,05 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 9,9 mm\nChuva nos 12 meses até o mês de referência: 888,3 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 4 de 10",
+      "resumo": "São João da Serra, julho de 2026, Seca moderada, SPI-3 −1,05, chuva no mês 9,9 mm. Nos últimos 12 meses a chuva acumulada foi 888,3 mm e 4 de 10 meses registraram seca. O cenário pede organizar informações, levantar recursos hídricos e monitorar a situação.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "O SPI de −1,05 e 4 meses em seca indicam que a coordenação entre Defesa Civil, saúde, assistência social, agricultura e obras é necessária para definir responsáveis e canais de comunicação."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "Com seca moderada, verificar se o plano de contingência cobre falta de água evita lacunas na resposta ao déficit hídrico."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Quatro meses secos ressaltam a importância de listar açudes, poços, cisternas, adutoras e pontos de carro-pipa, com volumes e comunidades atendidas, para orientar ações."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Comunidades que dependem de carro-pipa ou cisterna podem ficar sem abastecimento se a seca persistir; mapear quem é mais vulnerável ajuda a priorizar atendimentos."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "SPI de −1,05 e chuva de 9,9 mm mostram a necessidade de monitorar mensalmente a precipitação e os níveis dos reservatórios para detectar mudanças rápidas."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar pontos e horários de distribuição de água e orientações de economia permite que a população ajuste o consumo diante da seca moderada."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2209955": {
+      "cod_ibge": "2209955",
+      "nome": "São João da Varjota",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: São João da Varjota (2209955)\nMês de referência: julho de 2026\nSPI-3 observado: −1,02 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 4,9 mm\nChuva nos 12 meses até o mês de referência: 761,0 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 9",
+      "resumo": "São João da Varjota, julho de 2026, classe Seca moderada, SPI-3 −1,02, chuva no mês 4,9 mm. Nos últimos 12 meses a chuva acumulada foi 761,0 mm e 2 de 9 meses ficaram em seca. Exige organizar a equipe, mapear recursos hídricos e acompanhar a situação.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −1,02 e 2 meses em seca, é preciso definir responsáveis e contatos para coordenar as ações de enfrentamento da estiagem."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva de 4,9 mm no mês e a precipitação anual baixa tornam necessária a lista de açudes, poços, cisternas e carro-pipa para saber a disponibilidade de água."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Algumas comunidades dependem de carro-pipa ou cisterna; mapear quem tem menos acesso ajuda a priorizar atendimentos caso a seca se prolongue."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Com SPI e chuva baixos, monitorar mensalmente a precipitação e os níveis dos reservatórios permite detectar quedas e orientar intervenções rápidas."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2210383": {
+      "cod_ibge": "2210383",
+      "nome": "São Miguel da Baixa Grande",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: São Miguel da Baixa Grande (2210383)\nMês de referência: julho de 2026\nSPI-3 observado: −1,09 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 8,5 mm\nChuva nos 12 meses até o mês de referência: 1.054,3 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 3 de 10",
+      "resumo": "São Miguel da Baixa Grande, julho de 2026, classe Seca moderada, SPI-3 observado −1,09 e chuva no mês 8,5 mm. Nos últimos 12 meses a chuva acumulada foi 1.054,3 mm e 3 de 10 meses ficaram em seca. O cenário pede organizar a atuação municipal e intensificar o monitoramento da água.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI-3 −1,09 indica seca moderada, é preciso reunir a Defesa Civil e setores envolvidos para definir responsáveis e contatos antes que a situação se agrave."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "A classe seca moderada exige checar se o Plano de Contingência cobre a falta de água e apontar lacunas para ajuste imediato."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva de 8,5 mm e a sequência de 3 meses secos tornam essencial listar açudes, poços, cisternas e carro-pipas, indicando volumes e comunidades atendidas."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com 3 de 10 meses em seca, identificar quem depende de carro-pipa ou cisterna ajuda a priorizar apoio caso a falta de água se intensifique."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Acompanhar mensalmente o SPI, a chuva de 8,5 mm e o nível dos reservatórios permite detectar quedas críticas e orientar ações de forma rápida."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2210409": {
+      "cod_ibge": "2210409",
+      "nome": "São Miguel do Tapuio",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: São Miguel do Tapuio (2210409)\nMês de referência: julho de 2026\nSPI-3 observado: −1,02 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 6,9 mm\nChuva nos 12 meses até o mês de referência: 822,7 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 9",
+      "resumo": "São Miguel do Tapuio, julho de 2026, classe Seca moderada, SPI-3 −1,02, chuva no mês 6,9 mm. Nos últimos 12 meses a chuva acumulada foi 822,7 mm e 2 de 9 meses apresentaram seca. É preciso organizar o monitoramento, mapear recursos hídricos e orientar a população.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI-3 −1,02 e chuva de 6,9 mm, a seca exige definir quem lidera e quem executa as ações de resposta no município."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva baixa e a ocorrência de 2 meses de seca indicam necessidade de listar açudes, poços e carro-pipa para saber o volume disponível."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com 2 meses de seca recentes, é urgente mapear quem depende de carro-pipa ou cisterna para priorizar apoio caso a estiagem persista."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "SPI-3 −1,02 e chuva de 6,9 mm mostram que o acompanhamento mensal da precipitação e dos reservatórios é essencial para detectar mudanças."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A baixa precipitação de 6,9 mm requer informar a população sobre economia de água e os pontos de distribuição disponíveis."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2210508": {
+      "cod_ibge": "2210508",
+      "nome": "São Pedro do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: São Pedro do Piauí (2210508)\nMês de referência: julho de 2026\nSPI-3 observado: −0,80 (classe: Próximo do normal)\nLeitura de baixa confiança: não\nChuva no mês: 5,1 mm\nChuva nos 12 meses até o mês de referência: 1.126,0 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 10",
+      "resumo": "São Pedro do Piauí, julho de 2026, classe Próximo do normal, SPI-3 −0,80, chuva no mês 5,1 mm. Nos últimos 12 meses a chuva total foi 1.126,0 mm e 2 de 10 meses ficaram em seca. Isso pede organizar informações, monitorar a situação e orientar a população.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI −0,80 e chuva de 5,1 mm, a seca ainda não é crítica, mas a equipe precisa definir papéis e contatos para agir rapidamente caso a situação evolua."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva reduzida indica menor recarga; listar açudes, poços, cisternas e carro-pipa ajuda a saber o volume disponível e quem depende de cada fonte."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com 2 meses em seca nos últimos 10, algumas áreas já podem ter escassez; mapear quem depende de carro-pipa ou cisterna permite priorizar apoio."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "SPI −0,80 e chuva de 5,1 mm mostram necessidade de seguir a tendência mensal e verificar níveis dos reservatórios para evitar surpresas."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Informar sobre a chuva baixa e os pontos de distribuição evita consumo excessivo e prepara a comunidade para possíveis restrições."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2210979": {
+      "cod_ibge": "2210979",
+      "nome": "Tanque do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Tanque do Piauí (2210979)\nMês de referência: julho de 2026\nSPI-3 observado: −1,09 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 6,0 mm\nChuva nos 12 meses até o mês de referência: 894,9 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 3 de 10",
+      "resumo": "Tanque do Piauí, julho de 2026, classe Seca moderada, SPI-3 observado −1,09, chuva no mês 6,0 mm. Nos últimos 12 meses a chuva acumulada foi 894,9 mm e 3 de 10 meses ficaram em seca. O cenário pede organização das ações de monitoramento, levantamento de recursos hídricos e comunicação com a população.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com SPI-3 −1,09 e 3 meses em seca, é necessário reunir a Defesa Civil e setores parceiros para definir responsáveis e contatos durante a estiagem."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "A chuva de 6,0 mm indica baixa disponibilidade; listar açudes, poços, cisternas e carro-pipa ajuda a saber o volume disponível e quem depende de cada fonte."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Com 3 meses de seca recente, mapear as comunidades que já dependem de carro-pipa ou cisterna permite priorizar o atendimento caso a falta de água se prolongue."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI-3 −1,09 e a chuva de 6,0 mm requerem monitoramento mensal da precipitação e dos níveis dos reservatórios para detectar mudanças rapidamente."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação de seca, os pontos de distribuição e orientações de uso racional da água ajuda a população a economizar e se organizar diante da baixa precipitação."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2211209": {
+      "cod_ibge": "2211209",
+      "nome": "Uruçuí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Uruçuí (2211209)\nMês de referência: julho de 2026\nSPI-3 observado: −0,86 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 3,2 mm\nChuva nos 12 meses até o mês de referência: 998,7 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 2 de 9",
+      "resumo": "Uruçuí, julho de 2026, SPI-3 observado −0,86 (classe Próximo do normal) com chuva no mês 3,2 mm. Nos últimos 12 meses a chuva acumulada foi 998,7 mm e houve 2 meses em seca. Como a leitura tem baixa confiança e pode exagerar, é preciso organizar a equipe e acompanhar os indicadores.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com o SPI próximo do normal e a leitura de baixa confiança, reunir a Defesa Civil e setores auxiliares ajuda a definir papéis e contatos para agir caso a seca se intensifique."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "A leitura incerta indica necessidade de checar se o plano de contingência cobre a falta de água e apontar eventuais lacunas antes de qualquer agravamento."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Sabendo que a chuva no mês foi 3,2 mm e há 2 meses em seca, listar açudes, poços e pontos de carro-pipa permite identificar onde a oferta de água está mais vulnerável."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Acompanhar mensalmente o SPI, a chuva de 3,2 mm e o nível dos reservatórios dá base para decisões rápidas se a tendência mudar."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar a situação atual, incluindo a baixa chuva de 3,2 mm e a possibilidade de exagero no SPI, orienta a população a economizar água e conhecer os pontos de distribuição."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2211308": {
+      "cod_ibge": "2211308",
+      "nome": "Valença do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Valença do Piauí (2211308)\nMês de referência: julho de 2026\nSPI-3 observado: −1,16 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 6,0 mm\nChuva nos 12 meses até o mês de referência: 872,6 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 3 de 10",
+      "resumo": "Valença do Piauí, julho de 2026, classe seca moderada, SPI-3 −1,16 e chuva no mês 6,0 mm. Nos últimos 12 meses a chuva acumulada foi 872,6 mm e 3 de 10 meses ficaram em seca. É necessário organizar a equipe, mapear recursos hídricos e monitorar a situação.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "O SPI-3 −1,16 e a chuva de 6,0 mm mostram seca moderada, por isso é preciso definir responsáveis e contatos para coordenar as ações da Defesa Civil e dos demais setores."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com 3 de 10 meses em seca, conhecer os volumes e vazões das fontes existentes ajuda a planejar a distribuição de água para a população."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "A situação de seca moderada aumenta o risco nas áreas que dependem de carro-pipa ou cisterna; mapear essas comunidades permite priorizar o atendimento."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "A chuva baixa de 6,0 mm e a classificação de seca moderada exigem orientar a população sobre economia de água e os pontos de distribuição disponíveis."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI-3 −1,16 pode mudar; registrar mensalmente a chuva e os níveis dos reservatórios permite acompanhar a evolução da disponibilidade hídrica."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 2,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
     "2211407": {
       "cod_ibge": "2211407",
       "nome": "Várzea Grande",
@@ -246,6 +2318,86 @@
       ],
       "modelo": "claude-sonnet-5-5 (redigido na sessão de desenvolvimento, sem chamada de API)",
       "gerado_em_utc": "2026-11-19T12:36:33Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2211506": {
+      "cod_ibge": "2211506",
+      "nome": "Vera Mendes",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Vera Mendes (2211506)\nMês de referência: julho de 2026\nSPI-3 observado: −0,89 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 4,3 mm\nChuva nos 12 meses até o mês de referência: 668,7 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 8",
+      "resumo": "Vera Mendes em julho de 2026 tem SPI-3 de −0,89 (classe: Próximo do normal) e chuva no mês de 4,3 mm. Nos últimos 12 meses a chuva acumulada foi 668,7 mm e não houve meses em seca entre as leituras confiáveis. O dado de baixa confiança indica que o SPI pode exagerar, por isso é preciso focar na organização e no acompanhamento imediato.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com o SPI próximo do normal e leitura de baixa confiança, é essencial convocar a Defesa Civil e setores-chave para registrar quem decide, executa e os telefones de contato durante a estiagem."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "A situação atual pode mudar; verificar se o Plano de Contingência cobre falta de água evita lacunas quando a chuva continuar baixa."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com apenas 4,3 mm de chuva no mês, mapear açudes, poços, cisternas e carro-pipa ajuda a saber o volume disponível e quem depende de cada fonte."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "A baixa confiança do SPI exige monitoramento mensal da chuva e dos níveis de reservatórios para detectar rapidamente qualquer queda no suprimento."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "A chuva escassa pode afetar comunidades que já dependem de carro-pipa ou cisterna; mapear essas áreas permite priorizar apoio caso a seca persista."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar nos canais municipais a situação, pontos de distribuição e orientações de economia de água mantém a população informada enquanto os dados são acompanhados."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:30:27Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2211704": {
+      "cod_ibge": "2211704",
+      "nome": "Wall Ferraz",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Wall Ferraz (2211704)\nMês de referência: julho de 2026\nSPI-3 observado: −0,87 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 6,5 mm\nChuva nos 12 meses até o mês de referência: 718,6 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 8",
+      "resumo": "Wall Ferraz, julho de 2026, classe Próximo do normal, SPI-3 −0,87 e chuva no mês 6,5 mm. Nos últimos 12 meses a chuva acumulou 718,6 mm e não houve meses em seca. Como a leitura tem baixa confiança e pode exagerar, recomenda-se organizar a defesa civil e acompanhar a evolução da precipitação e dos reservatórios.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "O SPI −0,87 e a baixa confiança indicam necessidade de definir responsáveis e canais de comunicação para agir rapidamente se a situação mudar."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "É preciso checar se o plano de contingência inclui falta de água, já que a chuva do mês foi 6,5 mm e o índice pode subestimar a necessidade."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com a precipitação baixa, listar açudes, poços, cisternas e carro-pipa ajuda a saber a disponibilidade real de água no município."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Monitorar mensalmente o SPI, a chuva de 6,5 mm e o volume dos reservatórios evita surpresas caso a leitura exagere."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Mapear quem depende de carro-pipa ou cisterna permite focar rapidamente o apoio se a seca se intensificar."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Divulgar orientações sobre uso econômico da água ajuda a preservar o recurso enquanto a chuva permanece baixa e a confiança dos dados é limitada."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T18:46:23Z",
       "tentativas": 1,
       "status": "pendente_revisao",
       "revisado_por": null,
