@@ -11,12 +11,17 @@ PROTOCOLO (declarado antes de rodar; mudar qualquer item invalida a comparação
     configuração vencedora e lê a metade B UMA vez, contra todos os baselines (também ajustados com o treino e
     com a metade A). O arquivo `confirmacao_B.lock` marca a leitura: uma segunda é recusada.
  6. O teste congelado nunca é aberto aqui.
+ 7. RODADA 2 (adaptativa, declarada depois de ver a rodada 1, só com a metade A): em vez de número fixo, a busca
+    refina a melhor configuração por vizinhança (muda 1 ou 2 fatores por vez, com correção sobre o baseline fixa)
+    e PARA quando `PACIENCIA_BUSCA` tentativas seguidas não melhoram o MAE médio da metade A em pelo menos
+    `GANHO_MIN` (ou ao chegar em `MAX_TENTATIVAS_2`). A parada fica registrada; `finalizar` exige a parada.
 
 Por que assim: com dezenas de tentativas avaliadas nos mesmos dados, a melhor delas parece boa por acaso. A
 metade B não participou de nenhuma escolha, então mostra quanto do ganho sobrevive.
 
 Uso:
     python -m src.model.busca rodar [--max-segundos 480]
+    python -m src.model.busca adaptar [--max-segundos 480]
     python -m src.model.busca finalizar
     python -m src.model.busca relatorio
 """
@@ -31,6 +36,7 @@ import time
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass, fields
+from itertools import combinations, product
 from pathlib import Path
 
 import numpy as np
@@ -58,7 +64,18 @@ LIMITES_PADRAO = {"epocas_max": 80, "paciencia": 10, "lote": 512}
 Q_MARGEM = 0.80
 SOMA_ESTACAO = 0.05                         # piso do desvio entre as redes ao normalizar a margem (evita dividir por ~0)
 CHUVOSA = frozenset({11, 12, 1, 2, 3, 4})   # meses-alvo da estação chuvosa do semiárido, para a margem por estação
+ESPACO2 = {"perda": ("mse", "l1", "huber"),
+           "ocultas": ((32, 16), (48, 24), (64, 32), (64, 64), (96, 48), (128, 64)),
+           "dropout": (0.0, 0.05, 0.1, 0.2, 0.3),
+           "weight_decay": (1e-3, 3e-3, 1e-2, 3e-2, 1e-1),
+           "lr": (5e-4, 1e-3, 2e-3),
+           "regional": (False, True)}
+PACIENCIA_BUSCA = 20                        # tentativas seguidas sem ganho para a rodada 2 parar
+GANHO_MIN = 0.0005                          # ganho mínimo de MAE médio na metade A que conta como melhora
+MAX_TENTATIVAS_2 = 200
+GRADE_LIMIAR = tuple(round(-1.5 + 0.05 * i, 2) for i in range(29))        # limiares de alerta de seca: -1,50 a -0,10
 ARQ_REGISTRO = "registro.jsonl"
+ARQ_REGISTRO2 = "registro2.jsonl"
 ARQ_LOCK = "confirmacao_B.lock"
 ARQ_CONFIRMACAO = "confirmacao_B.json"
 ARQ_RELATORIO = "relatorio.md"
@@ -140,6 +157,61 @@ def hash_do_espaco() -> str:
     doc = {"espaco": {k: [list(x) if isinstance(x, tuple) else x for x in v] for k, v in ESPACO.items()},
            "p_residuo": P_RESIDUO, "p_regional": P_REGIONAL, "referencias": [t.para_dict() for t in _referencias()]}
     return hashlib.sha256(json.dumps(doc, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def hash_do_espaco2() -> str:
+    doc = {"espaco2": {k: [list(x) if isinstance(x, tuple) else x for x in v] for k, v in ESPACO2.items()}, "residuo": True}
+    return hashlib.sha256(json.dumps(doc, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def _todos_vizinhos(base: Tentativa, idx: int):
+    """Todas as configurações a 1 ou 2 fatores de `ESPACO2` de `base`, em ordem fixa (correção sobre o baseline ligada)."""
+    nomes = list(ESPACO2)
+    atuais = {f.name: getattr(base, f.name) for f in fields(base) if f.name != "idx"}
+    atuais["residuo"] = True
+    alternativas = {n: [v for v in ESPACO2[n] if v != atuais[n]] for n in nomes}
+    for tamanho in (1, 2):
+        for grupo in combinations(nomes, tamanho):
+            for valores in product(*(alternativas[n] for n in grupo)):
+                yield Tentativa(idx=idx, **{**atuais, **dict(zip(grupo, valores))})
+
+
+def vizinho(base: Tentativa, idx: int, seed: int, vistos: set) -> Tentativa | None:
+    """Configuração vizinha de `base`: muda 1 ou 2 fatores de `ESPACO2` (a correção sobre o baseline fica ligada).
+    Determinística em (seed, idx); nunca repete uma configuração em `vistos`. Devolve None só se TODA a vizinhança
+    já foi vista: depois de 100 sorteios sem sucesso, varre a vizinhança inteira em ordem fixa."""
+    rng = np.random.default_rng([seed, 2, idx])
+    nomes = list(ESPACO2)
+    for _ in range(100):
+        k = 1 + int(rng.random() < 0.5)
+        campos = {f.name: getattr(base, f.name) for f in fields(base) if f.name != "idx"}
+        campos["residuo"] = True
+        for i in rng.choice(len(nomes), size=k, replace=False):
+            nome = nomes[int(i)]
+            opcoes = [v for v in ESPACO2[nome] if v != campos[nome]]
+            campos[nome] = opcoes[int(rng.integers(len(opcoes)))]
+        t = Tentativa(idx=idx, **campos)
+        if t.chave() not in vistos:
+            return t
+    return next((t for t in _todos_vizinhos(base, idx) if t.chave() not in vistos), None)
+
+
+def deve_parar(tent2: list[dict], melhor_inicial: float, *, paciencia: int, ganho_min: float,
+               max_tentativas: int) -> str | None:
+    """Motivo da parada da rodada 2, ou None. Conta tentativas seguidas sem ganho de pelo menos `ganho_min`."""
+    melhor, sem = melhor_inicial, 0
+    for r in tent2:
+        m = r["mae_medio_a"]
+        if m < melhor:
+            ganho, melhor = melhor - m, m
+            sem = 0 if ganho >= ganho_min else sem + 1
+        else:
+            sem += 1
+    if sem >= paciencia:
+        return f"{sem} tentativas seguidas sem ganho de pelo menos {ganho_min} no MAE médio da metade A"
+    if len(tent2) >= max_tentativas:
+        return f"limite de {max_tentativas} tentativas"
+    return None
 
 
 # ---------------------------------------------------------------- dados e metades da validação
@@ -246,9 +318,15 @@ _CAMPOS_FIXOS = ("protocolo", "dataset_sha256", "seed", "n_tentativas", "espaco_
 def ler_registro(caminho, *, reparar: bool = False) -> tuple[dict | None, list[dict]]:
     """(cabeçalho, tentativas). Uma última linha cortada (queda no meio da escrita) é descartada; com `reparar`
     ela também é removida do arquivo. Qualquer outra linha inválida é erro."""
+    cab, tent, _ = ler_registro_completo(caminho, reparar=reparar)
+    return cab, tent
+
+
+def ler_registro_completo(caminho, *, reparar: bool = False) -> tuple[dict | None, list[dict], list[dict]]:
+    """(cabeçalho, tentativas, registros de parada)."""
     p = Path(caminho)
     if not p.exists():
-        return None, []
+        return None, [], []
     bruto = p.read_bytes()
     linhas = bruto.split(b"\n")
     cortada = linhas[-1] != b""                                  # sem \n final: a última linha pode estar pela metade
@@ -271,7 +349,7 @@ def ler_registro(caminho, *, reparar: bool = False) -> tuple[dict | None, list[d
     idxs = [x["idx"] for x in tent]
     if len(set(idxs)) != len(idxs):
         raise BuscaError("tentativa repetida no registro")
-    return (cab[0] if cab else None), tent
+    return (cab[0] if cab else None), tent, [x for x in docs if x.get("tipo") == "parada"]
 
 
 def _anexar(caminho: Path, doc: dict) -> None:
@@ -318,6 +396,63 @@ def escolher_vencedor(tentativas: list[dict]) -> dict:
     return min(tentativas, key=lambda r: (r["mae_medio_a"], r["idx"]))
 
 
+def _sha256_arquivo(caminho: Path) -> str:
+    return hashlib.sha256(Path(caminho).read_bytes()).hexdigest()
+
+
+def rodar_adaptativo(d: Dados, pasta_busca, *, seed: int, limites: dict | None = None, paciencia: int = PACIENCIA_BUSCA,
+                     ganho_min: float = GANHO_MIN, max_tentativas: int = MAX_TENTATIVAS_2,
+                     max_segundos: float | None = None, saida: Callable[[str], None] = print) -> tuple[int, int, str | None]:
+    """Rodada 2: refina a melhor configuração por vizinhança até estabilizar. Devolve (feitas agora, total na
+    rodada 2, motivo da parada ou None). Retoma de onde parou e exige a rodada 1 completa e inalterada."""
+    pasta = Path(pasta_busca)
+    limites = dict(limites or LIMITES_PADRAO)
+    cab1, tent1 = ler_registro(pasta / ARQ_REGISTRO)
+    if cab1 is None or len(tent1) != cab1["n_tentativas"]:
+        raise BuscaError("a rodada 1 precisa estar completa antes da rodada 2")
+    if (cab1["dataset_sha256"], cab1["seed"], cab1["corte_b"], cab1["limites"]) != (d.dataset_sha256, seed, d.corte_b, limites):
+        raise BuscaError("a rodada 1 foi feita com outro dataset, semente, corte ou limites de treino")
+    novo = {"tipo": "cabecalho", "protocolo": PROTOCOLO, "rodada": 2, "dataset_sha256": d.dataset_sha256, "seed": seed,
+            "corte_b": d.corte_b, "limites": limites, "espaco2_sha256": hash_do_espaco2(),
+            "registro1_sha256": _sha256_arquivo(pasta / ARQ_REGISTRO), "n_rodada1": len(tent1),
+            "paciencia_busca": paciencia, "ganho_min": ganho_min, "max_tentativas": max_tentativas}
+    caminho = pasta / ARQ_REGISTRO2
+    cab2, tent2, paradas = ler_registro_completo(caminho, reparar=True)
+    if cab2 is None:
+        _anexar(caminho, novo)
+    else:
+        diff = [k for k in novo if k != "tipo" and cab2.get(k) != novo[k]]
+        if diff:
+            raise BuscaError(f"o registro da rodada 2 foi feito com outro protocolo ou dataset ({diff}); "
+                             "apague-o conscientemente para recomeçar")
+    if paradas:
+        return 0, len(tent2), paradas[-1]["motivo"]
+    melhor_inicial = min(r["mae_medio_a"] for r in tent1)
+    inicio, agora = time.perf_counter(), 0
+    while True:
+        motivo = deve_parar(tent2, melhor_inicial, paciencia=paciencia, ganho_min=ganho_min, max_tentativas=max_tentativas)
+        if motivo is None and max_segundos is not None and agora > 0 and time.perf_counter() - inicio >= max_segundos:
+            return agora, len(tent2), None
+        if motivo is None:
+            todas = tent1 + tent2
+            base = Tentativa.de_dict(escolher_vencedor(todas)["config"])
+            t = vizinho(base, len(todas), seed, {Tentativa.de_dict(r["config"]).chave() for r in todas})
+            if t is None:
+                motivo = "espaço de vizinhança esgotado"
+        if motivo is not None:
+            melhor = min(r["mae_medio_a"] for r in tent1 + tent2)
+            _anexar(caminho, {"tipo": "parada", "motivo": motivo, "n_tentativas_rodada2": len(tent2), "melhor_mae_a": melhor})
+            saida(f"rodada 2 parou: {motivo}")
+            return agora, len(tent2), motivo
+        reg = executar(t, d.busca, seed + t.idx, limites)
+        _anexar(caminho, reg)
+        tent2.append(reg)
+        agora += 1
+        melhor = min(r["mae_medio_a"] for r in tent1 + tent2)
+        saida(f"rodada 2, tentativa {len(tent2):>3} | MAE médio na metade A {reg['mae_medio_a']:.4f} | melhor até aqui {melhor:.4f} "
+              f"| {reg['segundos']} s")
+
+
 # ---------------------------------------------------------------- final: conjunto de redes e metade B
 def _margens(yA, pA, mA, mesA, sA, yB, pB, mB, mesB, sB, q: float) -> dict:
     """Margens calibradas na metade A e verificadas na B, três jeitos declarados: global, por estação e
@@ -347,18 +482,28 @@ def _margens(yA, pA, mA, mesA, sA, yB, pB, mB, mesB, sB, q: float) -> dict:
 
 
 def finalizar(d: Dados, pasta_busca, pasta_modelo, *, seed: int, n_membros: int = N_MEMBROS, n_arvores: int = 100,
-              n_boot: int = 2000, saida: Callable[[str], None] = print) -> dict:
-    """Treina o conjunto do vencedor, lê a metade B uma única vez e grava pesos, receita e confirmação."""
+              n_boot: int = 2000, exigir_parada: bool = True, saida: Callable[[str], None] = print) -> dict:
+    """Treina o conjunto do vencedor, lê a metade B uma única vez e grava pesos, receita e confirmação.
+
+    Exige a rodada 1 completa e, por padrão, a rodada 2 já parada (`exigir_parada`)."""
     pasta_busca, pasta_modelo = Path(pasta_busca), Path(pasta_modelo)
-    cab, tentativas = ler_registro(pasta_busca / ARQ_REGISTRO)
-    if cab is None or len(tentativas) != cab["n_tentativas"]:
-        raise BuscaError(f"o orçamento ainda não foi gasto: {len(tentativas)} de {cab['n_tentativas'] if cab else '?'} "
+    cab, tent1 = ler_registro(pasta_busca / ARQ_REGISTRO)
+    if cab is None or len(tent1) != cab["n_tentativas"]:
+        raise BuscaError(f"o orçamento ainda não foi gasto: {len(tent1)} de {cab['n_tentativas'] if cab else '?'} "
                          "tentativas no registro (rode `busca rodar` até completar)")
     if (cab["dataset_sha256"], cab["seed"], cab["corte_b"]) != (d.dataset_sha256, seed, d.corte_b):
         raise BuscaError("o registro foi feito com outro dataset, semente ou corte da validação")
+    cab2, tent2, paradas = ler_registro_completo(pasta_busca / ARQ_REGISTRO2)
+    if cab2 is not None and (cab2["registro1_sha256"] != _sha256_arquivo(pasta_busca / ARQ_REGISTRO)
+                             or (cab2["dataset_sha256"], cab2["seed"], cab2["corte_b"], cab2["limites"])
+                             != (d.dataset_sha256, seed, d.corte_b, cab["limites"])):
+        raise BuscaError("o registro da rodada 2 não pertence a esta rodada 1, dataset ou semente")
+    if exigir_parada and not paradas:
+        raise BuscaError("a busca adaptativa (rodada 2) ainda não parou: rode `busca adaptar` até a parada")
     if (pasta_busca / ARQ_LOCK).exists() or (pasta_busca / ARQ_CONFIRMACAO).exists():
         raise BuscaError("a metade B já foi lida (confirmacao_B.lock/json existe): uma segunda leitura invalidaria "
                          "a confirmação")
+    tentativas = tent1 + tent2
     venc = escolher_vencedor(tentativas)
     t = Tentativa.de_dict(venc["config"])
     limites = cab["limites"]
@@ -375,6 +520,10 @@ def finalizar(d: Dados, pasta_busca, pasta_modelo, *, seed: int, n_membros: int 
     pad_plain = fe.Padronizador.ajustar(busca.tr)
     bases = bl.ajustar_todos(busca.tr, busca.va_a, pad_plain, d.params_gama, seed=seed, n_arvores=n_arvores)
     pA, sA = conjunto.prever(va_a), conjunto.desvio(va_a)
+    prev_a = {n: b.prever(busca.va_a) for n, b in bases.items()}
+    prev_a["rede_final"] = pA
+    limiares = {n: [mt.melhor_limiar_seca(busca.va_a.Y[:, i], P[:, i], busca.va_a.M[:, i], GRADE_LIMIAR)["limiar_previsao"]
+                    for i in range(len(busca.va_a.alvos))] for n, P in prev_a.items()}       # só com a metade A
     # --- a partir daqui a metade B é aberta, uma única vez
     pasta_busca.mkdir(parents=True, exist_ok=True)
     (pasta_busca / ARQ_LOCK).write_text(f"metade B lida em {time.strftime('%Y-%m-%d %H:%M:%S')}\n", encoding="utf-8")
@@ -383,6 +532,9 @@ def finalizar(d: Dados, pasta_busca, pasta_modelo, *, seed: int, n_membros: int 
     pB, sB = conjunto.prever(va_b), conjunto.desvio(va_b)
     prev["rede_final"] = pB
     corpo = av.pontuar(d.va_b, prev, principal="rede_final", n_boot=n_boot, seed=seed)
+    alerta = {alvo: {n: {"limiar_ajustado_na_a": limiares[n][i],
+                         **mt.seca_com_limiar(d.va_b.Y[:, i], P[:, i], d.va_b.M[:, i], limiares[n][i])}
+                     for n, P in prev.items()} for i, alvo in enumerate(d.va_b.alvos)}
     mes_a = pd.to_datetime(va_a.meta["mes_alvo"]).dt.month.to_numpy()
     mes_b = pd.to_datetime(va_b.meta["mes_alvo"]).dt.month.to_numpy()
     margens = {alvo: _margens(va_a.Y[:, i], pA[:, i], va_a.M[:, i], mes_a, sA[:, i], d.va_b.Y[:, i], pB[:, i],
@@ -394,6 +546,8 @@ def finalizar(d: Dados, pasta_busca, pasta_modelo, *, seed: int, n_membros: int 
                "config": t.para_dict(), "limites": limites, "n_membros": n_membros,
                "seeds_membros": [seed + 10_000 + k for k in range(n_membros)], "pesos_sha256": shas,
                "colunas": list(resultados[0].colunas), "alvos": list(resultados[0].alvos), "corte_b": d.corte_b,
+               "limiares_alerta": {alvo: limiares["rede_final"][i] for i, alvo in enumerate(d.va_b.alvos)},
+               "rodadas": {"1": len(tent1), "2": len(tent2), "parada": paradas[-1]["motivo"] if paradas else None},
                "margens_a": {alvo: m["global"]["valor"] for alvo, m in margens.items()},
                "margem_por_estacao_a": {alvo: m["por_estacao"]["valor"] for alvo, m in margens.items()},
                "razao_dispersao_a": {alvo: m["proporcional_a_dispersao"]["razao"] for alvo, m in margens.items()},
@@ -403,7 +557,9 @@ def finalizar(d: Dados, pasta_busca, pasta_modelo, *, seed: int, n_membros: int 
                                                + "\n", encoding="utf-8")
     conf = {"aviso": AVISO, "dataset_sha256": d.dataset_sha256, "seed": seed, "corte_b": d.corte_b, "n_linhas_b": len(d.va_b),
             "vencedora": {"idx": venc["idx"], "config": venc["config"], "mae_medio_a": venc["mae_medio_a"]},
-            "n_tentativas": len(tentativas), "n_membros": n_membros, "alvos": list(d.va_b.alvos), "margens": margens,
+            "n_tentativas": len(tentativas), "rodadas": {"1": len(tent1), "2": len(tent2),
+                                                         "parada": paradas[-1]["motivo"] if paradas else None},
+            "n_membros": n_membros, "alvos": list(d.va_b.alvos), "margens": margens, "alerta_seca": alerta,
             "baselines": {"n_arvores": n_arvores}, "bootstrap": {"n_boot": n_boot, "nivel": 0.95}, **corpo}
     arq = pasta_busca / ARQ_CONFIRMACAO
     arq.write_text(json.dumps(av._limpar(conf), ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
@@ -437,15 +593,23 @@ def _rot(v) -> str:
     return "sim" if v is True else "não" if v is False else str(tuple(v) if isinstance(v, list) else v)
 
 
-def texto_relatorio(cab: dict, tentativas: list[dict], conf: dict | None = None) -> str:
+def texto_relatorio(cab: dict, tentativas: list[dict], conf: dict | None = None, cab2: dict | None = None,
+                    parada: str | None = None) -> str:
     f = av._f
     ref = cab["referencias_a"]
     L = ["# Busca de configurações da rede", "", f"> {AVISO}", "",
-         f"- Protocolo {cab['protocolo']}: {len(tentativas)} de {cab['n_tentativas']} tentativas (orçamento fixo), sorteio com semente "
+         f"- Protocolo {cab['protocolo']}, rodada 1: {sum(1 for r in tentativas if r['idx'] < cab['n_tentativas'])} de "
+         f"{cab['n_tentativas']} tentativas (orçamento fixo), sorteio com semente "
          f"{cab['seed']}; escolha só na metade A da validação ({cab['n_a']} linhas, meses-alvo antes de {cab['corte_b']}).",
          f"- dataset_sha256 `{cab['dataset_sha256'][:16]}…`. Limites do treino: {cab['limites']}.",
          f"- Piso na metade A (MAE médio das cabeças): persistência {f(ref['persistencia']['mae_medio_a'])}, "
-         f"baseline parcial + climatologia {f(ref['parcial_climatologica']['mae_medio_a'])}.", ""]
+         f"baseline parcial + climatologia {f(ref['parcial_climatologica']['mae_medio_a'])}."]
+    if cab2 is not None:
+        n2 = sum(1 for r in tentativas if r["idx"] >= cab2["n_rodada1"])
+        L.append(f"- Rodada 2 (adaptativa, só metade A): {n2} tentativas por vizinhança da melhor configuração; para quando "
+                 f"{cab2['paciencia_busca']} seguidas não ganham {cab2['ganho_min']} de MAE médio (limite {cab2['max_tentativas']}). "
+                 + (f"Parou: {parada}." if parada else "Ainda não parou."))
+    L.append("")
     if tentativas:
         venc = escolher_vencedor(tentativas)
         c = venc["config"]
@@ -476,19 +640,28 @@ def texto_relatorio(cab: dict, tentativas: list[dict], conf: dict | None = None)
               f"{conf['n_linhas_b']} linhas, meses-alvo a partir de {conf['corte_b']}. Conjunto de {conf['n_membros']} redes da "
               f"configuração vencedora. Baselines ajustados no treino (Ridge com alfa escolhido na metade A).", ""]
         for alvo in conf["alvos"]:
-            L += [f"### {alvo}", "", "| Modelo | MAE | RMSE | Viés | Seca: precisão | Seca: revocação | Seca: F1 |", "|---|---|---|---|---|---|---|"]
+            L += [f"### {alvo}", "", "| Modelo | MAE | RMSE | Viés | Seca: precisão | Seca: revocação | Seca: F1 | Acerto de classe |",
+                  "|---|---|---|---|---|---|---|---|"]
             nomes = {**av._NOME, "rede_final": "Rede final (conjunto)"}
             for n, por_alvo in conf["modelos"].items():
                 t = por_alvo[alvo]["todas"]
                 s = t["seca"]
                 L.append(f"| {nomes.get(n, n)} | {f(t['mae'])} | {f(t['rmse'])} | {f(t['vies'])} | {f(s['precisao'])} | "
-                         f"{f(s['revocacao'])} | {f(s['f1'])} |")
-            L.append("")
+                         f"{f(s['revocacao'])} | {f(s['f1'])} | {f(t['classes']['acerto'])} |")
+            sn = conf["modelos"]["persistencia"][alvo]["todas"]["classes"]["acerto_sempre_normal"]
+            L += ["", f"Prever sempre \"normal\" acertaria {f(sn)} das classes: o acerto de classe só vale acima disso.", ""]
             for rot, titulo in (("persistencia", "persistência"), ("melhor_baseline", "melhor baseline")):
                 r = conf["comparacao"][alvo][rot]
                 L.append(f"- Rede final − {nomes.get(r['contra'], r['contra'])} ({titulo}): diferença de MAE {f(r['dif'], 4)} "
                          f"[{f(r['ic_inf'], 4)}; {f(r['ic_sup'], 4)}] (95%, bootstrap de {r['n_grupos']} meses): "
                          f"{av._VEREDITO[r['veredito']]}.")
+            al = conf["alerta_seca"][alvo]
+            L += ["", "Alerta de seca com o limiar ajustado na metade A (a previsão dispara o alerta quando o SPI previsto fica "
+                      "abaixo do limiar; seca real continua sendo SPI <= -1):", "",
+                  "| Modelo | Limiar | Precisão | Revocação | F1 | Secas reais pegas | Alarmes falsos |", "|---|---|---|---|---|---|---|"]
+            for n, r in al.items():
+                L.append(f"| {nomes.get(n, n)} | {f(r['limiar_ajustado_na_a'], 2)} | {f(r['precisao'])} | {f(r['revocacao'])} | "
+                         f"{f(r['f1'])} | {r['tp']} de {r['secas_reais']} | {r['fp']} |")
             m = conf["margens"][alvo]
             L += ["", f"Margem de erro ({int(round(m['q'] * 100))}% dos erros na metade A), cobertura obtida na metade B:", "",
                   "| Margem | Valor | Cobertura B | Estação chuvosa | Estação seca |", "|---|---|---|---|---|",
@@ -517,9 +690,11 @@ def gravar_relatorio(pasta_busca) -> Path:
     conf = None
     if (pasta / ARQ_CONFIRMACAO).exists():
         conf = json.loads((pasta / ARQ_CONFIRMACAO).read_text(encoding="utf-8"))
+    cab2, tent2, paradas = ler_registro_completo(pasta / ARQ_REGISTRO2)
     destino = pasta / ARQ_RELATORIO
     tmp = destino.with_name(destino.name + ".tmp")
-    tmp.write_text(texto_relatorio(cab, tentativas, conf), encoding="utf-8")
+    tmp.write_text(texto_relatorio(cab, tentativas + tent2, conf, cab2, paradas[-1]["motivo"] if paradas else None),
+                   encoding="utf-8")
     os.replace(tmp, destino)
     return destino
 
@@ -528,10 +703,13 @@ def gravar_relatorio(pasta_busca) -> Path:
 def main(argv: list[str] | None = None, *, saida: Callable[[str], None] = print,
          carregar_cfg: Callable[[str], Config] = load_config, preparar_dados: Callable[[Config], Dados] = preparar) -> int:
     ap = argparse.ArgumentParser(prog="python -m src.model.busca", description=__doc__.split("\n\n")[0])
-    ap.add_argument("comando", choices=("rodar", "finalizar", "relatorio"))
+    ap.add_argument("comando", choices=("rodar", "adaptar", "finalizar", "relatorio"))
     ap.add_argument("--params", default="params.yaml")
     ap.add_argument("--max-segundos", type=float, default=None, help="não começa tentativa nova depois deste tempo")
     ap.add_argument("--n-tentativas", type=int, default=N_TENTATIVAS)
+    ap.add_argument("--paciencia-busca", type=int, default=PACIENCIA_BUSCA)
+    ap.add_argument("--ganho-min", type=float, default=GANHO_MIN)
+    ap.add_argument("--max-tentativas-2", type=int, default=MAX_TENTATIVAS_2)
     ap.add_argument("--membros", type=int, default=N_MEMBROS)
     ap.add_argument("--n-arvores", type=int, default=100)
     ap.add_argument("--n-boot", type=int, default=2000)
@@ -556,6 +734,14 @@ def main(argv: list[str] | None = None, *, saida: Callable[[str], None] = print,
             saida(f"Relatório em {gravar_relatorio(pasta_busca)}")
             saida("Próximo passo: " + ("python -m src.model.busca finalizar" if total >= a.n_tentativas
                                        else "python -m src.model.busca rodar (retoma de onde parou)"))
+        elif a.comando == "adaptar":
+            feitas, total, motivo = rodar_adaptativo(d, pasta_busca, seed=cfg.projeto.seed, limites=limites,
+                                                     paciencia=a.paciencia_busca, ganho_min=a.ganho_min,
+                                                     max_tentativas=a.max_tentativas_2, max_segundos=a.max_segundos, saida=saida)
+            saida(f"{feitas} tentativa(s) agora; {total} na rodada 2" + (f"; parou: {motivo}" if motivo else ""))
+            saida(f"Relatório em {gravar_relatorio(pasta_busca)}")
+            saida("Próximo passo: " + ("python -m src.model.busca finalizar" if motivo else
+                                       "python -m src.model.busca adaptar (retoma de onde parou)"))
         else:
             conf = finalizar(d, pasta_busca, cfg.caminho("artifacts") / "modelo_v2", seed=cfg.projeto.seed, n_membros=a.membros,
                              n_arvores=a.n_arvores, n_boot=a.n_boot, saida=saida)

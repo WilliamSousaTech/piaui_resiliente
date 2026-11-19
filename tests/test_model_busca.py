@@ -235,7 +235,12 @@ def test_margens_ignoram_linhas_sem_rotulo():
 def busca_completa(dados, tmp_path):
     pasta = tmp_path / "busca"
     bs.rodar(dados, pasta / bs.ARQ_REGISTRO, seed=3, n_tentativas=3, limites=LIM, saida=lambda _: None)
+    bs.rodar_adaptativo(dados, pasta, seed=3, limites=LIM, paciencia=2, ganho_min=0.0005, max_tentativas=3, saida=lambda _: None)
     return pasta
+
+
+def todas_as_tentativas(pasta):
+    return bs.ler_registro(pasta / bs.ARQ_REGISTRO)[1] + bs.ler_registro(pasta / bs.ARQ_REGISTRO2)[1]
 
 
 def test_finalizar_exige_orcamento_gasto_e_registro_do_mesmo_dataset(dados, tmp_path):
@@ -247,6 +252,9 @@ def test_finalizar_exige_orcamento_gasto_e_registro_do_mesmo_dataset(dados, tmp_
         bs.finalizar(dados, pasta, tmp_path / "m", seed=3, saida=lambda _: None)
     assert not (pasta / bs.ARQ_LOCK).exists() and not (tmp_path / "m").exists()               # nada lido, nada gravado
     bs.rodar(dados, pasta / bs.ARQ_REGISTRO, seed=3, n_tentativas=3, limites=LIM, saida=lambda _: None)
+    with pytest.raises(bs.BuscaError, match="ainda não parou"):                               # rodada 1 sozinha não basta
+        bs.finalizar(dados, pasta, tmp_path / "m", seed=3, saida=lambda _: None)
+    assert not (pasta / bs.ARQ_LOCK).exists() and not (tmp_path / "m").exists()
     with pytest.raises(bs.BuscaError, match="outro dataset"):
         bs.finalizar(dataclasses.replace(dados, dataset_sha256="0" * 64), pasta, tmp_path / "m", seed=3, saida=lambda _: None)
     with pytest.raises(bs.BuscaError, match="outro dataset"):
@@ -256,8 +264,9 @@ def test_finalizar_exige_orcamento_gasto_e_registro_do_mesmo_dataset(dados, tmp_
 def test_finalizar_le_a_metade_b_uma_vez_grava_tudo_e_a_volta_reproduz(dados, busca_completa, tmp_path):
     modelo = tmp_path / "modelo_v2"
     conf = bs.finalizar(dados, busca_completa, modelo, seed=3, n_membros=2, n_arvores=5, n_boot=200, saida=lambda _: None)
-    cab, ts = bs.ler_registro(busca_completa / bs.ARQ_REGISTRO)
+    ts = todas_as_tentativas(busca_completa)
     venc = bs.escolher_vencedor(ts)
+    assert len(ts) > 3 and conf["n_tentativas"] == len(ts) and conf["rodadas"]["1"] == 3 and conf["rodadas"]["2"] == len(ts) - 3
     assert conf["vencedora"]["idx"] == venc["idx"] and conf["vencedora"]["config"] == venc["config"]
     assert conf["n_linhas_b"] == len(dados.va_b) == 83 or conf["n_linhas_b"] == len(dados.va_b)
     assert set(conf["modelos"]) == {"persistencia", "climatologia", "parcial_climatologica", "ridge", "floresta_aleatoria", "rede_final"}
@@ -338,16 +347,21 @@ def test_carregar_final_recusa_receita_ausente_e_membro_de_outro_dataset(dados, 
 
 # ------------------------------------------------------------------ relatório
 def test_relatorio_lista_tudo_ordena_e_so_mostra_confirmacao_quando_existe(dados, busca_completa, tmp_path):
-    cab, ts = bs.ler_registro(busca_completa / bs.ARQ_REGISTRO)
-    txt = bs.texto_relatorio(cab, ts)
+    cab, _ = bs.ler_registro(busca_completa / bs.ARQ_REGISTRO)
+    cab2, _, paradas = bs.ler_registro_completo(busca_completa / bs.ARQ_REGISTRO2)
+    ts = todas_as_tentativas(busca_completa)
+    txt = bs.texto_relatorio(cab, ts, None, cab2, paradas[-1]["motivo"])
     assert txt.count(bs.AVISO) == 2 and "Confirmação na metade B" not in txt and "otimista" in txt
-    assert "3 de 3 tentativas" in txt and "Efeito médio de cada fator" in txt and "Taxa de aprendizado" in txt
+    assert "rodada 1: 3 de 3 tentativas" in txt and "Rodada 2 (adaptativa" in txt and "Parou:" in txt
+    assert "Efeito médio de cada fator" in txt and "Taxa de aprendizado" in txt
     tabela = txt.split("## Todas as tentativas")[1]
     primeira = [ln for ln in tabela.splitlines() if ln.startswith("| ") and ln[2].isdigit()][0]
     assert primeira.startswith(f"| {bs.escolher_vencedor(ts)['idx'] + 1} |")
     bs.finalizar(dados, busca_completa, tmp_path / "m", seed=3, n_membros=2, n_arvores=5, n_boot=200, saida=lambda _: None)
-    txt2 = bs.texto_relatorio(cab, ts, json.loads((busca_completa / bs.ARQ_CONFIRMACAO).read_text(encoding="utf-8")))
+    txt2 = bs.texto_relatorio(cab, ts, json.loads((busca_completa / bs.ARQ_CONFIRMACAO).read_text(encoding="utf-8")), cab2, "m")
     assert "Confirmação na metade B (lida uma única vez)" in txt2 and "Rede final (conjunto)" in txt2 and "Margem de erro" in txt2
+    assert "Alerta de seca com o limiar ajustado na metade A" in txt2 and "Prever sempre \"normal\" acertaria" in txt2
+    assert "Acerto de classe" in txt2
     destino = bs.gravar_relatorio(busca_completa)
     assert destino.read_text(encoding="utf-8").startswith("# Busca de configurações da rede")
     with pytest.raises(bs.BuscaError, match="não há registro"):
@@ -376,7 +390,10 @@ def test_cli_roda_finaliza_uma_vez_nao_le_o_teste_e_nao_mexe_nos_dados(tmp_path,
     assert "ERRO" in out[-1] and "orçamento" in out[-1] and not (raiz / "artifacts" / "busca" / bs.ARQ_LOCK).exists()
     out.clear()
     assert bs.main(["rodar", *p, *rapido], saida=out.append) == 0 and any("3 de 3 no registro" in x for x in out)
-    assert any("busca finalizar" in x for x in out)
+    assert bs.main(["finalizar", *p, "--membros", "2"], saida=out.append) == 1 and "ainda não parou" in out[-1]
+    out.clear()
+    assert bs.main(["adaptar", *p, *rapido, "--paciencia-busca", "2", "--max-tentativas-2", "4"], saida=out.append) == 0
+    assert any("rodada 2 parou" in x for x in out) and any("busca finalizar" in x for x in out)
     out.clear()
     assert bs.main(["finalizar", *p, "--membros", "2", "--n-arvores", "5", "--n-boot", "200"], saida=out.append) == 0
     txt = "\n".join(out)
@@ -393,14 +410,327 @@ def test_cli_recusa_teste_liberado_e_argumento_ruim(tmp_path):
     cfg, raiz = montar_proj(tmp_path, raw_sintetico())
     liberado = cfg.model_copy(update={"split": cfg.split.model_copy(update={"teste_liberado": True})})
     out = []
-    for cmd in ("rodar", "finalizar"):
+    for cmd in ("rodar", "adaptar", "finalizar"):
         assert bs.main([cmd, "--params", str(raiz / "params.yaml")], saida=out.append, carregar_cfg=lambda _: liberado) == 1
         assert "teste_liberado" in out[-1]
     assert not (raiz / "artifacts" / "busca").exists()
-    for cmd in ("rodar", "finalizar"):                                                          # recusa antes de abrir os dados
+    for cmd in ("rodar", "adaptar", "finalizar"):                                               # recusa antes de abrir os dados
         assert bs.main([cmd, "--params", str(raiz / "params.yaml")], saida=out.append, carregar_cfg=lambda _: liberado,
                        preparar_dados=lambda c: pytest.fail("não deveria preparar os dados")) == 1
     assert bs.main(["rodar", "--params", str(raiz / "nao_existe.yaml")], saida=out.append) == 1
     with pytest.raises(SystemExit):
         bs.main(["apagar"])
     assert bs.main(["relatorio", "--params", str(raiz / "params.yaml")], saida=out.append) == 1 and "não há registro" in out[-1]
+
+
+# ------------------------------------------------------------------ rodada 2: vizinhança e parada por estabilização
+def campos_diferentes(a, b):
+    return sum(x != y for x, y in zip(a.chave(), b.chave()))
+
+
+def test_vizinho_muda_um_ou_dois_fatores_dentro_do_espaco2_sem_repetir_e_e_deterministico():
+    base = dataclasses.replace(bs.sortear(2, 1)[0], residuo=False)                              # a base pode ter residuo falso
+    vistos = {base.chave()}
+    quantos = set()
+    for idx in range(40, 100):
+        v = bs.vizinho(base, idx, 7, vistos)
+        assert v.idx == idx and v.residuo is True and v.chave() not in vistos
+        assert bs.vizinho(base, idx, 7, vistos) == v                                           # determinística em (seed, idx)
+        trocados = [n for n in bs.ESPACO2 if getattr(v, n) != getattr(base, n)]
+        assert 1 <= len(trocados) <= 2                                                          # só fatores do ESPACO2
+        for n in trocados:
+            assert getattr(v, n) in bs.ESPACO2[n]
+        assert (v.perda, v.ocultas) == (base.perda, base.ocultas) or {"perda", "ocultas"} & set(trocados)
+        quantos.add(len(trocados))
+        vistos.add(v.chave())
+    assert quantos == {1, 2}                                                                    # os dois tamanhos de passo aparecem
+    assert bs.vizinho(base, 41, 7, set()) != bs.vizinho(base, 41, 8, set()) or bs.vizinho(base, 42, 7, set()) != bs.vizinho(base, 42, 8, set())
+    # sorteio puro (sem vizinhos já vistos, a varredura final não entra): metade dos passos mexe em 1 fator, metade em 2
+    passos = [sum(getattr(v, n) != getattr(base, n) for n in bs.ESPACO2)
+              for v in (bs.vizinho(base, i, 7, {base.chave()}) for i in range(200, 400))]
+    assert set(passos) == {1, 2} and 70 <= passos.count(2) <= 130
+
+
+def vizinhanca_independente(base):
+    """Enumeração escrita à parte do código: tudo a 1 ou 2 fatores de ESPACO2 de `base`, residuo ligado."""
+    import itertools
+    nomes = list(bs.ESPACO2)
+    atual = {n: getattr(base, n) for n in ("regional", "perda", "ocultas", "dropout", "weight_decay", "lr")}
+    saida = set()
+    for tam in (1, 2):
+        for grupo in itertools.combinations(nomes, tam):
+            for valores in itertools.product(*([v for v in bs.ESPACO2[n] if v != atual[n]] for n in grupo)):
+                saida.add(bs.Tentativa(idx=0, residuo=True, **{**atual, **dict(zip(grupo, valores))}).chave())
+    return saida
+
+
+@pytest.mark.parametrize("posicao", [0, 1])                      # 0: referência sem resíduo; 1: com resíduo
+def test_vizinho_so_devolve_none_quando_toda_a_vizinhanca_foi_vista_e_acha_o_ultimo_que_resta(posicao):
+    base = bs.sortear(2, 1)[posicao]                              # weight_decay 1e-4 fica fora de ESPACO2: caso real da rodada 2
+    assert base.residuo is bool(posicao)
+    todos = vizinhanca_independente(base)
+    assert len(todos) > 100
+    assert bs.vizinho(base, 50, 1, set(todos)) is None
+    for ultimo in sorted(todos, key=repr)[:: max(1, len(todos) // 7)]:   # sobra só um: tem de ser achado, mesmo com sorteio fraco
+        t = bs.vizinho(base, 50, 1, todos - {ultimo})
+        assert t is not None and t.chave() == ultimo and t.idx == 50 and t.residuo is True
+    # a varredura cobre exatamente a mesma vizinhança que o sorteio
+    achados = {bs.vizinho(base, i, 1, set()).chave() for i in range(300)}
+    assert achados <= todos
+
+
+def test_hash_do_espaco2_muda_com_o_espaco(monkeypatch):
+    h = bs.hash_do_espaco2()
+    assert len(h) == 64 and h != bs.hash_do_espaco()
+    monkeypatch.setitem(bs.ESPACO2, "lr", (1e-3,))
+    assert bs.hash_do_espaco2() != h
+
+
+def reg(mae, idx=0):
+    return {"idx": idx, "mae_medio_a": mae}
+
+
+def test_parada_so_depois_de_tentativas_seguidas_sem_ganho_suficiente():
+    kw = dict(paciencia=3, ganho_min=0.001, max_tentativas=50)
+    assert bs.deve_parar([], 0.30, **kw) is None
+    assert bs.deve_parar([reg(0.31), reg(0.32)], 0.30, **kw) is None                           # duas sem ganho: ainda não
+    assert "3 tentativas seguidas" in bs.deve_parar([reg(0.31), reg(0.32), reg(0.33)], 0.30, **kw)
+    assert bs.deve_parar([reg(0.31), reg(0.32), reg(0.29), reg(0.33), reg(0.33)], 0.30, **kw) is None   # ganho zera a contagem
+    assert bs.deve_parar([reg(0.2995), reg(0.2992), reg(0.2990)], 0.30, **kw) is not None     # ganhos pequenos demais não contam
+    assert bs.deve_parar([reg(0.299), reg(0.298), reg(0.297)], 0.30, **kw) is None            # ganhos de 0,001 contam
+    assert bs.deve_parar([reg(0.31)] * 3, 0.30, paciencia=99, ganho_min=0.001, max_tentativas=3) == "limite de 3 tentativas"
+    assert bs.deve_parar([reg(0.31), reg(0.32)], 0.20, **kw) is None                           # melhor inicial vem da rodada 1
+
+
+def test_parada_ganho_exatamente_no_minimo_conta_e_empate_nao_e_melhora():
+    # valores exatos em binário: 0,5 - 0,25 == 0,25
+    assert bs.deve_parar([reg(0.25)], 0.5, paciencia=1, ganho_min=0.25, max_tentativas=99) is None
+    assert bs.deve_parar([reg(0.25000001)], 0.5, paciencia=1, ganho_min=0.25, max_tentativas=99) is not None
+    # empate com o melhor nunca é ganho, nem com ganho_min = 0
+    assert bs.deve_parar([reg(0.3), reg(0.3)], 0.3, paciencia=2, ganho_min=0.0, max_tentativas=99) is not None
+    assert bs.deve_parar([reg(0.3)], 0.3, paciencia=2, ganho_min=0.0, max_tentativas=99) is None
+
+
+def test_rodada_2_para_pela_paciencia_contada_a_partir_do_melhor_da_rodada_1(dados, tmp_path, monkeypatch):
+    pasta = tmp_path / "busca"
+    bs.rodar(dados, pasta / bs.ARQ_REGISTRO, seed=3, n_tentativas=3, limites=LIM, saida=lambda _: None)
+    real = bs.executar
+    monkeypatch.setattr(bs, "executar", lambda *a, **k: {**real(*a, **k), "mae_medio_a": 9.0})    # nenhuma bate a rodada 1
+    feitas, total, motivo = bs.rodar_adaptativo(dados, pasta, seed=3, limites=LIM, paciencia=2, max_tentativas=50,
+                                                saida=lambda _: None)
+    assert (feitas, total) == (2, 2) and "2 tentativas seguidas" in motivo                      # a 1ª já não conta como ganho
+    _, tent1 = bs.ler_registro(pasta / bs.ARQ_REGISTRO)
+    _, _, paradas = bs.ler_registro_completo(pasta / bs.ARQ_REGISTRO2)
+    melhor1 = min(r["mae_medio_a"] for r in tent1)
+    assert melhor1 < 9.0 and paradas[0]["melhor_mae_a"] == melhor1 and paradas[0]["n_tentativas_rodada2"] == 2
+
+
+def test_rodada_2_refina_a_partir_da_melhor_ja_encontrada_inclusive_da_propria_rodada_2(dados, tmp_path, monkeypatch):
+    pasta = tmp_path / "busca"
+    bs.rodar(dados, pasta / bs.ARQ_REGISTRO, seed=3, n_tentativas=3, limites=LIM, saida=lambda _: None)
+    real = bs.executar
+    monkeypatch.setattr(bs, "executar", lambda t, *a, **k: {**real(t, *a, **k), "mae_medio_a": 0.0001 if t.idx == 3 else 9.0})
+    bs.rodar_adaptativo(dados, pasta, seed=3, limites=LIM, paciencia=99, max_tentativas=7, saida=lambda _: None)
+    _, tent2, _ = bs.ler_registro_completo(pasta / bs.ARQ_REGISTRO2)
+    assert [r["idx"] for r in tent2] == [3, 4, 5, 6, 7, 8, 9]
+    melhor = bs.Tentativa.de_dict(tent2[0]["config"])                                           # a primeira da rodada 2 virou a melhor
+    assert melhor.residuo is True
+    for r in tent2[1:]:
+        t = bs.Tentativa.de_dict(r["config"])
+        assert t.residuo is True and 1 <= campos_diferentes(t, melhor) <= 2
+
+
+def test_rodada_2_exige_rodada_1_completa_e_inalterada(dados, tmp_path):
+    pasta = tmp_path / "busca"
+    with pytest.raises(bs.BuscaError, match="rodada 1 precisa estar completa"):
+        bs.rodar_adaptativo(dados, pasta, seed=3, limites=LIM, saida=lambda _: None)
+    bs.rodar(dados, pasta / bs.ARQ_REGISTRO, seed=3, n_tentativas=3, limites=LIM, max_segundos=0, saida=lambda _: None)
+    with pytest.raises(bs.BuscaError, match="rodada 1 precisa estar completa"):
+        bs.rodar_adaptativo(dados, pasta, seed=3, limites=LIM, saida=lambda _: None)
+    bs.rodar(dados, pasta / bs.ARQ_REGISTRO, seed=3, n_tentativas=3, limites=LIM, saida=lambda _: None)
+    with pytest.raises(bs.BuscaError, match="outro dataset, semente, corte ou limites"):
+        bs.rodar_adaptativo(dados, pasta, seed=4, limites=LIM, saida=lambda _: None)
+    with pytest.raises(bs.BuscaError, match="outro dataset, semente, corte ou limites"):
+        bs.rodar_adaptativo(dados, pasta, seed=3, limites={**LIM, "epocas_max": 5}, saida=lambda _: None)
+    assert not (pasta / bs.ARQ_REGISTRO2).exists()
+
+
+def test_rodada_2_refina_a_melhor_para_retoma_e_registra_a_parada(dados, tmp_path):
+    pasta = tmp_path / "busca"
+    bs.rodar(dados, pasta / bs.ARQ_REGISTRO, seed=3, n_tentativas=3, limites=LIM, saida=lambda _: None)
+    kw = dict(seed=3, limites=LIM, paciencia=2, ganho_min=0.0005, max_tentativas=6, saida=lambda _: None)
+    feitas, total, motivo = bs.rodar_adaptativo(dados, pasta, max_segundos=0, **kw)
+    assert (feitas, total, motivo) == (1, 1, None)                                              # uma por chamada com tempo 0
+    feitas2, total2, motivo2 = bs.rodar_adaptativo(dados, pasta, **kw)
+    cab2, tent2, paradas = bs.ler_registro_completo(pasta / bs.ARQ_REGISTRO2)
+    assert motivo2 is not None and total2 == len(tent2) == 1 + feitas2 and len(paradas) == 1 and paradas[0]["motivo"] == motivo2
+    assert paradas[0]["n_tentativas_rodada2"] == len(tent2) and tent2[0]["idx"] == 3           # a numeração continua da rodada 1
+    assert [t["idx"] for t in tent2] == list(range(3, 3 + len(tent2))) and [t["seed"] for t in tent2] == [3 + t["idx"] for t in tent2]
+    assert cab2["registro1_sha256"] == bs._sha256_arquivo(pasta / bs.ARQ_REGISTRO) and cab2["n_rodada1"] == 3
+    # cada tentativa da rodada 2 é vizinha (até 2 fatores) da melhor conhecida antes dela
+    historico = bs.ler_registro(pasta / bs.ARQ_REGISTRO)[1]
+    for r in tent2:
+        melhor = bs.Tentativa.de_dict(bs.escolher_vencedor(historico)["config"])
+        t = bs.Tentativa.de_dict(r["config"])
+        assert t.residuo is True and 1 <= campos_diferentes(t, dataclasses.replace(melhor, residuo=True)) <= 2
+        historico.append(r)
+    assert bs.rodar_adaptativo(dados, pasta, **kw) == (0, len(tent2), motivo2)                  # parada é definitiva
+    assert len(bs.ler_registro_completo(pasta / bs.ARQ_REGISTRO2)[2]) == 1
+
+
+def test_rodada_2_para_no_limite_e_recusa_outro_protocolo_ou_rodada_1_mexida(dados, tmp_path):
+    pasta = tmp_path / "busca"
+    bs.rodar(dados, pasta / bs.ARQ_REGISTRO, seed=3, n_tentativas=3, limites=LIM, saida=lambda _: None)
+    _, total, motivo = bs.rodar_adaptativo(dados, pasta, seed=3, limites=LIM, paciencia=99, max_tentativas=2, saida=lambda _: None)
+    assert total == 2 and motivo == "limite de 2 tentativas"
+    for kw, campo in (({"paciencia": 98}, "paciencia_busca"), ({"ganho_min": 0.01}, "ganho_min"), ({"max_tentativas": 3}, "max_tentativas")):
+        args = {"seed": 3, "limites": LIM, "paciencia": 99, "max_tentativas": 2} | kw
+        with pytest.raises(bs.BuscaError, match=campo):
+            bs.rodar_adaptativo(dados, pasta, saida=lambda _: None, **args)
+    original = (pasta / bs.ARQ_REGISTRO).read_bytes()
+    linhas = original.split(b"\n")
+    assert linhas[-1] == b""                                                                    # o arquivo termina em quebra de linha
+    # (a) conteúdo da rodada 1 mexido com a mesma contagem de tentativas: o hash gravado na rodada 2 não bate mais
+    ultima = json.loads(linhas[-2])
+    ultima["segundos"] = ultima["segundos"] + 1
+    (pasta / bs.ARQ_REGISTRO).write_bytes(b"\n".join([*linhas[:-2], json.dumps(ultima).encode(), b""]))
+    with pytest.raises(bs.BuscaError, match="registro1_sha256"):
+        bs.rodar_adaptativo(dados, pasta, seed=3, limites=LIM, paciencia=99, max_tentativas=2, saida=lambda _: None)
+    # (b) última tentativa da rodada 1 apagada: a rodada 1 deixa de estar completa
+    (pasta / bs.ARQ_REGISTRO).write_bytes(b"\n".join(linhas[:-2]) + b"\n")
+    with pytest.raises(bs.BuscaError, match="rodada 1 precisa estar completa"):
+        bs.rodar_adaptativo(dados, pasta, seed=3, limites=LIM, paciencia=99, max_tentativas=2, saida=lambda _: None)
+
+
+def test_rodada_2_nao_depende_da_metade_b(dados, tmp_path):
+    envenenado = dataclasses.replace(
+        dados, va_b=dataclasses.replace(dados.va_b, Y=np.full_like(dados.va_b.Y, 999.0)),
+        va_b_reg=dataclasses.replace(dados.va_b_reg, Y=np.full_like(dados.va_b_reg.Y, 999.0)))
+    for nome, dd in (("a", dados), ("b", envenenado)):
+        pasta = tmp_path / nome
+        bs.rodar(dd, pasta / bs.ARQ_REGISTRO, seed=3, n_tentativas=3, limites=LIM, saida=lambda _: None)
+        bs.rodar_adaptativo(dd, pasta, seed=3, limites=LIM, paciencia=2, max_tentativas=4, saida=lambda _: None)
+    ta = [sem_tempo(x) for x in bs.ler_registro(tmp_path / "a" / bs.ARQ_REGISTRO2)[1]]
+    tb = [sem_tempo(x) for x in bs.ler_registro(tmp_path / "b" / bs.ARQ_REGISTRO2)[1]]
+    assert ta == tb and len(ta) >= 2
+
+
+def test_finalizar_so_exige_a_parada_quando_pedido_e_recusa_rodada_2_de_outra_rodada_1(dados, tmp_path):
+    pasta = tmp_path / "busca"
+    bs.rodar(dados, pasta / bs.ARQ_REGISTRO, seed=3, n_tentativas=3, limites=LIM, saida=lambda _: None)
+    bs.rodar_adaptativo(dados, pasta, seed=3, limites=LIM, paciencia=99, max_tentativas=2, max_segundos=0, saida=lambda _: None)
+    with pytest.raises(bs.BuscaError, match="ainda não parou"):                                 # rodada 2 começou e não parou
+        bs.finalizar(dados, pasta, tmp_path / "m", seed=3, n_membros=2, saida=lambda _: None)
+    conf = bs.finalizar(dados, pasta, tmp_path / "m", seed=3, n_membros=2, n_arvores=5, n_boot=200, exigir_parada=False,
+                        saida=lambda _: None)
+    assert conf["rodadas"]["parada"] is None and conf["rodadas"]["2"] == 1
+    pasta2 = tmp_path / "busca2"
+    bs.rodar(dados, pasta2 / bs.ARQ_REGISTRO, seed=3, n_tentativas=3, limites=LIM, saida=lambda _: None)
+    bs.rodar_adaptativo(dados, pasta2, seed=3, limites=LIM, paciencia=99, max_tentativas=2, saida=lambda _: None)
+    cab2 = (pasta2 / bs.ARQ_REGISTRO2).read_text(encoding="utf-8").split("\n")
+    doc = json.loads(cab2[0])
+    doc["registro1_sha256"] = "0" * 64                                                          # rodada 2 de outra rodada 1
+    (pasta2 / bs.ARQ_REGISTRO2).write_text("\n".join([json.dumps(doc), *cab2[1:]]), encoding="utf-8")
+    with pytest.raises(bs.BuscaError, match="não pertence a esta rodada 1"):
+        bs.finalizar(dados, pasta2, tmp_path / "m2", seed=3, n_membros=2, saida=lambda _: None)
+    assert not (pasta2 / bs.ARQ_LOCK).exists()
+
+
+@pytest.mark.parametrize("campo,valor", [("dataset_sha256", "f" * 64), ("seed", 99), ("corte_b", "2019-01"),
+                                         ("limites", {"epocas_max": 99, "paciencia": 2, "lote": 128})])
+def test_finalizar_recusa_rodada_2_feita_com_outro_protocolo(dados, tmp_path, campo, valor):
+    pasta = tmp_path / "busca"
+    bs.rodar(dados, pasta / bs.ARQ_REGISTRO, seed=3, n_tentativas=3, limites=LIM, saida=lambda _: None)
+    bs.rodar_adaptativo(dados, pasta, seed=3, limites=LIM, paciencia=99, max_tentativas=1, saida=lambda _: None)
+    linhas = (pasta / bs.ARQ_REGISTRO2).read_text(encoding="utf-8").split("\n")
+    cab = json.loads(linhas[0])
+    assert cab[campo] != valor
+    cab[campo] = valor                                                                          # o hash da rodada 1 continua válido
+    (pasta / bs.ARQ_REGISTRO2).write_text("\n".join([json.dumps(cab), *linhas[1:]]), encoding="utf-8")
+    with pytest.raises(bs.BuscaError, match="não pertence a esta rodada 1"):
+        bs.finalizar(dados, pasta, tmp_path / "m", seed=3, n_membros=1, saida=lambda _: None)
+    assert not (pasta / bs.ARQ_LOCK).exists() and not (tmp_path / "m").exists()
+
+
+# ------------------------------------------------------------------ alerta de seca com limiar ajustado só na metade A
+def test_limiares_de_alerta_vem_da_metade_a_e_o_resultado_e_medido_na_b(dados, busca_completa, tmp_path):
+    from src.model import baselines as bl
+    from src.model import metricas as mt
+    modelo = tmp_path / "modelo_v2"
+    conf = bs.finalizar(dados, busca_completa, modelo, seed=3, n_membros=2, n_arvores=5, n_boot=200, saida=lambda _: None)
+    b, vb = dados.busca, dados.va_b
+    pers_a, pers_b = bl.Persistencia().prever(b.va_a), bl.Persistencia().prever(vb)
+    for i, alvo in enumerate(vb.alvos):
+        esperado = mt.melhor_limiar_seca(b.va_a.Y[:, i], pers_a[:, i], b.va_a.M[:, i], bs.GRADE_LIMIAR)["limiar_previsao"]
+        r = conf["alerta_seca"][alvo]["persistencia"]
+        assert r["limiar_ajustado_na_a"] == esperado and esperado in bs.GRADE_LIMIAR
+        direto = mt.seca_com_limiar(vb.Y[:, i], pers_b[:, i], vb.M[:, i], esperado)             # medido na B com o limiar da A
+        assert {k: r[k] for k in direto} == direto
+        assert set(conf["alerta_seca"][alvo]) == set(conf["modelos"])
+    receita = json.loads((modelo / "receita.json").read_text(encoding="utf-8"))
+    assert receita["limiares_alerta"] == {a: conf["alerta_seca"][a]["rede_final"]["limiar_ajustado_na_a"] for a in vb.alvos}
+    assert receita["rodadas"] == conf["rodadas"] and conf["rodadas"]["parada"] is not None
+    assert min(bs.GRADE_LIMIAR) == -1.5 and max(bs.GRADE_LIMIAR) == -0.1 and len(bs.GRADE_LIMIAR) == 29
+
+
+def test_classes_entram_nos_modelos_da_confirmacao(dados, busca_completa, tmp_path):
+    conf = bs.finalizar(dados, busca_completa, tmp_path / "m", seed=3, n_membros=2, n_arvores=5, n_boot=200, saida=lambda _: None)
+    for alvo in conf["alvos"]:
+        for n, por_alvo in conf["modelos"].items():
+            c = por_alvo[alvo]["todas"]["classes"]
+            assert c["n"] == por_alvo[alvo]["todas"]["n"] and 0.0 <= c["acerto"] <= 1.0 and sum(map(sum, c["matriz"])) == c["n"]
+
+
+def test_vencedor_pode_vir_da_rodada_2_e_e_o_que_se_treina_e_grava(dados, tmp_path):
+    pasta = tmp_path / "busca"
+    bs.rodar(dados, pasta / bs.ARQ_REGISTRO, seed=3, n_tentativas=3, limites=LIM, saida=lambda _: None)
+    bs.rodar_adaptativo(dados, pasta, seed=3, limites=LIM, paciencia=99, max_tentativas=2, saida=lambda _: None)
+    linhas = (pasta / bs.ARQ_REGISTRO2).read_text(encoding="utf-8").split("\n")
+    docs = [json.loads(x) for x in linhas if x]
+    alvo = next(x for x in docs if x.get("tipo") == "tentativa" and x["idx"] == 4)             # segunda da rodada 2
+    alvo["mae_medio_a"] = 0.0001                                                                # melhor que qualquer outra
+    (pasta / bs.ARQ_REGISTRO2).write_text("".join(json.dumps(x) + "\n" for x in docs), encoding="utf-8")
+    conf = bs.finalizar(dados, pasta, tmp_path / "m", seed=3, n_membros=2, n_arvores=5, n_boot=200, saida=lambda _: None)
+    assert conf["vencedora"]["idx"] == 4 and conf["vencedora"]["config"] == alvo["config"] and conf["n_tentativas"] == 5
+    receita = json.loads((tmp_path / "m" / "receita.json").read_text(encoding="utf-8"))
+    assert receita["tentativa_vencedora"] == {"idx": 4, "mae_medio_a": 0.0001} and receita["config"] == alvo["config"]
+
+
+def test_rodada_2_para_quando_a_vizinhanca_acaba(dados, tmp_path, monkeypatch):
+    monkeypatch.setattr(bs, "ESPACO2", {"perda": ("mse", "l1"), "regional": (False, True)})
+    pasta = tmp_path / "busca"
+    bs.rodar(dados, pasta / bs.ARQ_REGISTRO, seed=3, n_tentativas=3, limites=LIM, saida=lambda _: None)
+    feitas, total, motivo = bs.rodar_adaptativo(dados, pasta, seed=3, limites=LIM, paciencia=99, max_tentativas=50,
+                                                saida=lambda _: None)
+    assert motivo == "espaço de vizinhança esgotado" and 0 < total <= 4 and feitas == total
+    _, tent1 = bs.ler_registro(pasta / bs.ARQ_REGISTRO)
+    _, tent2, paradas = bs.ler_registro_completo(pasta / bs.ARQ_REGISTRO2)
+    chaves = [bs.Tentativa.de_dict(r["config"]).chave() for r in tent1 + tent2]
+    assert len(set(chaves)) == len(chaves)                                                       # nunca repetiu configuração
+    assert len(paradas) == 1 and paradas[0]["motivo"] == motivo
+
+
+def test_relatorio_da_confirmacao_traz_os_numeros_certos_nas_tabelas_de_alerta_e_de_classe(dados, busca_completa, tmp_path):
+    from src.model import avaliar as av
+    f = av._f
+    cab, _ = bs.ler_registro(busca_completa / bs.ARQ_REGISTRO)
+    cab2, _, paradas = bs.ler_registro_completo(busca_completa / bs.ARQ_REGISTRO2)
+    conf = bs.finalizar(dados, busca_completa, tmp_path / "m", seed=3, n_membros=2, n_arvores=5, n_boot=200, saida=lambda _: None)
+    conf = json.loads((busca_completa / bs.ARQ_CONFIRMACAO).read_text(encoding="utf-8"))
+    txt = bs.texto_relatorio(cab, todas_as_tentativas(busca_completa), conf, cab2, paradas[-1]["motivo"])
+    for alvo in conf["alvos"]:
+        secao = txt.split(f"### {alvo}")[1].split("### ")[0].split("## Leitura")[0]
+        sn = conf["modelos"]["persistencia"][alvo]["todas"]["classes"]["acerto_sempre_normal"]
+        assert f"Prever sempre \"normal\" acertaria {f(sn)} das classes" in secao
+        nomes = {**av._NOME, "rede_final": "Rede final (conjunto)"}
+        for n, por_alvo in conf["modelos"].items():
+            t, s = por_alvo[alvo]["todas"], por_alvo[alvo]["todas"]["seca"]
+            linha = next(ln for ln in secao.splitlines() if ln.startswith(f"| {nomes[n]} | {f(t['mae'])} | {f(t['rmse'])} |"))
+            cels = [c.strip() for c in linha.strip("|").split("|")]
+            assert cels[4:8] == [f(s["precisao"]), f(s["revocacao"]), f(s["f1"]), f(t["classes"]["acerto"])]
+        alerta = secao.split("Alerta de seca com o limiar ajustado na metade A")[1].split("Margem de erro")[0]
+        for n, r in conf["alerta_seca"][alvo].items():
+            linha = next(ln for ln in alerta.splitlines() if ln.startswith(f"| {nomes[n]} |"))
+            cels = [c.strip() for c in linha.strip("|").split("|")]
+            assert cels == [nomes[n], f(r["limiar_ajustado_na_a"], 2), f(r["precisao"]), f(r["revocacao"]), f(r["f1"]),
+                            f"{r['tp']} de {r['secas_reais']}", str(r["fp"])]

@@ -338,3 +338,44 @@ def test_cli_recusa_rede_treinada_com_outros_dados_ou_com_outro_padronizador(pro
     monkeypatch.setattr(tn, "carregar_preditor", deslocado)
     linhas.clear()
     assert av.main(p, saida=linhas.append) == 1 and "padronizador" in linhas[-1]
+
+
+# ------------------------------------------------------------------ acerto de classe no relatório
+def test_classes_entram_na_pontuacao_e_no_relatorio_com_a_referencia_sempre_normal(va):
+    r = av.pontuar(va, prevs(va), n_boot=200, seed=1)
+    for alvo in va.alvos:
+        i = list(va.alvos).index(alvo)
+        for n in r["modelos"]:
+            c = r["modelos"][n][alvo]["todas"]["classes"]
+            assert c["n"] == 165 and sum(map(sum, c["matriz"])) == 165
+        direto = mt.acerto_classes(va.Y[:, i], prevs(va)["rede"][:, i], va.M[:, i])
+        assert r["modelos"]["rede"][alvo]["todas"]["classes"] == direto
+    txt = av.texto_relatorio(av._limpar(relatorio(va)))
+    assert "Acerto de classe" in txt and "prever sempre \"normal\" já acerta" in txt
+
+
+def test_classes_ignoram_linhas_sem_rotulo_e_o_relatorio_traz_os_valores_certos(va):
+    M = va.M.copy()
+    M[:20, 0] = False                                                  # 20 linhas sem rótulo só na primeira cabeça
+    Y = np.where(M, va.Y, np.nan).astype("float32")
+    va2 = dataclasses.replace(va, M=M, Y=Y)
+    p = prevs(va)
+    r = av.pontuar(va2, p, n_boot=200, seed=1)
+    for i, alvo in enumerate(va.alvos):
+        for n in r["modelos"]:
+            c = r["modelos"][n][alvo]["todas"]["classes"]
+            assert c["n"] == int(M[:, i].sum()) == sum(map(sum, c["matriz"]))
+            assert c == mt.acerto_classes(Y[:, i], p[n][:, i], M[:, i])
+    assert r["modelos"]["rede"][va.alvos[0]]["todas"]["classes"]["n"] == 165 - 20
+    # relatório: cada linha da tabela traz o acerto de classe do modelo e a referência "sempre normal" vem da mesma contagem
+    f = av._f
+    rel = relatorio(va2, p)
+    txt = av.texto_relatorio(av._limpar(rel))
+    for alvo in va.alvos:
+        secao = txt.split(f"## {alvo}")[1].split("## ")[0]
+        for n in rel["modelos"]:
+            t = rel["modelos"][n][alvo]["todas"]
+            linha = next(ln for ln in secao.splitlines() if ln.startswith(f"| {av._NOME.get(n, n)} | {f(t['mae'])} |"))
+            assert [c.strip() for c in linha.strip("|").split("|")][-1] == f(t["classes"]["acerto"])
+        ref = next(iter(rel["modelos"].values()))[alvo]["todas"]
+        assert f"prever sempre \"normal\" já acerta {f(ref['classes']['acerto_sempre_normal'])}." in secao

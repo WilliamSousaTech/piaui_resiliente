@@ -11,6 +11,7 @@ from __future__ import annotations
 import numpy as np
 
 LIMIAR_SECA = -1.0
+LIMIAR_UMIDO = 1.0
 
 
 class MetricasError(ValueError):
@@ -41,17 +42,62 @@ def erros(y, p, m) -> dict:
             "vies": float(e.mean())}
 
 
-def seca(y, p, m, limiar: float = LIMIAR_SECA) -> dict:
-    """Acerto de "em seca" (SPI <= limiar): contagens, precisão, revocação e F1. NaN quando o denominador é 0."""
+def seca_com_limiar(y, p, m, limiar_previsao: float, limiar_real: float = LIMIAR_SECA) -> dict:
+    """Como `seca`, mas a previsão "em seca" usa outro limiar (alerta mais sensível: limiar_previsao > limiar_real).
+
+    O que é seca real não muda (SPI <= `limiar_real`); só muda a partir de que previsão o modelo dispara o alerta."""
     ys, ps = _preparar(y, p, m)
-    real, prev = ys <= limiar, ps <= limiar
+    real, prev = ys <= limiar_real, ps <= limiar_previsao
     tp, fp = int((real & prev).sum()), int((~real & prev).sum())
     fn, tn = int((real & ~prev).sum()), int((~real & ~prev).sum())
     div = lambda a, b: float(a / b) if b > 0 else float("nan")        # noqa: E731
     prec, rev = div(tp, tp + fp), div(tp, tp + fn)
     f1 = div(2 * prec * rev, prec + rev) if np.isfinite(prec) and np.isfinite(rev) else float("nan")
-    return {"n": int(len(ys)), "secas_reais": tp + fn, "tp": tp, "fp": fp, "fn": fn, "tn": tn,
-            "precisao": prec, "revocacao": rev, "f1": f1}
+    return {"n": int(len(ys)), "limiar_previsao": float(limiar_previsao), "secas_reais": tp + fn, "tp": tp, "fp": fp,
+            "fn": fn, "tn": tn, "precisao": prec, "revocacao": rev, "f1": f1}
+
+
+def seca(y, p, m, limiar: float = LIMIAR_SECA) -> dict:
+    """Acerto de "em seca" (SPI <= limiar): contagens, precisão, revocação e F1. NaN quando o denominador é 0."""
+    r = seca_com_limiar(y, p, m, limiar, limiar)
+    del r["limiar_previsao"]
+    return r
+
+
+def melhor_limiar_seca(y, p, m, grade, limiar_real: float = LIMIAR_SECA) -> dict:
+    """Limiar de alerta com maior F1 de seca sobre as linhas dadas (empate: o primeiro da grade em ordem crescente).
+
+    Escolher só em dados de escolha (metade A); medir o resultado em dados que não participaram."""
+    grade = sorted(float(g) for g in grade)
+    if not grade:
+        raise MetricasError("a grade de limiares está vazia")
+    melhor = None
+    for g in grade:
+        r = seca_com_limiar(y, p, m, g, limiar_real)
+        if np.isfinite(r["f1"]) and (melhor is None or r["f1"] > melhor["f1"]):
+            melhor = r
+    return melhor if melhor is not None else {**seca_com_limiar(y, p, m, grade[0], limiar_real)}
+
+
+def classe(x, cortes=(LIMIAR_SECA, LIMIAR_UMIDO)) -> np.ndarray:
+    """0 = seca (SPI <= cortes[0]), 2 = úmido (SPI >= cortes[1]), 1 = normal."""
+    x = np.asarray(x, dtype="float64")
+    return np.where(x <= cortes[0], 0, np.where(x >= cortes[1], 2, 1))
+
+
+def acerto_classes(y, p, m, cortes=(LIMIAR_SECA, LIMIAR_UMIDO)) -> dict:
+    """Acerto de classe (seca, normal, úmido), matriz de confusão (linhas = real, colunas = previsto) e o acerto de
+    quem prevê sempre "normal": a referência que um acerto alto precisa superar para significar alguma coisa."""
+    if not cortes[0] < cortes[1]:
+        raise MetricasError("cortes devem estar em ordem crescente")
+    ys, ps = _preparar(y, p, m)
+    if len(ys) == 0:
+        return {"n": 0, "acerto": float("nan"), "acerto_sempre_normal": float("nan"), "matriz": [[0] * 3 for _ in range(3)]}
+    real, prev = classe(ys, cortes), classe(ps, cortes)
+    matriz = np.zeros((3, 3), dtype=int)
+    np.add.at(matriz, (real, prev), 1)
+    return {"n": int(len(ys)), "acerto": float((real == prev).mean()), "acerto_sempre_normal": float((real == 1).mean()),
+            "matriz": matriz.tolist()}
 
 
 def quantil_erro_abs(y, p, m, q: float) -> float:

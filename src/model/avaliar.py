@@ -84,7 +84,7 @@ def pontuar(va: fe.Conjunto, prev: dict[str, np.ndarray], *, principal: str = "r
         for n in nomes:
             p = np.asarray(prev[n])[:, i]
             modelos[n][alvo] = {
-                "todas": {**mt.erros(y, p, m), "seca": mt.seca(y, p, m)},
+                "todas": {**mt.erros(y, p, m), "seca": mt.seca(y, p, m), "classes": mt.acerto_classes(y, p, m)},
                 "confiaveis": mt.erros(y, p, m & ~baixa),
                 "por_mes_calendario": {str(c): (mt.erros(y, p, m & (mes_cal == c))["mae"] if (m & (mes_cal == c)).any()
                                                 else None) for c in range(1, 13)},
@@ -150,15 +150,16 @@ def texto_relatorio(rel: dict) -> str:
          "existem só para comparar; o núcleo é a rede.", ""]
     for alvo in rel["alvos"]:
         L += [f"## {alvo}", "",
-              "| Modelo | MAE | RMSE | Viés | MAE (alvos confiáveis) | Seca: precisão | Seca: revocação | Seca: F1 |",
-              "|---|---|---|---|---|---|---|---|"]
+              "| Modelo | MAE | RMSE | Viés | MAE (alvos confiáveis) | Seca: precisão | Seca: revocação | Seca: F1 | Acerto de classe |",
+              "|---|---|---|---|---|---|---|---|---|"]
         for n, por_alvo in rel["modelos"].items():
             t, c = por_alvo[alvo]["todas"], por_alvo[alvo]["confiaveis"]
             s = t["seca"]
             L.append(f"| {_NOME.get(n, n)} | {_f(t['mae'])} | {_f(t['rmse'])} | {_f(t['vies'])} | {_f(c['mae'])} | "
-                     f"{_f(s['precisao'])} | {_f(s['revocacao'])} | {_f(s['f1'])} |")
+                     f"{_f(s['precisao'])} | {_f(s['revocacao'])} | {_f(s['f1'])} | {_f(t['classes']['acerto'])} |")
         ref = next(iter(rel["modelos"].values()))[alvo]["todas"]
-        L += ["", f"Linhas em seca real: {ref['seca']['secas_reais']} de {ref['n']}.", ""]
+        L += ["", f"Linhas em seca real: {ref['seca']['secas_reais']} de {ref['n']}. Acerto de classe = seca (SPI <= -1), normal ou "
+                  f"úmido (SPI >= 1); prever sempre \"normal\" já acerta {_f(ref['classes']['acerto_sempre_normal'])}.", ""]
         for rot, titulo in (("persistencia", "persistência"), ("melhor_baseline", "melhor baseline")):
             r = rel["comparacao"][alvo][rot]
             L.append(f"- Rede − {_NOME.get(r['contra'], r['contra'])} ({titulo}): diferença de MAE {_f(r['dif'], 4)} "
