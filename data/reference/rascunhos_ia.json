@@ -1,0 +1,223 @@
+{
+  "versao_arquivo": 1,
+  "dataset_sha256": "7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab",
+  "checklist_sha256": "53d3d087ae36b2a2f1f5afc7d06f7fa4fdd20d3c61ecdc9bf4ac7a4b9ed08c92",
+  "rascunhos": {
+    "2200905": {
+      "cod_ibge": "2200905",
+      "nome": "Aroazes",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Aroazes (2200905)\nMês de referência: julho de 2026\nSPI-3 observado: −1,27 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 6,8 mm\nChuva nos 12 meses até o mês de referência: 922,3 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 3 de 10",
+      "resumo": "Em julho de 2026, Aroazes está em seca moderada, com SPI-3 de −1,27 e 6,8 mm de chuva no mês. Nos 12 meses até julho choveram 922,3 mm, e 3 de 10 leituras confiáveis do período ficaram em seca. A situação pede atenção à organização local e ao acompanhamento mensal.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com 3 de 10 leituras confiáveis em seca, convém definir responsáveis e contatos antes que a seca se prolongue."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "Em seca moderada, este é um momento adequado para conferir se o Plano de Contingência trata de falta de água."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI-3 de −1,27 e os 6,8 mm do mês indicam que a leitura mensal deve continuar."
+        }
+      ],
+      "modelo": "claude-sonnet-5-5 (redigido na sessão de desenvolvimento, sem chamada de API)",
+      "gerado_em_utc": "2026-11-19T12:36:33Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2201176": {
+      "cod_ibge": "2201176",
+      "nome": "Barra D'Alcântara",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Barra D'Alcântara (2201176)\nMês de referência: julho de 2026\nSPI-3 observado: −1,26 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 3,8 mm\nChuva nos 12 meses até o mês de referência: 938,0 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 3 de 10",
+      "resumo": "Em julho de 2026, Barra D'Alcântara está em seca moderada: SPI-3 de −1,26, com 3,8 mm de chuva no mês. Nos 12 meses até julho choveram 938,0 mm, e 3 de 10 leituras confiáveis do período ficaram em seca. O município pode se beneficiar de saber, desde já, de onde vem a água de cada comunidade.",
+      "itens": [
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com 3,8 mm de chuva no mês, saber de onde vem a água de cada comunidade ajuda a agir cedo."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Em seca moderada, mapear quem depende de carro-pipa ou cisterna define quem será atendido primeiro."
+        },
+        {
+          "id": "acionar_defesa_civil_estadual",
+          "porque": "Informar a Defesa Civil do Estado agora facilita combinar apoio, como carro-pipa, antes de o problema crescer."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI-3 de −1,26 pede leitura mensal, com a data de cada leitura anotada."
+        }
+      ],
+      "modelo": "claude-sonnet-5-5 (redigido na sessão de desenvolvimento, sem chamada de API)",
+      "gerado_em_utc": "2026-11-19T12:36:33Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2204006": {
+      "cod_ibge": "2204006",
+      "nome": "Francinópolis",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Francinópolis (2204006)\nMês de referência: julho de 2026\nSPI-3 observado: −1,26 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 4,0 mm\nChuva nos 12 meses até o mês de referência: 956,6 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 4 de 10",
+      "resumo": "Em julho de 2026, Francinópolis está em seca moderada, com SPI-3 de −1,26 e 4,0 mm de chuva no mês. Nos 12 meses até julho choveram 956,6 mm. Em 4 de 10 leituras confiáveis do período o município esteve em seca, o que mostra que a falta de chuva se repetiu no período. Vale organizar a resposta com antecedência.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Em 4 de 10 leituras confiáveis houve seca; definir responsáveis e telefones agora organiza a resposta."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "A repetição de meses secos pede conferir se o Plano de Contingência trata de falta de água."
+        },
+        {
+          "id": "preparar_decreto_emergencia",
+          "porque": "Com 4 de 10 leituras em seca, reunir relatórios e dados de chuva com antecedência facilita uma eventual declaração de emergência."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com 4,0 mm de chuva no mês, convém listar açudes, poços e cisternas e as comunidades que atendem."
+        }
+      ],
+      "modelo": "claude-sonnet-5-5 (redigido na sessão de desenvolvimento, sem chamada de API)",
+      "gerado_em_utc": "2026-11-19T12:36:33Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2207801": {
+      "cod_ibge": "2207801",
+      "nome": "Paulistana",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Paulistana (2207801)\nMês de referência: julho de 2026\nSPI-3 observado: −0,49 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 2,3 mm\nChuva nos 12 meses até o mês de referência: 542,6 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 8",
+      "resumo": "Em julho de 2026, Paulistana está próxima do normal, com SPI-3 de −0,49. É uma leitura de baixa confiança: há pouca chuva esperada na janela, e o SPI pode exagerar. O mês teve 2,3 mm, e nos 12 meses até julho choveram 542,6 mm. Nenhuma das 8 leituras confiáveis do período ficou em seca. O momento é de manter o acompanhamento e a organização, sem sinal de seca no índice.",
+      "itens": [
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Com leitura de baixa confiança e SPI-3 de −0,49, o acompanhamento mensal evita decidir por um único número."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "Sem seca no índice, este é um bom momento para conferir se o Plano de Contingência trata de falta de água."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Mesmo sem seca, conhecer as fontes de água e quem depende delas encurta a resposta se a chuva falhar."
+        }
+      ],
+      "modelo": "claude-sonnet-5-5 (redigido na sessão de desenvolvimento, sem chamada de API)",
+      "gerado_em_utc": "2026-11-19T12:36:33Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2209153": {
+      "cod_ibge": "2209153",
+      "nome": "Santa Cruz dos Milagres",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Santa Cruz dos Milagres (2209153)\nMês de referência: julho de 2026\nSPI-3 observado: −1,23 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 7,9 mm\nChuva nos 12 meses até o mês de referência: 921,3 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 3 de 10",
+      "resumo": "Em julho de 2026, Santa Cruz dos Milagres está em seca moderada, com SPI-3 de −1,23 e 7,9 mm de chuva no mês. Nos 12 meses até julho choveram 921,3 mm, e 3 de 10 leituras confiáveis do período ficaram em seca. A leitura é de confiança normal. O quadro pede acompanhamento mensal e preparo da comunicação com a população.",
+      "itens": [
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI-3 de −1,23 e os 7,9 mm do mês mostram que a leitura mensal deve continuar."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Em seca moderada, orientar a população sobre pontos de distribuição e economia de água evita desencontros."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Conhecer as fontes de água e as comunidades que dependem delas reduz o tempo de resposta."
+        },
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Em 3 de 10 leituras confiáveis houve seca; ter responsáveis definidos antecipa a resposta."
+        }
+      ],
+      "modelo": "claude-sonnet-5-5 (redigido na sessão de desenvolvimento, sem chamada de API)",
+      "gerado_em_utc": "2026-11-19T12:36:33Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2209609": {
+      "cod_ibge": "2209609",
+      "nome": "São Félix do Piauí",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: São Félix do Piauí (2209609)\nMês de referência: julho de 2026\nSPI-3 observado: −1,30 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 8,3 mm\nChuva nos 12 meses até o mês de referência: 973,8 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 3 de 10",
+      "resumo": "Em julho de 2026, São Félix do Piauí está em seca moderada: o SPI-3 é de −1,30 e o mês teve só 8,3 mm de chuva. Nos 12 meses até julho choveram 973,8 mm, e 3 de 10 leituras confiáveis do período ficaram em seca. A leitura é de confiança normal. O quadro pede atenção à organização da Defesa Civil e ao levantamento das fontes de água, antes que a seca se prolongue.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com 3 de 10 leituras confiáveis em seca nos últimos 12 meses, vale combinar agora quem decide e quem executa."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "O mês teve só 8,3 mm de chuva; é importante saber quais açudes, poços e cisternas atendem cada comunidade."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI-3 de −1,30 mostra que o acompanhamento mensal deve continuar, com a data de cada leitura anotada."
+        },
+        {
+          "id": "identificar_comunidades_vulneraveis",
+          "porque": "Quem depende de carro-pipa ou cisterna sente primeiro uma seca que continua; mapear essas comunidades ajuda a definir prioridades."
+        }
+      ],
+      "modelo": "claude-sonnet-5-5 (redigido na sessão de desenvolvimento, sem chamada de API)",
+      "gerado_em_utc": "2026-11-19T12:36:33Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    },
+    "2211407": {
+      "cod_ibge": "2211407",
+      "nome": "Várzea Grande",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Várzea Grande (2211407)\nMês de referência: julho de 2026\nSPI-3 observado: −1,29 (classe: Seca moderada)\nLeitura de baixa confiança: não\nChuva no mês: 2,8 mm\nChuva nos 12 meses até o mês de referência: 978,7 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 3 de 10",
+      "resumo": "Em julho de 2026, Várzea Grande está em seca moderada, com SPI-3 de −1,29. O mês teve apenas 2,8 mm de chuva, e nos 12 meses até julho choveram 978,7 mm. Em 3 de 10 leituras confiáveis do período o município esteve em seca. O mês muito seco reforça a atenção à água para consumo e à comunicação com a população.",
+      "itens": [
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Com 2,8 mm de chuva no mês, conhecer as fontes de água e quem depende de cada uma reduz o tempo de resposta."
+        },
+        {
+          "id": "avisar_a_populacao",
+          "porque": "Um mês tão seco, dentro de um quadro de seca moderada, justifica orientar a população sobre o uso da água."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "O SPI-3 de −1,29 pede acompanhamento mensal, anotando a data de cada leitura."
+        },
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Em 3 de 10 leituras confiáveis houve seca; ter responsáveis e telefones definidos antecipa a resposta."
+        }
+      ],
+      "modelo": "claude-sonnet-5-5 (redigido na sessão de desenvolvimento, sem chamada de API)",
+      "gerado_em_utc": "2026-11-19T12:36:33Z",
+      "tentativas": 1,
+      "status": "pendente_revisao",
+      "revisado_por": null,
+      "revisado_em_utc": null
+    }
+  }
+}

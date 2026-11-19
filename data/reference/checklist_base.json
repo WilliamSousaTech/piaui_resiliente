@@ -1,0 +1,55 @@
+{
+  "versao": "0.1-proposta",
+  "elaborado_por": "Equipe V.I.G.I.A. (proposta inicial redigida por Claude; a equipe ainda precisa conferir)",
+  "atualizado_em": "2026-11-19",
+  "itens": [
+    {
+      "id": "reunir_defesa_civil",
+      "titulo": "Reunir a Defesa Civil municipal e definir responsáveis",
+      "descricao": "Convocar a Defesa Civil do município e os setores de saúde, assistência social, agricultura e obras. Anotar quem decide, quem executa e quais telefones valem durante a seca.",
+      "fonte": "Lei 12.608/2012, art. 8º, II e III (coordenar as ações do SINPDEC no âmbito local; incorporar as ações de proteção e defesa civil no planejamento municipal)."
+    },
+    {
+      "id": "revisar_plano_contingencia",
+      "titulo": "Conferir se existe Plano de Contingência e se ele cobre a seca",
+      "descricao": "Verificar se o município tem Plano de Contingência de Proteção e Defesa Civil e se ele trata de falta de água. Se não trata, listar o que falta incluir.",
+      "fonte": "Lei 12.340/2010, art. 3º-A (Plano de Contingência de Proteção e Defesa Civil a cargo do Município). A equipe ainda precisa conferir se a obrigação alcança a seca."
+    },
+    {
+      "id": "levantar_fontes_de_agua",
+      "titulo": "Listar as fontes de água e quem depende de cada uma",
+      "descricao": "Fazer a lista de açudes, poços, cisternas, adutoras e pontos de carro-pipa do município, com o volume ou a vazão conhecidos e as comunidades que cada um atende.",
+      "fonte": "Prática recomendada; sem base legal conferida pela equipe."
+    },
+    {
+      "id": "acompanhar_chuva_e_reservatorios",
+      "titulo": "Acompanhar a chuva e o nível dos reservatórios todo mês",
+      "descricao": "Olhar todo mês o SPI e a chuva do município neste monitor e, onde houver reservatório monitorado pela ANA, o volume dele. Anotar a data de cada leitura.",
+      "fonte": "Prática recomendada; sem base legal conferida pela equipe."
+    },
+    {
+      "id": "identificar_comunidades_vulneraveis",
+      "titulo": "Identificar comunidades que dependem de carro-pipa ou cisterna",
+      "descricao": "Mapear as comunidades rurais e as famílias com menos acesso à água e combinar quem será atendido primeiro se a seca continuar.",
+      "fonte": "Prática recomendada; sem base legal conferida pela equipe."
+    },
+    {
+      "id": "preparar_decreto_emergencia",
+      "titulo": "Preparar a documentação para declarar situação de emergência",
+      "descricao": "Reunir relatórios, fotos, dados de chuva e registro de danos, para o caso de a estiagem se agravar e o município precisar declarar situação de emergência.",
+      "fonte": "Lei 12.608/2012, art. 8º, VI (compete aos Municípios declarar situação de emergência e estado de calamidade pública)."
+    },
+    {
+      "id": "avisar_a_populacao",
+      "titulo": "Orientar a população sobre o uso da água",
+      "descricao": "Divulgar nos canais do município a situação da seca, os pontos e horários de distribuição de água e os cuidados para economizar.",
+      "fonte": "Prática recomendada; sem base legal conferida pela equipe."
+    },
+    {
+      "id": "acionar_defesa_civil_estadual",
+      "titulo": "Manter a Defesa Civil estadual informada e pedir apoio",
+      "descricao": "Informar a Defesa Civil do Estado sobre a situação e combinar o apoio, como carro-pipa e distribuição de água, antes de o problema crescer.",
+      "fonte": "Lei 12.608/2012, art. 8º, II (coordenar as ações do SINPDEC no âmbito local, em articulação com a União e os Estados)."
+    }
+  ]
+}
