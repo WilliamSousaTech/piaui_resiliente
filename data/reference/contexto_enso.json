@@ -56,7 +56,7 @@
   ],
   "limites": [
     "São leituras regionais de instituições oficiais, copiadas aqui como contexto.",
-    "Não são previsão do nosso modelo, que ainda não existe, e este painel não calcula previsão por município.",
+    "Não são previsão do nosso modelo. A previsão do modelo fica na página Previsão, e este painel não calcula previsão por município.",
     "El Niño aumenta a chance de chuva abaixo da normal em parte do Nordeste, mas não garante seca em um município."
   ]
 }
