@@ -62,6 +62,20 @@ PAGINAS = (
            "O Piauí Resiliente, o que já existe, o que está em preparação e a marca.", (), "sobre.html"),
 )
 
+# Só entra na lista quando há rascunho de IA já revisado por uma pessoa (ver `paginas_do_site`).
+PAGINA_PLANEJAMENTO = Pagina(
+    "planejamento", "planejamento.html", "Planejamento", "Rascunhos de planejamento",
+    "Rascunhos técnicos de apoio à Defesa Civil, escritos com IA e revisados por uma pessoa, sem valor jurídico.",
+    (), "planejamento.html")
+
+
+def paginas_do_site(payload: dict) -> tuple[Pagina, ...]:
+    """As seis páginas fixas, mais Planejamento (antes de Método) se o pacote traz rascunhos revisados."""
+    if not payload.get("planejamento"):
+        return PAGINAS
+    i = next(n for n, p in enumerate(PAGINAS) if p.id == "metodo")
+    return PAGINAS[:i] + (PAGINA_PLANEJAMENTO,) + PAGINAS[i:]
+
 
 # ------------------------------------------------------------------ pequenos formatadores
 def esc(s) -> str:
@@ -211,6 +225,34 @@ def html_enso_limites(enso: dict | None) -> Html:
     return Html("".join(f"<li>{esc(x)}</li>" for x in (enso["limites"] if enso else ("Sem arquivo de fontes oficiais.",))))
 
 
+# ------------------------------------------------------------------ planejamento (rascunhos de IA já revisados)
+def html_planejamento(pac: dict | None) -> Html:
+    """Um bloco por município. Todo texto vem do pacote e é escapado; a fonte de cada item é a escrita pela equipe."""
+    if not pac:
+        return Html("")
+    blocos = []
+    for r in pac["rascunhos"]:
+        itens = "".join(
+            f'<li><b>{esc(i["titulo"])}</b><span>{esc(i["descricao"])}</span><p>{esc(i["porque"])}</p>'
+            f'<small>Fonte do item: {esc(i["fonte"])}</small></li>' for i in r["itens"])
+        blocos.append(
+            f'<article class="rascunho" id="m{esc(r["cod"])}"><h3>{esc(r["nome"])}</h3>'
+            f'<div class="selos"><span class="selo">{esc(mes_extenso(r["mes"]))}</span>'
+            f'<span class="selo">SPI-{int(r["escala"])}</span>'
+            f'<span class="selo">Revisado por {esc(r["revisado_por"])} em {esc(data_hora_br(r["revisado_em"]))}</span></div>'
+            f'<p class="corpo">{esc(r["resumo"])}</p><ul class="itens-plano">{itens}</ul>'
+            f'<p class="nota">Texto escrito por IA ({esc(r["modelo"])}) a partir da ficha do monitor e de itens escritos pela '
+            f'equipe. Quem revisou responde pelo conteúdo.</p></article>')
+    return Html("".join(blocos))
+
+
+def texto_checklist(pac: dict | None) -> str:
+    if not pac:
+        return ""
+    c = pac["checklist"]
+    return f"Base do checklist: versão {c['versao']}, de {c['elaborado_por']}, atualizada em {dia_br(c['atualizado_em'])}."
+
+
 # ------------------------------------------------------------------ textos derivados do pacote
 def frase_abertura(payload: dict) -> str:
     t, ultimo = payload["abertura"], len(payload["meses"]) - 1
@@ -289,6 +331,9 @@ def valores_base(payload: dict, ctx: dict) -> dict:
         "tabela_classes": tabela_classes(payload),
         "enso_resumo": html_enso_resumo(payload.get("enso")), "enso_status": html_enso_status(payload.get("enso")),
         "enso_leituras": html_enso_leituras(payload.get("enso")), "enso_limites": html_enso_limites(payload.get("enso")),
+        "planejamento_conteudo": html_planejamento(payload.get("planejamento")),
+        "rotulo_ia": (payload.get("planejamento") or {}).get("rotulo", ""),
+        "checklist_info": texto_checklist(payload.get("planejamento")),
     }
     v.update(textos_clima(payload))
     v.update(ctx)

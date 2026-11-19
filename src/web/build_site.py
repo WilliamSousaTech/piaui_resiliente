@@ -33,6 +33,8 @@ from src.data import chirps_raw
 from src.data import contexto_enso as ce
 from src.data import manifest as mf
 from src.data.config import Config, load_config
+from src.ia import arquivo as ia_arquivo
+from src.ia import checklist as ia_checklist
 from src.web import destaques, marca, paginas
 
 NA16 = -32768                 # "sem dado" nos inteiros de 16 bits
@@ -164,6 +166,8 @@ class Insumos:
     manifest: dict
     extraido_em: tuple[str, str] | None
     enso: ce.ContextoEnso | None = None
+    planejamento: dict | None = None          # rascunhos de IA já revisados (src/ia/arquivo.py), ou None
+    avisos: tuple[str, ...] = ()              # o que ficou de fora e por quê (mostrado pela CLI)
 
 
 def _grade(df: pd.DataFrame, cods: list[str], meses: pd.PeriodIndex, colunas: list[str], onde: str) -> pd.DataFrame:
@@ -237,6 +241,7 @@ def montar_payload(ins: Insumos, cfg: Config, *, verificado_em: datetime) -> dic
         "clima": {"climatologia": clima_mensal, "estacao": estacao, "pct_estacao": pct_estacao,
                   "treino_fim": str(cfg.split.treino_fim)},
         "enso": ce.para_pacote(ins.enso) if ins.enso is not None else None,
+        "planejamento": ins.planejamento,         # só vira página (não vai para o dados.js)
         "titulo": cfg.projeto.nome,
         "equipe": cfg.projeto.equipe,
         "maturidade": cfg.projeto.maturidade,
@@ -279,6 +284,22 @@ def _extracao(cfg: Config, nomes: list[str]) -> tuple[str, str] | None:
     return (min(datas), max(datas)) if datas else None
 
 
+def _planejamento(cfg: Config, dataset_sha256: str) -> tuple[dict | None, list[str]]:
+    """Rascunhos de IA revisados, se houver. Problema no arquivo ou no checklist não derruba o site: vira aviso."""
+    try:
+        arq = ia_arquivo.carregar(cfg.raiz / ia_arquivo.ARQUIVO_PADRAO)
+    except ia_arquivo.ArquivoError as e:
+        return None, [f"rascunhos de IA ignorados: {e}"]
+    if arq is None:
+        return None, []
+    caminho = cfg.raiz / ia_checklist.ARQUIVO_PADRAO
+    try:
+        lista, sha = ia_checklist.carregar(caminho), ia_checklist.sha256(caminho)
+    except ia_checklist.ChecklistError:
+        lista, sha = None, None
+    return ia_arquivo.para_pacote(arq, lista, dataset_sha256=dataset_sha256, checklist_sha256=sha)
+
+
 def carregar_insumos(cfg: Config) -> Insumos:
     """Confere o manifest inteiro (SHA-256 de tudo, inclusive `params.yaml`) e lê só o que ele lista."""
     m = mf.verificar_manifest(cfg)
@@ -292,13 +313,15 @@ def carregar_insumos(cfg: Config) -> Insumos:
     raw = pd.concat([chirps_raw.ler_lote(mf.caminho_verificado(cfg, n)) for n in lotes], ignore_index=True)
     arq_enso = cfg.raiz / ce.ARQUIVO_PADRAO          # fora do manifest: contexto de fonte externa, com a própria data
     enso = ce.carregar(arq_enso) if arq_enso.is_file() else None
+    plan, avisos = _planejamento(cfg, m["dataset_sha256"])
     return Insumos(demo=ler("demo_observado"), qualidade=ler("qualidade_municipio"), raw=raw, malha=malha,
-                   manifest=m, extraido_em=_extracao(cfg, lotes), enso=enso)
+                   manifest=m, extraido_em=_extracao(cfg, lotes), enso=enso, planejamento=plan, avisos=tuple(avisos))
 
 
 # ------------------------------------------------------------------ montagem da pasta do site
 def _dados_js(payload: dict) -> str:
-    j = json.dumps(payload, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+    dados = {k: v for k, v in payload.items() if k != "planejamento"}     # os rascunhos viram HTML, não vão ao navegador como dado
+    j = json.dumps(dados, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
     return "window.PR_DADOS=" + j.replace("\u2028", "\\u2028").replace("\u2029", "\\u2029") + ";\n"
 
 
@@ -312,8 +335,9 @@ def _css(fonte_corpo: bytes, fonte_marca: bytes) -> str:
     return css
 
 
-def montar_arquivos(payload: dict, lista: tuple[paginas.Pagina, ...] = paginas.PAGINAS) -> dict[str, str]:
+def montar_arquivos(payload: dict, lista: tuple[paginas.Pagina, ...] | None = None) -> dict[str, str]:
     """Caminho relativo -> conteúdo de texto de tudo o que a pasta do site leva. Sem escrever nada em disco."""
+    lista = lista or paginas.paginas_do_site(payload)
     arquivos: dict[str, str] = {
         "assets/dados.js": _dados_js(payload),
         "assets/site.css": _css(FONTE_CORPO.read_bytes(), FONTE_MARCA.read_bytes()),
@@ -355,7 +379,8 @@ def gerar_site(cfg: Config, saida: Path | None = None, *, agora: datetime | None
             "bytes": sum(len(t.encode("utf-8")) for t in arquivos.values()), "municipios": len(payload["municipios"]),
             "meses": len(payload["meses"]), "excluidos": payload["n_excluidos"],
             "dataset_sha256": payload["verificacao"]["dataset_sha256"], "maturity": payload["maturidade"],
-            "enso": payload["enso"] is not None}
+            "enso": payload["enso"] is not None, "planejamento": len((payload["planejamento"] or {}).get("rascunhos", [])),
+            "avisos": list(ins.avisos)}
 
 
 def main(argv: list[str] | None = None) -> int:       # python -m src.web.build_site
@@ -372,6 +397,10 @@ def main(argv: list[str] | None = None) -> int:       # python -m src.web.build_
     print(f"AVISO: {r['maturity']}")
     print(f"site gravado em {r['pasta']} ({r['arquivos']} arquivos, {r['bytes'] / 1e6:.2f} MB) | municípios={r['municipios']} "
           f"meses={r['meses']} excluídos={r['excluidos']} | dataset_sha256={r['dataset_sha256'][:16]}…")
+    for aviso in r["avisos"]:
+        print(f"AVISO: {aviso}")
+    if r["planejamento"]:
+        print(f"página Planejamento: {r['planejamento']} rascunho(s) revisado(s)")
     print(f"abra: {r['inicio']}" + ("" if r["enso"] else " | AVISO: sem data/reference/contexto_enso.json; a camada do El Niño aparece como indisponível"))
     return 0
 

@@ -1,0 +1,262 @@
+"""CLI dos rascunhos de IA: cliente falso, projeto sintético em tmp_path, nenhuma chamada de rede."""
+import json
+
+import numpy as np
+import pandas as pd
+import pytest
+
+from dados_sinteticos import A, B, C, raw_sintetico
+from src.ia import arquivo as aq
+from src.ia import checklist as ck
+from src.ia import cli
+from src.ia import cliente as cl
+from src.ia import rascunhos as rs
+from test_build_site import montar_proj
+from test_ia_site import CHECKLIST
+
+BOM = json.dumps({"resumo": "Texto simples sobre o município.", "itens": [
+    {"id": "mobilizar_defesa_civil", "porque": "Prepara a equipe."},
+    {"id": "revisar_abastecimento", "porque": "Confere a água."}]})
+RUIM = json.dumps({"resumo": "Choveu 999 mm.", "itens": [{"id": "mobilizar_defesa_civil", "porque": "x"}] * 2})
+
+
+class Falso:
+    modelo = "modelo-falso"
+
+    def __init__(self, *respostas):
+        self.respostas, self.chamadas = list(respostas), 0
+
+    def gerar(self, sistema, usuario, *, max_tokens=1200):
+        self.chamadas += 1
+        return self.respostas.pop(0)
+
+
+@pytest.fixture
+def proj(tmp_path):
+    cfg, raiz = montar_proj(tmp_path, raw_sintetico())
+    (raiz / ck.ARQUIVO_PADRAO).parent.mkdir(parents=True, exist_ok=True)
+    (raiz / ck.ARQUIVO_PADRAO).write_text(json.dumps(CHECKLIST), encoding="utf-8")
+    return cfg, raiz
+
+
+def rodar(raiz, *args, cliente=None):
+    saida = []
+    fabrica = (lambda modelo: cliente) if cliente is not None else (lambda modelo: pytest.fail("não devia criar cliente"))
+    codigo = cli.main(["--params", str(raiz / "params.yaml"), *args], fabrica_cliente=fabrica, saida=saida.append)
+    return codigo, "\n".join(saida)
+
+
+def arquivo(raiz):
+    return aq.carregar(raiz / aq.ARQUIVO_PADRAO)
+
+
+# ------------------------------------------------------------------ códigos
+def test_municipios_remove_repetidos_e_valida():
+    assert cli._municipios("2200001, 2200002,2200001", 5) == ["2200001", "2200002"]
+    with pytest.raises(cli.CliError, match="7 dígitos: 123, abc"):
+        cli._municipios("2200001,123,abc", 5)
+    with pytest.raises(cli.CliError, match="ao menos um"):
+        cli._municipios(" , ", 5)
+    with pytest.raises(cli.CliError, match="limite de 2"):
+        cli._municipios("2200001,2200002,2200003", 2)
+
+
+# ------------------------------------------------------------------ gerar
+def test_gerar_grava_rascunho_pendente_e_orienta_o_proximo_passo(proj):
+    _, raiz = proj
+    c = Falso(BOM, BOM)
+    codigo, saida = rodar(raiz, "gerar", "--municipios", f"{A},{B}", cliente=c)
+    assert codigo == 0 and c.chamadas == 2
+    arq = arquivo(raiz)
+    assert {k: r.status for k, r in arq.rascunhos.items()} == {A: "pendente_revisao", B: "pendente_revisao"}
+    assert arq.checklist_sha256 == ck.sha256(raiz / ck.ARQUIVO_PADRAO)
+    assert saida.splitlines()[0].startswith("AVISO: MVP experimental") and "Próximo passo" in saida
+    assert saida.splitlines()[-1] == rs.AVISO_MVP
+    assert f"{A} Alfa do Norte: pendente de revisão (1 tentativa(s))" in saida
+
+
+def test_gerar_nunca_aprova_e_o_site_continua_sem_a_pagina(proj):
+    cfg, raiz = proj
+    rodar(raiz, "gerar", "--municipios", A, cliente=Falso(BOM))
+    from src.web import build_site as bs
+    r = bs.gerar_site(cfg)
+    assert r["planejamento"] == 0 and not (raiz / "site" / "planejamento.html").exists()
+
+
+def test_gerar_sem_checklist_falha_antes_de_criar_o_cliente(proj):
+    _, raiz = proj
+    (raiz / ck.ARQUIVO_PADRAO).unlink()
+    codigo, _ = rodar(raiz, "gerar", "--municipios", A)           # a fábrica falha o teste se for chamada
+    assert codigo == 1 and arquivo(raiz) is None
+
+
+def test_gerar_sem_chave_diz_como_definir_e_nao_grava(proj, capsys):
+    _, raiz = proj
+
+    def sem_chave(modelo):
+        raise cl.ChaveAusente("defina ANTHROPIC_API_KEY")
+    codigo = cli.main(["--params", str(raiz / "params.yaml"), "gerar", "--municipios", A], fabrica_cliente=sem_chave,
+                      saida=lambda *_: None)
+    assert codigo == 1 and "ANTHROPIC_API_KEY" in capsys.readouterr().err and arquivo(raiz) is None
+
+
+def test_gerar_recusado_nao_grava_e_mostra_os_motivos(proj):
+    _, raiz = proj
+    c = Falso(RUIM, RUIM, RUIM)
+    codigo, saida = rodar(raiz, "gerar", "--municipios", A, cliente=c)
+    assert codigo == 0 and c.chamadas == 3 and arquivo(raiz) is None
+    assert "recusado em todas as tentativas" in saida and "número fora da ficha (999)" in saida
+    assert "Próximo passo" not in saida
+
+
+def test_gerar_segunda_tentativa_vale_e_fica_registrada(proj):
+    _, raiz = proj
+    rodar(raiz, "gerar", "--municipios", A, cliente=Falso(RUIM, BOM))
+    assert arquivo(raiz).rascunhos[A].tentativas == 2
+
+
+def test_gerar_grava_a_cada_sucesso_mesmo_se_o_modelo_falhar_no_meio(proj):
+    _, raiz = proj
+
+    class QuebraNoSegundo(Falso):
+        def gerar(self, *a, **k):
+            if self.chamadas == 1:
+                raise cl.ErroLLM("HTTP 529 do provedor")
+            return super().gerar(*a, **k)
+    codigo, _ = rodar(raiz, "gerar", "--municipios", f"{A},{B}", cliente=QuebraNoSegundo(BOM))
+    assert codigo == 1 and list(arquivo(raiz).rascunhos) == [A]       # o primeiro, já pago, não se perde
+
+
+def test_gerar_respeita_o_limite_antes_de_chamar_o_modelo(proj):
+    _, raiz = proj
+    codigo, _ = rodar(raiz, "gerar", "--municipios", f"{A},{B},{C}", "--max", "2")
+    assert codigo == 1 and arquivo(raiz) is None
+
+
+def test_gerar_pula_revisado_sem_chamar_o_modelo_e_sobrescreve_se_pedido(proj):
+    _, raiz = proj
+    rodar(raiz, "gerar", "--municipios", A, cliente=Falso(BOM))
+    assert rodar(raiz, "aprovar", A, "--por", "Ana Souza")[0] == 0
+    c = Falso()                                                         # fila vazia: chamar o modelo seria erro
+    codigo, saida = rodar(raiz, "gerar", "--municipios", A, cliente=c)
+    assert codigo == 0 and c.chamadas == 0 and "já revisado" in saida and arquivo(raiz).rascunhos[A].status == "revisado"
+    c2 = Falso(BOM)
+    rodar(raiz, "gerar", "--municipios", A, "--sobrescrever", cliente=c2)
+    assert c2.chamadas == 1 and arquivo(raiz).rascunhos[A].status == "pendente_revisao"
+
+
+def test_gerar_municipio_desconhecido_e_erro(proj):
+    _, raiz = proj
+    codigo, _ = rodar(raiz, "gerar", "--municipios", "2299999", cliente=Falso())
+    assert codigo == 1
+
+
+def test_gerar_municipio_sem_dado_nao_chama_o_modelo(tmp_path):
+    raw = raw_sintetico()
+    m = ((raw["cod_ibge"] == B) & (raw["mes"] <= pd.Timestamp("2012-12-01"))).to_numpy()
+    raw.loc[m, ["precip_mm", "precip_max_dia_mm", "dias_chuva"]] = np.nan
+    raw.loc[m, "dias_validos"] = 0
+    raw.loc[m, "pixels_validos_frac"] = np.float32(0.0)
+    _, raiz = montar_proj(tmp_path, raw)
+    (raiz / ck.ARQUIVO_PADRAO).parent.mkdir(parents=True, exist_ok=True)
+    (raiz / ck.ARQUIVO_PADRAO).write_text(json.dumps(CHECKLIST), encoding="utf-8")
+    c = Falso()
+    codigo, saida = rodar(raiz, "gerar", "--municipios", B, cliente=c)
+    assert codigo == 0 and c.chamadas == 0 and "sem SPI no mês de referência" in saida and arquivo(raiz) is None
+
+
+def test_gerar_de_outro_dataset_ou_checklist_exige_recomecar(proj):
+    _, raiz = proj
+    rodar(raiz, "gerar", "--municipios", A, cliente=Falso(BOM))
+    p = raiz / ck.ARQUIVO_PADRAO
+    p.write_text(json.dumps({**CHECKLIST, "versao": "v8"}), encoding="utf-8")
+    codigo, _ = rodar(raiz, "gerar", "--municipios", A, cliente=Falso(BOM))
+    assert codigo == 1
+    codigo, _ = rodar(raiz, "gerar", "--municipios", B, "--recomecar", cliente=Falso(BOM))
+    assert codigo == 0 and list(arquivo(raiz).rascunhos) == [B]
+
+
+# ------------------------------------------------------------------ revisão
+def test_aprovar_grava_quem_e_quando_e_manda_regerar_o_site(proj):
+    _, raiz = proj
+    rodar(raiz, "gerar", "--municipios", A, cliente=Falso(BOM))
+    codigo, saida = rodar(raiz, "aprovar", A, "--por", "Ana Souza")
+    r = arquivo(raiz).rascunhos[A]
+    assert codigo == 0 and (r.status, r.revisado_por) == ("revisado", "Ana Souza") and r.revisado_em_utc.endswith("Z")
+    assert "python -m src.web.build_site" in saida
+
+
+def test_aprovar_recusa_texto_editado_com_numero_de_fora(proj):
+    _, raiz = proj
+    rodar(raiz, "gerar", "--municipios", A, cliente=Falso(BOM))
+    p = raiz / aq.ARQUIVO_PADRAO
+    d = json.loads(p.read_text(encoding="utf-8"))
+    d["rascunhos"][A]["resumo"] = "Choveu 777 mm."
+    p.write_text(json.dumps(d), encoding="utf-8")
+    codigo, _ = rodar(raiz, "aprovar", A, "--por", "Ana Souza")
+    assert codigo == 1 and arquivo(raiz).rascunhos[A].status == "pendente_revisao"
+
+
+def test_aprovar_com_checklist_alterado_ou_dataset_diferente_e_recusado(proj):
+    _, raiz = proj
+    rodar(raiz, "gerar", "--municipios", A, cliente=Falso(BOM))
+    p = raiz / ck.ARQUIVO_PADRAO
+    original = p.read_text(encoding="utf-8")
+    p.write_text(json.dumps({**CHECKLIST, "versao": "v8"}), encoding="utf-8")
+    assert rodar(raiz, "aprovar", A, "--por", "Ana Souza")[0] == 1
+    p.write_text(original, encoding="utf-8")
+    arq = arquivo(raiz)
+    aq.gravar(aq.ArquivoRascunhos(dataset_sha256="ef" * 32, checklist_sha256=arq.checklist_sha256, rascunhos=arq.rascunhos),
+              raiz / aq.ARQUIVO_PADRAO)
+    assert rodar(raiz, "aprovar", A, "--por", "Ana Souza")[0] == 1
+    assert arquivo(raiz).rascunhos[A].status == "pendente_revisao"
+
+
+def test_aprovar_sem_rascunhos_e_codigo_inexistente(proj):
+    _, raiz = proj
+    assert rodar(raiz, "aprovar", A, "--por", "Ana Souza")[0] == 1                 # nem arquivo existe
+    rodar(raiz, "gerar", "--municipios", A, cliente=Falso(BOM))
+    assert rodar(raiz, "aprovar", B, "--por", "Ana Souza")[0] == 1
+
+
+def test_rejeitar(proj):
+    _, raiz = proj
+    rodar(raiz, "gerar", "--municipios", A, cliente=Falso(BOM))
+    codigo, saida = rodar(raiz, "rejeitar", A, "--por", "Ana Souza")
+    assert codigo == 0 and arquivo(raiz).rascunhos[A].status == "rejeitado" and "rejeitado por Ana Souza" in saida
+
+
+def test_por_e_obrigatorio(proj, capsys):
+    _, raiz = proj
+    with pytest.raises(SystemExit):
+        cli.main(["--params", str(raiz / "params.yaml"), "aprovar", A], saida=lambda *_: None)
+    assert "--por" in capsys.readouterr().err
+
+
+# ------------------------------------------------------------------ ver e listar
+def test_ver_mostra_ficha_resumo_itens_e_rotulo(proj):
+    _, raiz = proj
+    rodar(raiz, "gerar", "--municipios", A, cliente=Falso(BOM))
+    codigo, saida = rodar(raiz, "ver", A)
+    assert codigo == 0
+    for trecho in ("Alfa do Norte", "FICHA (os únicos números permitidos)", "Município: Alfa do Norte", "RESUMO",
+                   "Texto simples sobre o município.", "Mobilizar a Defesa Civil [mobilizar_defesa_civil]",
+                   "por quê: Prepara a equipe.", "situação: pendente_revisao", rs.ROTULO):
+        assert trecho in saida, trecho
+    assert rodar(raiz, "ver", B)[0] == 1
+
+
+def test_listar_mostra_status_revisor_e_se_vale_para_o_dataset_atual(proj):
+    _, raiz = proj
+    assert rodar(raiz, "listar")[0] == 1                                             # ainda sem arquivo
+    rodar(raiz, "gerar", "--municipios", f"{A},{B}", cliente=Falso(BOM, BOM))
+    rodar(raiz, "aprovar", A, "--por", "Ana Souza")
+    codigo, saida = rodar(raiz, "listar")
+    assert codigo == 0 and "o atual" in saida and "2 rascunho(s)" in saida
+    assert f"{A} Alfa do Norte | " in saida and "| revisado | Ana Souza" in saida and "| pendente_revisao" in saida
+
+
+def test_comando_obrigatorio(capsys):
+    with pytest.raises(SystemExit) as e:
+        cli.main([])
+    assert e.value.code == 2 and "usage: python -m src.ia.cli" in capsys.readouterr().err
