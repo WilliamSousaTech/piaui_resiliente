@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="pt-BR" data-pagina="monitor">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Monitor · Piauí Resiliente</title>
+<meta name="description" content="Mapa, linha do tempo e série de cada município do semiárido piauiense, com a classe do SPI e a confiança da leitura.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 144 208%22 width=%22144%22 height=%22208%22 role=%22img%22 aria-label=%22Piau%C3%AD Resiliente%22%3E%3CclipPath id=%22corte%22%3E%3Crect x=%220%22 y=%220%22 width=%22144%22 height=%22128%22/%3E%3C/clipPath%3E%3Cpath d=%22M8 136A64 64 0 0 1 16.574 104L72 8L127.426 104A64 64 0 0 1 136 136%22 fill=%22none%22 stroke=%22%23B4472A%22 stroke-width=%2216%22 stroke-linejoin=%22round%22 clip-path=%22url(%23corte)%22/%3E%3Cpath d=%22M0.446 144A72 72 0 0 0 143.554 144Z%22 fill=%22%230F6E7A%22/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=localStorage.getItem('pr-tema');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="pr-gota" viewBox="0 0 144 208"><clipPath id="pr-gota-corte"><rect x="0" y="0" width="144" height="128"/></clipPath><path d="M8 136A64 64 0 0 1 16.574 104L72 8L127.426 104A64 64 0 0 1 136 136" fill="none" stroke="var(--gota-falta)" stroke-width="16" stroke-linejoin="round" clip-path="url(#pr-gota-corte)"/><path d="M0.446 144A72 72 0 0 0 143.554 144Z" fill="var(--gota-ha)"/></symbol></svg>
+<a class="pular" href="#conteudo">Ir para o conteúdo</a>
+<header class="topo">
+  <div class="wrap">
+    <a class="marca-link" href="index.html" aria-label="Piauí Resiliente, página inicial">
+      <svg class="gota" viewBox="0 0 144 208" aria-hidden="true"><use href="#pr-gota"/></svg>
+      <span class="nome"><b>Piauí</b><span>Resiliente</span></span>
+    </a>
+    <nav aria-label="Páginas do site"><a href="index.html">Início</a><a href="monitor.html" aria-current="page">Monitor</a><a href="municipios.html">Municípios</a><a href="el-nino.html">El Niño</a><a href="metodo.html">Método</a><a href="sobre.html">O projeto</a></nav>
+    <button class="btn btn-tema" id="btnTema" type="button" aria-label="Alternar tema claro e escuro">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="5.2"/><path d="M8 2.8v10.4"/><path d="M8 2.8a5.2 5.2 0 0 1 0 10.4z" fill="currentColor" stroke="none"/></svg><span>Tema</span>
+    </button>
+  </div>
+</header>
+<div class="aviso" role="note">
+  <div class="wrap">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 2 14.5 13.5h-13z" stroke-linejoin="round"/><path d="M8 6.5v3.2M8 11.6v.1" stroke-linecap="round"/></svg>
+    <span><b>MVP experimental.</b> Em calibração com S2iD/TCE-PI. Não substitui alerta oficial: mostra a chuva já observada, não uma previsão.</span>
+  </div>
+</div>
+<main id="conteudo">
+<div class="ferramentas">
+  <h1>Monitor</h1>
+  <div class="ctl" role="group" aria-label="Controles">
+    <div class="seg" role="group" aria-label="Escala do SPI" id="segEscala"></div>
+    <label class="busca"><span class="sr">Buscar município</span>
+      <input id="busca" list="listaMun" placeholder="Buscar município" autocomplete="off"></label>
+    <datalist id="listaMun"></datalist>
+    <button class="btn" id="btnTabela" type="button">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="2.5" width="12" height="11" rx="1.5"/><path d="M2 6.5h12M6.5 6.5v7"/></svg>Ver em tabela</button>
+  </div>
+</div>
+<div class="painel">
+  <section class="col mapa" aria-label="Mapa dos municípios">
+    <svg id="mapa" role="img" aria-label="Mapa do semiárido piauiense colorido pela classe do SPI no mês escolhido"></svg>
+    <p class="dica-mapa">Passe o mouse ou toque em um município.</p>
+  </section>
+  <section class="col" aria-labelledby="hMes">
+    <h2 class="rotulo" id="hMes">Situação em <span id="mesLongo"></span></h2>
+    <p class="hero" aria-live="polite"><strong id="heroN">0</strong><span><span id="heroTxt"></span><small id="heroSub"></small></span></p>
+    <p class="nota" id="heroBc" hidden></p>
+    <p class="nota" id="notaEscala"></p>
+    <ul class="dist" id="dist" aria-label="Municípios por classe do SPI"></ul>
+    <p class="nota-bc" id="notaBc" hidden><span class="sw bc"></span><span><b id="bcN"></b> neste mês, com pontilhado no mapa. Pouca chuva esperada nesta época do ano: poucos milímetros mudam muito o SPI, que informa pouco.</span></p>
+    <h3 class="rotulo">Mais secos neste mês</h3>
+    <ul class="top5" id="top5"></ul>
+    <div id="legendaMapa" style="margin-top:16px"></div>
+  </section>
+  <section class="col" aria-label="Município selecionado" id="colMun">
+    <div id="munVazio">
+      <h2 class="rotulo">Município</h2>
+      <p class="vazio">Escolha um município no mapa, na matriz do tempo ou pela busca para ver a série de 1981 a <span class="fimSerie"></span>.</p>
+    </div>
+    <div id="munFicha" hidden>
+      <h2 class="mun-nome" id="munNome"></h2>
+      <p class="mun-sub" id="munSub"></p>
+      <div class="mun-agora"><strong id="munSpi"></strong><span class="classe"><i id="munSw"></i><span id="munClasse"></span></span></div>
+      <p class="alerta-baixa" id="munAviso" hidden></p>
+      <div class="graf" id="grafSpi"></div>
+      <div class="graf" id="grafChuva"></div>
+      <div class="graf sem-tit"><div class="eixo" id="eixoMun"></div></div>
+      <div class="stats" id="munStats"></div>
+    </div>
+    <ul class="indisp" id="indisp"></ul>
+  </section>
+</div>
+<section class="tempo" aria-label="Linha do tempo">
+  <div class="tempo-topo">
+    <button class="btn" id="btnPlay" type="button" aria-pressed="false"></button>
+    <button class="btn" id="btnAnt" type="button" aria-label="Mês anterior"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3 5 8l5 5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="btn" id="btnProx" type="button" aria-label="Próximo mês"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m6 3 5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <span class="mes-atual" id="mesAtual"></span>
+    <button class="btn" id="btnAbertura" type="button">Mês de abertura</button>
+    <button class="btn" id="btnRecente" type="button">Mês mais recente</button>
+    <button class="btn" id="btnPior" type="button">Mês com mais municípios em seca</button>
+    <span class="espaco"></span>
+    <span class="rotulo" style="margin:0" id="legTempo"></span>
+  </div>
+  <div class="tl" id="tl" tabindex="0" role="slider" aria-label="Mês" aria-valuemin="0">
+    <div class="gut" id="gutShare"></div>
+    <div class="plot shwrap">
+      <svg id="share" viewBox="0 0 1000 58" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <svg id="shOv" viewBox="0 0 1000 58" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="gut" id="gutHeat"></div>
+    <div class="plot">
+      <div class="heatwrap">
+        <canvas id="heat" aria-hidden="true"></canvas>
+        <svg id="heatOv" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="anos" id="anos"></div>
+    </div>
+  </div>
+</section>
+<dialog id="dlg" aria-labelledby="dlgT">
+  <div class="dh"><h2 id="dlgT"></h2><button class="btn" id="dlgFechar" type="button">Fechar</button></div>
+  <div class="dc"><table><thead><tr><th>Município</th><th class="n">SPI</th><th>Classe</th><th class="n">Chuva no mês (mm)</th><th>Observação</th></tr></thead><tbody id="dlgCorpo"></tbody></table></div>
+</dialog>
+
+</main>
+<footer class="rodape">
+  <div class="wrap">
+    <div>
+      <div class="nome"><b>Piauí</b><span>Resiliente</span></div>
+      <p>Monitor de seca do semiárido piauiense. Equipe V.I.G.I.A.</p>
+      <p>Fontes de letra: Outfit e Atkinson Hyperlegible Next (licença SIL OFL).</p>
+    </div>
+    <div>
+      <h2>Fonte e período</h2>
+      <p>Chuva: CHIRPS v2.0 final (UCSB/CHC), coleção UCSB-CHG/CHIRPS/DAILY no Google Earth Engine, de janeiro de 1981 a setembro de 2026, extraído em 17/11/2026 23:55 a 18/11/2026 21:18. Malha municipal do IBGE (2022).</p>
+      <p>Contexto do El Niño: CPC/NOAA e INMET, com fonte e data ao lado de cada número.</p>
+    </div>
+    <div>
+      <h2>Verificação e limites</h2>
+      <p>40 arquivos conferidos por SHA-256 em 19/11/2026 00:28. Conjunto de dados <button class="hash" type="button" data-cheio="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab" title="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab">7043e6c2f9e012d2…</button>.</p>
+      <p>O SPI descreve falta de chuva e não prova colapso de manancial. Até 2015, ele descreve o próprio período usado no ajuste. <a href="metodo.html">Método e limites</a>.</p>
+    </div>
+  </div>
+</footer>
+<div id="tip" role="tooltip"></div>
+<noscript><p style="padding:20px">Este site precisa de JavaScript para desenhar o mapa e os gráficos. Os dados estão na pasta assets.</p></noscript>
+<script src="assets/dados.js"></script>
+<script src="assets/core.js"></script>
+<script src="assets/monitor.js"></script>
+
+</body>
+</html>

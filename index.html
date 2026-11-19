@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR" data-pagina="inicio">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Monitor de seca do semiárido piauiense · Piauí Resiliente</title>
+<meta name="description" content="Onde e quando a chuva faltou no semiárido do Piauí, mês a mês, com a confiança de cada leitura.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 144 208%22 width=%22144%22 height=%22208%22 role=%22img%22 aria-label=%22Piau%C3%AD Resiliente%22%3E%3CclipPath id=%22corte%22%3E%3Crect x=%220%22 y=%220%22 width=%22144%22 height=%22128%22/%3E%3C/clipPath%3E%3Cpath d=%22M8 136A64 64 0 0 1 16.574 104L72 8L127.426 104A64 64 0 0 1 136 136%22 fill=%22none%22 stroke=%22%23B4472A%22 stroke-width=%2216%22 stroke-linejoin=%22round%22 clip-path=%22url(%23corte)%22/%3E%3Cpath d=%22M0.446 144A72 72 0 0 0 143.554 144Z%22 fill=%22%230F6E7A%22/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=localStorage.getItem('pr-tema');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="pr-gota" viewBox="0 0 144 208"><clipPath id="pr-gota-corte"><rect x="0" y="0" width="144" height="128"/></clipPath><path d="M8 136A64 64 0 0 1 16.574 104L72 8L127.426 104A64 64 0 0 1 136 136" fill="none" stroke="var(--gota-falta)" stroke-width="16" stroke-linejoin="round" clip-path="url(#pr-gota-corte)"/><path d="M0.446 144A72 72 0 0 0 143.554 144Z" fill="var(--gota-ha)"/></symbol></svg>
+<a class="pular" href="#conteudo">Ir para o conteúdo</a>
+<header class="topo">
+  <div class="wrap">
+    <a class="marca-link" href="index.html" aria-label="Piauí Resiliente, página inicial">
+      <svg class="gota" viewBox="0 0 144 208" aria-hidden="true"><use href="#pr-gota"/></svg>
+      <span class="nome"><b>Piauí</b><span>Resiliente</span></span>
+    </a>
+    <nav aria-label="Páginas do site"><a href="index.html" aria-current="page">Início</a><a href="monitor.html">Monitor</a><a href="municipios.html">Municípios</a><a href="el-nino.html">El Niño</a><a href="metodo.html">Método</a><a href="sobre.html">O projeto</a></nav>
+    <button class="btn btn-tema" id="btnTema" type="button" aria-label="Alternar tema claro e escuro">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="5.2"/><path d="M8 2.8v10.4"/><path d="M8 2.8a5.2 5.2 0 0 1 0 10.4z" fill="currentColor" stroke="none"/></svg><span>Tema</span>
+    </button>
+  </div>
+</header>
+<div class="aviso" role="note">
+  <div class="wrap">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 2 14.5 13.5h-13z" stroke-linejoin="round"/><path d="M8 6.5v3.2M8 11.6v.1" stroke-linecap="round"/></svg>
+    <span><b>MVP experimental.</b> Em calibração com S2iD/TCE-PI. Não substitui alerta oficial: mostra a chuva já observada, não uma previsão.</span>
+  </div>
+</div>
+<main id="conteudo">
+<div class="wrap">
+  <section class="heroi">
+    <div class="texto">
+      <h1>Onde e quando a chuva faltou no semiárido do Piauí</h1>
+      <p class="lede">216 municípios, mês a mês desde 1981, com a confiança de cada leitura à vista.</p>
+      <ul class="como-ler" aria-label="Como ler o mapa">
+        <li><span class="sw" style="background:var(--c1)"></span><span><b>Terracota é falta de chuva.</b> O SPI compara a chuva dos últimos 3 meses de cada município com o histórico dele. SPI de −1,0 ou menos é seca.</span></li>
+        <li><span class="sw" style="background:var(--c5)"></span><span><b>Azul-petróleo é chuva acima do normal.</b> Quanto mais escuro, mais extremo.</span></li>
+        <li><span class="sw bc"></span><span><b>Pontilhado é baixa confiança.</b> Na estiagem chove tão pouco que poucos milímetros mudam muito o índice.</span></li>
+      </ul>
+      <div class="acoes">
+        <a class="btn principal" href="monitor.html">Abrir o monitor</a>
+        <a class="btn" href="el-nino.html">Ver o contexto do El Niño</a>
+      </div>
+    </div>
+    <div class="mapa-quadro">
+      <div class="cabeca"><h2>Chuva já observada, não previsão</h2><span id="mapaMes"></span></div>
+      <svg id="mapa" role="img" aria-label="Mapa do semiárido piauiense colorido pela classe do SPI no mês de abertura"></svg>
+      <div id="legenda"></div>
+      <div class="ficha-rapida" id="fichaRapida" aria-live="polite"><p class="vazio">Passe o mouse ou toque em um município para ver a leitura do mês.</p></div>
+    </div>
+  </section>
+
+  <section class="secao">
+    <div class="agora">
+      <div>
+        <h2>Como está julho de 2026</h2>
+        <p class="sub">O monitor abre em julho de 2026, o último mês em que a maioria dos municípios tem leitura confiável. Os 2 meses seguintes, até setembro de 2026, estão no monitor, mas 86% das leituras de setembro de 2026 têm baixa confiança.</p>
+        <div class="numeros">
+          <div><strong class="falta" id="nSeca">—</strong><small id="rotSeca"></small></div>
+          <div><strong id="nConf">—</strong><small id="rotConf"></small></div>
+          <div><strong id="nBaixa">—</strong><small id="rotBaixa"></small></div>
+        </div>
+      </div>
+      <div>
+        <h3 class="rotulo" id="rotMaisSecos"></h3>
+        <ul class="lista-mun" id="maisSecos"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao" aria-labelledby="h-enso"><div class="bloco-enso"><div><h2 id="h-enso">El Niño agora</h2><p class="sub">O que o Pacífico equatorial indica, segundo o CPC/NOAA. É contexto de fonte oficial, não uma previsão do nosso modelo.</p><p class="proveniencia">NOAA/NWS Climate Prediction Center (CPC), ENSO Diagnostic Discussion, emitido em 12/11/2026 · próxima discussão em 10/12/2026. <a href="https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso_advisory/ensodisc.shtml" rel="noopener">Abrir a fonte</a>.</p><p class="proveniencia"><span class="selo atencao" id="ensoAtualizacao" hidden>A próxima discussão já saiu: confira a fonte</span></p><div class="acoes"><a class="btn" href="el-nino.html">Ver o contexto completo</a></div></div><div><div class="estado"><strong>El Niño Advisory</strong><span class="selo atencao">forte a muito forte</span></div><p style="margin-top:6px">O El Niño está em curso e continua se intensificando.</p><div class="fatos"><div><strong>+2,5 °C</strong><span>Índice Niño-3.4, segundo o CPC em 12/11/2026.</span></div><div><strong>mais de 79%</strong><span>Chance de El Niño forte a muito forte até janeiro-março de 2027.</span></div><div><strong>cerca de 60%</strong><span>Chance de um evento histórico (RONI de +2,5 °C ou mais) em outubro-dezembro e novembro-janeiro.</span></div></div><p class="aviso-contexto"><b>Contexto, não previsão do nosso modelo.</b> As chances de impactos típicos de El Niño são maiores, mas não garantidas.</p></div></div></section>
+
+  <section class="secao">
+    <h2>As maiores secas desde 1981</h2>
+    <p class="sub">Meses em que mais municípios estavam em seca, entre as leituras confiáveis do SPI-3. Cada linha é um episódio diferente. Clique para ver o mês no monitor.</p>
+    <ul class="ranking" id="ranking"></ul>
+  </section>
+</div>
+
+</main>
+<footer class="rodape">
+  <div class="wrap">
+    <div>
+      <div class="nome"><b>Piauí</b><span>Resiliente</span></div>
+      <p>Monitor de seca do semiárido piauiense. Equipe V.I.G.I.A.</p>
+      <p>Fontes de letra: Outfit e Atkinson Hyperlegible Next (licença SIL OFL).</p>
+    </div>
+    <div>
+      <h2>Fonte e período</h2>
+      <p>Chuva: CHIRPS v2.0 final (UCSB/CHC), coleção UCSB-CHG/CHIRPS/DAILY no Google Earth Engine, de janeiro de 1981 a setembro de 2026, extraído em 17/11/2026 23:55 a 18/11/2026 21:18. Malha municipal do IBGE (2022).</p>
+      <p>Contexto do El Niño: CPC/NOAA e INMET, com fonte e data ao lado de cada número.</p>
+    </div>
+    <div>
+      <h2>Verificação e limites</h2>
+      <p>40 arquivos conferidos por SHA-256 em 19/11/2026 00:28. Conjunto de dados <button class="hash" type="button" data-cheio="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab" title="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab">7043e6c2f9e012d2…</button>.</p>
+      <p>O SPI descreve falta de chuva e não prova colapso de manancial. Até 2015, ele descreve o próprio período usado no ajuste. <a href="metodo.html">Método e limites</a>.</p>
+    </div>
+  </div>
+</footer>
+<div id="tip" role="tooltip"></div>
+<noscript><p style="padding:20px">Este site precisa de JavaScript para desenhar o mapa e os gráficos. Os dados estão na pasta assets.</p></noscript>
+<script src="assets/dados.js"></script>
+<script src="assets/core.js"></script>
+<script src="assets/inicio.js"></script>
+
+</body>
+</html>
