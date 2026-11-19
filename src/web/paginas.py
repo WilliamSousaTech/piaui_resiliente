@@ -257,12 +257,27 @@ def html_planejamento(pac: dict | None) -> Html:
     return Html("".join(blocos))
 
 
+def _contagem_planos(pac: dict) -> tuple[int, int]:
+    """(planos, revisados por uma pessoa)."""
+    return len(pac["rascunhos"]), sum(1 for r in pac["rascunhos"] if r["revisado"])
+
+
+def sobre_planejamento(pac: dict | None) -> str:
+    """O que a página O projeto diz sobre o cartão do município e o rascunho técnico: só o que existe de fato."""
+    if not pac:
+        return ("Em preparação. O rascunho para a Defesa Civil é um documento de apoio, escrito com IA e sem valor jurídico. "
+                "Ainda não há rascunho nesta versão do site.")
+    n, rev = _contagem_planos(pac)
+    return (f"Disponível como MVP na página Planejamento: {n} {'rascunho' if n == 1 else 'rascunhos'} escritos com IA a partir "
+            f"da ficha do município, {rev} revisado{'' if rev == 1 else 's'} por uma pessoa. Os outros mostram o selo “Ainda não "
+            f"revisado”. É um documento de apoio, sem valor jurídico, e não substitui o plano do município.")
+
+
 def resumo_planejamento(pac: dict | None) -> str:
     """Quantos planos há e quantos uma pessoa já revisou, em uma frase."""
     if not pac:
         return ""
-    n = len(pac["rascunhos"])
-    rev = sum(1 for r in pac["rascunhos"] if r["revisado"])
+    n, rev = _contagem_planos(pac)
     return (f"Esta página tem {n} {'plano' if n == 1 else 'planos'}: {rev} "
             f"{'revisado' if rev == 1 else 'revisados'} por uma pessoa e {n - rev} "
             f"ainda não {'revisado' if n - rev == 1 else 'revisados'}.")
@@ -357,6 +372,7 @@ def valores_base(payload: dict, ctx: dict) -> dict:
         "rotulo_ia": (payload.get("planejamento") or {}).get("rotulo", ""),
         "rotulo_nao_revisado": (payload.get("planejamento") or {}).get("rotulo_nao_revisado", ""),
         "planejamento_resumo": resumo_planejamento(payload.get("planejamento")),
+        "sobre_planejamento": sobre_planejamento(payload.get("planejamento")),
         "checklist_info": texto_checklist(payload.get("planejamento")),
     }
     v.update(textos_clima(payload))

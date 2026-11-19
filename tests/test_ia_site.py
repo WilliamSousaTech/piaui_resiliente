@@ -353,3 +353,33 @@ def test_carregar_insumos_inclui_pendentes_por_padrao_e_so_revisados_se_pedido(p
     preparar(cfg, raiz, aprovar=False)
     assert [r["revisado"] for r in bs.carregar_insumos(cfg).planejamento["rascunhos"]] == [False]
     assert bs.carregar_insumos(cfg, incluir_nao_revisados=False).planejamento is None
+
+
+# ================================================================== página O projeto
+def test_sobre_diz_em_preparacao_quando_nao_ha_rascunho_e_o_que_existe_quando_ha(payload, pacote_misto):
+    sem = bs.montar_arquivos(payload)["sobre.html"]
+    assert "Em preparação. O rascunho para a Defesa Civil" in sem and "Ainda não há rascunho nesta versão do site." in sem
+    assert "Disponível como MVP" not in sem
+    com = bs.montar_arquivos({**payload, "planejamento": pacote_misto})["sobre.html"]
+    assert "Disponível como MVP na página Planejamento: 2 rascunhos escritos com IA" in com
+    assert "1 revisado por uma pessoa" in com and "Ainda não revisado" in com and "sem valor jurídico" in com
+    assert "Em preparação. O rascunho" not in com
+
+
+@pytest.mark.parametrize("n, rev, trecho", [
+    (1, 1, "1 rascunho escritos com IA a partir da ficha do município, 1 revisado por uma pessoa"),
+    (3, 0, "3 rascunhos escritos com IA a partir da ficha do município, 0 revisados por uma pessoa"),
+    (216, 2, "216 rascunhos escritos com IA a partir da ficha do município, 2 revisados por uma pessoa")])
+def test_sobre_planejamento_concorda_no_plural(n, rev, trecho):
+    pac = {"rascunhos": [{"revisado": i < rev} for i in range(n)]}
+    assert trecho in paginas.sobre_planejamento(pac)
+
+
+def test_sobre_traz_as_proximas_etapas_sem_dizer_que_estao_prontas(payload):
+    h = bs.montar_arquivos(payload)["sobre.html"]
+    secao = h.split("<h2>Próximas etapas</h2>")[1].split("</section>")[0]
+    for nome in ("Decretos reais (S2iD)", "Chuva medida em solo (INMET)", "Reservatórios (ANA)", "Uso do solo (MapBiomas)",
+                 "Mais uma régua para o modelo (XGBoost)", "Teste final do modelo", "Diretrizes do TCE-PI e do MIDR"):
+        assert f"<b>{nome}</b>" in secao, nome
+    assert "Nada desta lista está pronto hoje." in secao and secao.count("<li>") == 7
+    assert "junho de 2021 a dezembro de 2025" in secao and "uma única vez" in secao
