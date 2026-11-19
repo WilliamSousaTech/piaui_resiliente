@@ -62,15 +62,15 @@ PAGINAS = (
            "O Piauí Resiliente, o que já existe, o que está em preparação e a marca.", (), "sobre.html"),
 )
 
-# Só entra na lista quando há rascunho de IA já revisado por uma pessoa (ver `paginas_do_site`).
+# Só entra na lista quando há rascunho de IA para mostrar (ver `paginas_do_site`).
 PAGINA_PLANEJAMENTO = Pagina(
     "planejamento", "planejamento.html", "Planejamento", "Rascunhos de planejamento",
-    "Rascunhos técnicos de apoio à Defesa Civil, escritos com IA e revisados por uma pessoa, sem valor jurídico.",
-    (), "planejamento.html")
+    "Rascunhos técnicos de apoio à Defesa Civil, escritos com IA e sem valor jurídico; cada um diz se uma pessoa já o revisou.",
+    ("planejamento",), "planejamento.html")
 
 
 def paginas_do_site(payload: dict) -> tuple[Pagina, ...]:
-    """As seis páginas fixas, mais Planejamento (antes de Método) se o pacote traz rascunhos revisados."""
+    """As seis páginas fixas, mais Planejamento (antes de Método) se o pacote traz rascunhos de IA."""
     if not payload.get("planejamento"):
         return PAGINAS
     i = next(n for n, p in enumerate(PAGINAS) if p.id == "metodo")
@@ -225,9 +225,17 @@ def html_enso_limites(enso: dict | None) -> Html:
     return Html("".join(f"<li>{esc(x)}</li>" for x in (enso["limites"] if enso else ("Sem arquivo de fontes oficiais.",))))
 
 
-# ------------------------------------------------------------------ planejamento (rascunhos de IA já revisados)
+# ------------------------------------------------------------------ planejamento (rascunhos de IA)
+def _selo_revisao(r: dict) -> str:
+    if r["revisado"]:
+        return f'<span class="selo">Revisado por {esc(r["revisado_por"])} em {esc(data_hora_br(r["revisado_em"]))}</span>'
+    return '<span class="selo atencao">Ainda não revisado por uma pessoa</span>'
+
+
 def html_planejamento(pac: dict | None) -> Html:
-    """Um bloco por município. Todo texto vem do pacote e é escapado; a fonte de cada item é a escrita pela equipe."""
+    """Um bloco recolhível por município. Todo texto vem do pacote e é escapado; a fonte de cada item é a escrita pela
+    equipe. Cada bloco carrega o rótulo fixo que diz se uma pessoa revisou: o texto de quem não foi revisado nunca
+    aparece sem o rótulo de não revisado."""
     if not pac:
         return Html("")
     blocos = []
@@ -235,15 +243,29 @@ def html_planejamento(pac: dict | None) -> Html:
         itens = "".join(
             f'<li><b>{esc(i["titulo"])}</b><span>{esc(i["descricao"])}</span><p>{esc(i["porque"])}</p>'
             f'<small>Fonte do item: {esc(i["fonte"])}</small></li>' for i in r["itens"])
+        rotulo = pac["rotulo"] if r["revisado"] else pac["rotulo_nao_revisado"]
+        fecho = ("Quem revisou responde pelo conteúdo." if r["revisado"]
+                 else "Nenhuma pessoa leu este texto ainda: confira antes de usar.")
         blocos.append(
-            f'<article class="rascunho" id="m{esc(r["cod"])}"><h3>{esc(r["nome"])}</h3>'
-            f'<div class="selos"><span class="selo">{esc(mes_extenso(r["mes"]))}</span>'
-            f'<span class="selo">SPI-{int(r["escala"])}</span>'
-            f'<span class="selo">Revisado por {esc(r["revisado_por"])} em {esc(data_hora_br(r["revisado_em"]))}</span></div>'
+            f'<details class="rascunho" id="m{esc(r["cod"])}" data-rev="{1 if r["revisado"] else 0}">'
+            f'<summary><h3>{esc(r["nome"])}</h3><span class="selos"><span class="selo">{esc(mes_extenso(r["mes"]))}</span>'
+            f'<span class="selo">SPI-{int(r["escala"])}</span>{_selo_revisao(r)}</span></summary>'
+            f'<p class="rotulo-plano">{esc(rotulo)}</p>'
             f'<p class="corpo">{esc(r["resumo"])}</p><ul class="itens-plano">{itens}</ul>'
             f'<p class="nota">Texto escrito por IA ({esc(r["modelo"])}) a partir da ficha do monitor e de itens escritos pela '
-            f'equipe. Quem revisou responde pelo conteúdo.</p></article>')
+            f'equipe. {fecho}</p></details>')
     return Html("".join(blocos))
+
+
+def resumo_planejamento(pac: dict | None) -> str:
+    """Quantos planos há e quantos uma pessoa já revisou, em uma frase."""
+    if not pac:
+        return ""
+    n = len(pac["rascunhos"])
+    rev = sum(1 for r in pac["rascunhos"] if r["revisado"])
+    return (f"Esta página tem {n} {'plano' if n == 1 else 'planos'}: {rev} "
+            f"{'revisado' if rev == 1 else 'revisados'} por uma pessoa e {n - rev} "
+            f"ainda não {'revisado' if n - rev == 1 else 'revisados'}.")
 
 
 def texto_checklist(pac: dict | None) -> str:
@@ -333,6 +355,8 @@ def valores_base(payload: dict, ctx: dict) -> dict:
         "enso_leituras": html_enso_leituras(payload.get("enso")), "enso_limites": html_enso_limites(payload.get("enso")),
         "planejamento_conteudo": html_planejamento(payload.get("planejamento")),
         "rotulo_ia": (payload.get("planejamento") or {}).get("rotulo", ""),
+        "rotulo_nao_revisado": (payload.get("planejamento") or {}).get("rotulo_nao_revisado", ""),
+        "planejamento_resumo": resumo_planejamento(payload.get("planejamento")),
         "checklist_info": texto_checklist(payload.get("planejamento")),
     }
     v.update(textos_clima(payload))

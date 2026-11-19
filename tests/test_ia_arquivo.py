@@ -223,3 +223,77 @@ def test_rascunho_desatualizado_fica_fora_do_site_e_avisa(payload, vazio, lista,
     pacote, avisos = aq.para_pacote(arq, lista if usar_lista else None, dataset_sha256=ds,
                                     checklist_sha256=ckk if usar_lista else None)
     assert pacote is None and len(avisos) == 1 and trecho in avisos[0]
+
+
+# ------------------------------------------------------------------ pacote com rascunhos ainda não revisados (D14)
+def _pacote(arq, lista, **kw):
+    return aq.para_pacote(arq, lista, dataset_sha256=DS, checklist_sha256=CK, **kw)
+
+
+def test_por_padrao_o_pendente_continua_fora_do_pacote(payload, vazio, lista):
+    arq = _arq(payload, vazio, lista, A, B, aprovar_cods=(A,))
+    pacote, _ = _pacote(arq, lista)
+    assert [r["cod"] for r in pacote["rascunhos"]] == [A] and pacote["rascunhos"][0]["revisado"] is True
+
+
+def test_com_incluir_nao_revisados_o_pendente_entra_marcado_e_sem_revisor(payload, vazio, lista):
+    arq = _arq(payload, vazio, lista, A, B, aprovar_cods=(B,))
+    pacote, avisos = _pacote(arq, lista, incluir_nao_revisados=True)
+    assert [(r["cod"], r["revisado"]) for r in pacote["rascunhos"]] == [(A, False), (B, True)]     # por nome
+    pend, rev = pacote["rascunhos"]
+    assert pend["revisado_por"] is None and pend["revisado_em"] is None and rev["revisado_por"] == "Ana"
+    assert pacote["rotulo"] == rs.ROTULO and pacote["rotulo_nao_revisado"] == rs.ROTULO_NAO_REVISADO
+    assert pend["itens"][0]["titulo"] == "Mobilizar a Defesa Civil"                                 # título e fonte da equipe
+    assert avisos == ["1 rascunho(s) de IA ainda não revisado(s) aparecem no site com o rótulo de não revisado"]
+
+
+def test_so_pendentes_ja_basta_para_haver_pacote_quando_incluidos(payload, vazio, lista):
+    arq = _arq(payload, vazio, lista, A)
+    assert _pacote(arq, lista)[0] is None
+    pacote, _ = _pacote(arq, lista, incluir_nao_revisados=True)
+    assert [r["revisado"] for r in pacote["rascunhos"]] == [False]
+
+
+def test_rejeitado_nunca_entra_nem_com_incluir_nao_revisados(payload, vazio, lista):
+    arq = aq.rejeitar(_arq(payload, vazio, lista, A, B), A, "Ana", agora=REVISAO)
+    pacote, _ = _pacote(arq, lista, incluir_nao_revisados=True)
+    assert [r["cod"] for r in pacote["rascunhos"]] == [B]
+    assert _pacote(aq.rejeitar(aq.registrar(vazio, rascunho(payload)), A, "Ana", agora=REVISAO), lista,
+                   incluir_nao_revisados=True) == (None, [])
+
+
+def test_pendente_editado_a_mao_com_numero_de_fora_fica_fora_e_avisa(payload, vazio, lista):
+    arq = _arq(payload, vazio, lista, A, B)
+    ruim = rs.Rascunho.model_validate({**arq.rascunhos[A].model_dump(), "resumo": "Choveu 999 mm."})
+    arq = aq._trocar(arq, ruim)
+    pacote, avisos = _pacote(arq, lista, incluir_nao_revisados=True)
+    assert [r["cod"] for r in pacote["rascunhos"]] == [B]
+    assert any(A in a and "não passam na validação" in a for a in avisos)
+    assert not any("999" in str(r) for r in pacote["rascunhos"])
+
+
+def test_todos_pendentes_reprovados_nao_geram_pacote(payload, vazio, lista):
+    arq = _arq(payload, vazio, lista, A)
+    arq = aq._trocar(arq, rs.Rascunho.model_validate({**arq.rascunhos[A].model_dump(), "resumo": "Choveu 999 mm."}))
+    pacote, avisos = _pacote(arq, lista, incluir_nao_revisados=True)
+    assert pacote is None and len(avisos) == 1 and "não passam na validação" in avisos[0]
+
+
+@pytest.mark.parametrize("ds, ckk, usar_lista, trecho", [
+    ("ef" * 32, CK, True, "outro dataset"),
+    (DS, "ef" * 32, True, "base do checklist mudou"),
+    (DS, CK, False, "base do checklist não foi encontrada")])
+def test_pendente_de_outro_dataset_ou_checklist_tambem_fica_fora(payload, vazio, lista, ds, ckk, usar_lista, trecho):
+    arq = _arq(payload, vazio, lista, A)
+    pacote, avisos = aq.para_pacote(arq, lista if usar_lista else None, dataset_sha256=ds,
+                                    checklist_sha256=ckk if usar_lista else None, incluir_nao_revisados=True)
+    assert pacote is None and len(avisos) == 1 and trecho in avisos[0]
+
+
+@pytest.mark.parametrize("ordem", [(A, B), (B, A)])
+def test_aviso_de_reprovados_lista_os_codigos_em_ordem_crescente(payload, vazio, lista, ordem):
+    arq = _arq(payload, vazio, lista, *ordem)
+    for c in ordem:
+        arq = aq._trocar(arq, rs.Rascunho.model_validate({**arq.rascunhos[c].model_dump(), "resumo": "Choveu 999 mm."}))
+    _, avisos = _pacote(arq, lista, incluir_nao_revisados=True)
+    assert avisos == [f"2 rascunho(s) pendente(s) não passam na validação e ficaram fora do site: {A}, {B}"]

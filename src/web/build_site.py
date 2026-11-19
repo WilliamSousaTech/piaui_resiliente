@@ -284,8 +284,9 @@ def _extracao(cfg: Config, nomes: list[str]) -> tuple[str, str] | None:
     return (min(datas), max(datas)) if datas else None
 
 
-def _planejamento(cfg: Config, dataset_sha256: str) -> tuple[dict | None, list[str]]:
-    """Rascunhos de IA revisados, se houver. Problema no arquivo ou no checklist não derruba o site: vira aviso."""
+def _planejamento(cfg: Config, dataset_sha256: str, *, incluir_nao_revisados: bool = True) -> tuple[dict | None, list[str]]:
+    """Rascunhos de IA do site, se houver (revisados e, se `incluir_nao_revisados`, os pendentes que passam na validação,
+    sempre com o rótulo de não revisado). Problema no arquivo ou no checklist não derruba o site: vira aviso."""
     try:
         arq = ia_arquivo.carregar(cfg.raiz / ia_arquivo.ARQUIVO_PADRAO)
     except ia_arquivo.ArquivoError as e:
@@ -297,10 +298,11 @@ def _planejamento(cfg: Config, dataset_sha256: str) -> tuple[dict | None, list[s
         lista, sha = ia_checklist.carregar(caminho), ia_checklist.sha256(caminho)
     except ia_checklist.ChecklistError:
         lista, sha = None, None
-    return ia_arquivo.para_pacote(arq, lista, dataset_sha256=dataset_sha256, checklist_sha256=sha)
+    return ia_arquivo.para_pacote(arq, lista, dataset_sha256=dataset_sha256, checklist_sha256=sha,
+                                  incluir_nao_revisados=incluir_nao_revisados)
 
 
-def carregar_insumos(cfg: Config) -> Insumos:
+def carregar_insumos(cfg: Config, *, incluir_nao_revisados: bool = True) -> Insumos:
     """Confere o manifest inteiro (SHA-256 de tudo, inclusive `params.yaml`) e lê só o que ele lista."""
     m = mf.verificar_manifest(cfg)
     lotes = sorted(n for n in m["arquivos"] if n.startswith("raw_chirps/"))
@@ -313,7 +315,7 @@ def carregar_insumos(cfg: Config) -> Insumos:
     raw = pd.concat([chirps_raw.ler_lote(mf.caminho_verificado(cfg, n)) for n in lotes], ignore_index=True)
     arq_enso = cfg.raiz / ce.ARQUIVO_PADRAO          # fora do manifest: contexto de fonte externa, com a própria data
     enso = ce.carregar(arq_enso) if arq_enso.is_file() else None
-    plan, avisos = _planejamento(cfg, m["dataset_sha256"])
+    plan, avisos = _planejamento(cfg, m["dataset_sha256"], incluir_nao_revisados=incluir_nao_revisados)
     return Insumos(demo=ler("demo_observado"), qualidade=ler("qualidade_municipio"), raw=raw, malha=malha,
                    manifest=m, extraido_em=_extracao(cfg, lotes), enso=enso, planejamento=plan, avisos=tuple(avisos))
 
@@ -364,10 +366,11 @@ def _gravar_atomico(destino: Path, texto: str) -> None:
         raise
 
 
-def gerar_site(cfg: Config, saida: Path | None = None, *, agora: datetime | None = None) -> dict:
+def gerar_site(cfg: Config, saida: Path | None = None, *, agora: datetime | None = None,
+               incluir_nao_revisados: bool = True) -> dict:
     """Confere o manifest, monta o pacote e grava a pasta do site. Devolve um resumo (JSON puro)."""
     agora = agora or datetime.now(timezone.utc)
-    ins = carregar_insumos(cfg)
+    ins = carregar_insumos(cfg, incluir_nao_revisados=incluir_nao_revisados)
     payload = montar_payload(ins, cfg, verificado_em=agora)
     arquivos = montar_arquivos(payload)                          # tudo montado na memória antes de gravar qualquer coisa
     destino = Path(saida) if saida else cfg.raiz / SAIDA_PADRAO
@@ -380,6 +383,7 @@ def gerar_site(cfg: Config, saida: Path | None = None, *, agora: datetime | None
             "meses": len(payload["meses"]), "excluidos": payload["n_excluidos"],
             "dataset_sha256": payload["verificacao"]["dataset_sha256"], "maturity": payload["maturidade"],
             "enso": payload["enso"] is not None, "planejamento": len((payload["planejamento"] or {}).get("rascunhos", [])),
+            "planejamento_revisados": sum(r["revisado"] for r in (payload["planejamento"] or {}).get("rascunhos", [])),
             "avisos": list(ins.avisos)}
 
 
@@ -388,9 +392,12 @@ def main(argv: list[str] | None = None) -> int:       # python -m src.web.build_
                                  description="Gera o site (pasta de páginas estáticas, offline) a partir dos artefatos do manifest.")
     ap.add_argument("--params", default="params.yaml")
     ap.add_argument("--saida", default=None, help=f"pasta de saída; padrão: {SAIDA_PADRAO}")
+    ap.add_argument("--so-revisados", action="store_true",
+                    help="só mostra planos que uma pessoa revisou; sem isto, os ainda não revisados aparecem com o rótulo "
+                         "de não revisado")
     a = ap.parse_args(argv)
     try:
-        r = gerar_site(load_config(a.params), Path(a.saida) if a.saida else None)
+        r = gerar_site(load_config(a.params), Path(a.saida) if a.saida else None, incluir_nao_revisados=not a.so_revisados)
     except (ValueError, RuntimeError, OSError, ImportError) as e:
         print(f"ERRO: {e}", file=sys.stderr)
         return 1
@@ -400,7 +407,7 @@ def main(argv: list[str] | None = None) -> int:       # python -m src.web.build_
     for aviso in r["avisos"]:
         print(f"AVISO: {aviso}")
     if r["planejamento"]:
-        print(f"página Planejamento: {r['planejamento']} rascunho(s) revisado(s)")
+        print(f"página Planejamento: {r['planejamento']} rascunho(s), {r['planejamento_revisados']} revisado(s) por pessoa")
     print(f"abra: {r['inicio']}" + ("" if r["enso"] else " | AVISO: sem data/reference/contexto_enso.json; a camada do El Niño aparece como indisponível"))
     return 0
 

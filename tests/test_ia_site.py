@@ -169,11 +169,35 @@ def test_ponta_a_ponta_rascunho_revisado_vira_pagina(proj):
     assert "planejamento" not in extrair(raiz / "site")
 
 
-def test_ponta_a_ponta_pendente_nao_aparece_e_a_cli_avisa(proj):
+def test_ponta_a_ponta_pendente_aparece_com_o_rotulo_de_nao_revisado(proj):
     cfg, raiz = proj
     preparar(cfg, raiz, aprovar=False)
     r = bs.gerar_site(cfg, agora=VERIFICADO)
+    assert r["planejamento"] == 1 and r["planejamento_revisados"] == 0
+    assert r["avisos"] == ["1 rascunho(s) de IA ainda não revisado(s) aparecem no site com o rótulo de não revisado"]
+    h = (raiz / "site" / "planejamento.html").read_text(encoding="utf-8")
+    blocos = blocos_da_pagina(h)
+    assert set(blocos) == {A} and rs.ROTULO_NAO_REVISADO in blocos[A]
+    assert "Ainda não revisado por uma pessoa" in blocos[A] and "Revisado por" not in blocos[A] and rs.ROTULO not in blocos[A]
+
+
+def test_ponta_a_ponta_so_revisados_deixa_o_pendente_de_fora_e_avisa(proj):
+    cfg, raiz = proj
+    preparar(cfg, raiz, aprovar=False)
+    r = bs.gerar_site(cfg, agora=VERIFICADO, incluir_nao_revisados=False)
     assert r["planejamento"] == 0 and r["avisos"] == ["1 rascunho(s) de IA aguardam revisão e não aparecem no site"]
+    assert not (raiz / "site" / "planejamento.html").exists()
+
+
+def test_ponta_a_ponta_pendente_editado_a_mao_com_numero_de_fora_nao_chega_ao_site(proj):
+    cfg, raiz = proj
+    preparar(cfg, raiz, aprovar=False)
+    caminho = raiz / aq.ARQUIVO_PADRAO
+    dados = json.loads(caminho.read_text(encoding="utf-8"))
+    dados["rascunhos"][A]["resumo"] = "Choveu 999 mm neste mês."
+    caminho.write_text(json.dumps(dados), encoding="utf-8")
+    r = bs.gerar_site(cfg, agora=VERIFICADO)
+    assert r["planejamento"] == 0 and "não passam na validação" in r["avisos"][0]
     assert not (raiz / "site" / "planejamento.html").exists()
 
 
@@ -220,12 +244,112 @@ def test_ponta_a_ponta_gerar_duas_vezes_da_o_mesmo_conteudo(proj):
     assert lido(raiz / "site") == a and "planejamento.html" in a
 
 
-def test_cli_do_site_imprime_os_avisos(proj, capsys):
+def test_cli_do_site_imprime_os_avisos_e_a_contagem(proj, capsys):
     cfg, raiz = proj
     preparar(cfg, raiz, aprovar=False)
     assert bs.main(["--params", str(raiz / "params.yaml")]) == 0
     saida = capsys.readouterr().out
+    assert "AVISO: 1 rascunho(s) de IA ainda não revisado(s) aparecem" in saida
+    assert "página Planejamento: 1 rascunho(s), 0 revisado(s) por pessoa" in saida
+    assert bs.main(["--params", str(raiz / "params.yaml"), "--so-revisados"]) == 0
+    saida = capsys.readouterr().out
     assert "AVISO: 1 rascunho(s) de IA aguardam revisão" in saida and "página Planejamento" not in saida
     preparar(cfg, raiz)
-    assert bs.main(["--params", str(raiz / "params.yaml")]) == 0
-    assert "página Planejamento: 1 rascunho(s) revisado(s)" in capsys.readouterr().out
+    assert bs.main(["--params", str(raiz / "params.yaml"), "--so-revisados"]) == 0
+    assert "página Planejamento: 1 rascunho(s), 1 revisado(s) por pessoa" in capsys.readouterr().out
+
+
+# ================================================================== rascunhos ainda não revisados na página
+@pytest.fixture
+def pacote_misto(payload, lista):
+    """Alfa do Norte revisado por Ana; Beta do Sul pendente."""
+    arq = aq.ArquivoRascunhos(dataset_sha256="ab" * 32, checklist_sha256="cd" * 32)
+    arq = aq.registrar(aq.registrar(arq, rascunho(payload, A)), rascunho(payload, B, resumo="Segundo texto do modelo."))
+    arq = aq.aprovar(arq, A, "Ana Souza", agora=REVISAO, checklist=lista)
+    pac, _ = aq.para_pacote(arq, lista, dataset_sha256="ab" * 32, checklist_sha256="cd" * 32, incluir_nao_revisados=True)
+    return pac
+
+
+def blocos_da_pagina(html):
+    return {m.group(1): m.group(0) for m in re.finditer(r'<details class="rascunho" id="m(\d+)".*?</details>', html, re.S)}
+
+
+def test_cada_bloco_leva_o_seu_proprio_rotulo_e_selo(payload, pacote_misto):
+    h = bs.montar_arquivos({**payload, "planejamento": pacote_misto})["planejamento.html"]
+    blocos = blocos_da_pagina(h)
+    assert set(blocos) == {A, B}
+    rev, pend = blocos[A], blocos[B]
+    assert rs.ROTULO in rev and rs.ROTULO_NAO_REVISADO not in rev
+    assert "Revisado por Ana Souza em 20/11/2026 06:00" in rev and "Ainda não revisado" not in rev
+    assert 'data-rev="1"' in rev and "Quem revisou responde pelo conteúdo." in rev
+    assert rs.ROTULO_NAO_REVISADO in pend and rs.ROTULO not in pend
+    assert "Ainda não revisado por uma pessoa" in pend and "Revisado por" not in pend
+    assert 'data-rev="0"' in pend and "Nenhuma pessoa leu este texto ainda" in pend and "Quem revisou responde" not in pend
+    assert 'class="selo atencao"' in pend and 'class="selo atencao"' not in rev
+
+
+def test_o_texto_do_pendente_nunca_aparece_fora_de_um_bloco_com_o_rotulo(payload, pacote_misto):
+    h = bs.montar_arquivos({**payload, "planejamento": pacote_misto})["planejamento.html"]
+    fora = re.sub(r'<details class="rascunho".*?</details>', "", h, flags=re.S)
+    assert "Segundo texto do modelo." not in fora and "Beta do Sul" not in fora.split("<script")[0].split("<footer")[0]
+
+
+def test_a_pagina_conta_planos_e_revisados_e_explica_os_dois_selos(payload, pacote_misto):
+    h = bs.montar_arquivos({**payload, "planejamento": pacote_misto})["planejamento.html"]
+    assert "Esta página tem 2 planos: 1 revisado por uma pessoa e 1 ainda não revisado." in h
+    assert rs.ROTULO in h and rs.ROTULO_NAO_REVISADO in h
+    assert "Sem aprovação, o rascunho não aparece aqui" not in h                      # a regra antiga não vale mais
+    assert "Ainda não revisado” — ele" not in h and "passou só pelas checagens de código" in h
+
+
+@pytest.mark.parametrize("n, rev, frase", [
+    (1, 1, "Esta página tem 1 plano: 1 revisado por uma pessoa e 0 ainda não revisados."),
+    (1, 0, "Esta página tem 1 plano: 0 revisados por uma pessoa e 1 ainda não revisado."),
+    (3, 2, "Esta página tem 3 planos: 2 revisados por uma pessoa e 1 ainda não revisado."),
+    (216, 2, "Esta página tem 216 planos: 2 revisados por uma pessoa e 214 ainda não revisados.")])
+def test_resumo_do_planejamento_concorda_no_plural(n, rev, frase):
+    pac = {"rascunhos": [{"revisado": i < rev} for i in range(n)]}
+    assert paginas.resumo_planejamento(pac) == frase
+    assert paginas.resumo_planejamento(None) == ""
+
+
+def test_sem_javascript_todos_os_blocos_ficam_visiveis_e_a_busca_so_aparece_com_script(payload, pacote_misto):
+    h = bs.montar_arquivos({**payload, "planejamento": pacote_misto})["planejamento.html"]
+    assert 'id="filtrosPlano" hidden' in h                                            # o JS é quem mostra os controles
+    assert not re.search(r'<details class="rascunho"[^>]*\bhidden\b', h) and "<details class=\"rascunho\"" in h
+    assert '<script src="assets/planejamento.js"></script>' in h
+    assert "assets/planejamento.js" in bs.montar_arquivos({**payload, "planejamento": pacote_misto})
+
+
+def test_nome_do_municipio_e_escapado_no_bloco(payload, pacote_misto):
+    ruim = json.loads(json.dumps(pacote_misto))
+    ruim["rascunhos"][1]["nome"] = '<b onmouseover=1>X</b>'
+    h = bs.montar_arquivos({**payload, "planejamento": ruim})["planejamento.html"]
+    assert "<b onmouseover=1>" not in h and "&lt;b onmouseover=1&gt;X&lt;/b&gt;" in h
+
+
+def test_pagina_com_muitos_planos_continua_leve(payload, pacote_misto):
+    base = pacote_misto["rascunhos"][1]
+    grande = {**pacote_misto, "rascunhos": [{**base, "cod": f"22{n:05d}", "nome": f"Cidade {n}"} for n in range(216)]}
+    h = bs.montar_arquivos({**payload, "planejamento": grande})["planejamento.html"]
+    assert len(blocos_da_pagina(h)) == 216 and len(h.encode("utf-8")) < 800_000
+
+
+def test_o_topo_da_pagina_explica_os_dois_rotulos_antes_da_lista(payload, pacote_misto):
+    h = bs.montar_arquivos({**payload, "planejamento": pacote_misto})["planejamento.html"]
+    topo = h.split('<details class="rascunho"')[0]
+    assert rs.ROTULO in topo and rs.ROTULO_NAO_REVISADO in topo and "Esta página tem 2 planos" in topo
+
+
+def test_o_nome_do_municipio_fica_num_h3_dentro_do_summary_porque_o_script_de_busca_le_dali(payload, pacote_misto):
+    h = bs.montar_arquivos({**payload, "planejamento": pacote_misto})["planejamento.html"]
+    blocos = blocos_da_pagina(h)
+    assert "<summary><h3>Alfa do Norte</h3>" in blocos[A] and "<summary><h3>Beta do Sul</h3>" in blocos[B]
+    assert "querySelector('h3')" in Path(bs.ASSETS / "planejamento.js").read_text(encoding="utf-8")
+
+
+def test_carregar_insumos_inclui_pendentes_por_padrao_e_so_revisados_se_pedido(proj):
+    cfg, raiz = proj
+    preparar(cfg, raiz, aprovar=False)
+    assert [r["revisado"] for r in bs.carregar_insumos(cfg).planejamento["rascunhos"]] == [False]
+    assert bs.carregar_insumos(cfg, incluir_nao_revisados=False).planejamento is None

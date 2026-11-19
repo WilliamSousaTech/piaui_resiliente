@@ -1,5 +1,6 @@
 """CLI dos rascunhos de IA: cliente falso, projeto sintético em tmp_path, nenhuma chamada de rede."""
 import json
+import re
 
 import numpy as np
 import pandas as pd
@@ -75,12 +76,18 @@ def test_gerar_grava_rascunho_pendente_e_orienta_o_proximo_passo(proj):
     assert f"{A} Alfa do Norte: pendente de revisão (1 tentativa(s))" in saida
 
 
-def test_gerar_nunca_aprova_e_o_site_continua_sem_a_pagina(proj):
+def test_gerar_nunca_aprova_e_o_site_so_mostra_o_texto_como_nao_revisado(proj):
     cfg, raiz = proj
     rodar(raiz, "gerar", "--municipios", A, cliente=Falso(BOM))
+    assert arquivo(raiz).rascunhos[A].status == "pendente_revisao" and arquivo(raiz).rascunhos[A].revisado_por is None
     from src.web import build_site as bs
-    r = bs.gerar_site(cfg)
+    r = bs.gerar_site(cfg, incluir_nao_revisados=False)                 # montagem conservadora: nada sem revisão
     assert r["planejamento"] == 0 and not (raiz / "site" / "planejamento.html").exists()
+    r = bs.gerar_site(cfg)                                              # padrão (D14): aparece, marcado como não revisado
+    h = (raiz / "site" / "planejamento.html").read_text(encoding="utf-8")
+    assert r["planejamento"] == 1 and r["planejamento_revisados"] == 0
+    bloco = re.search(r'<details class="rascunho".*?</details>', h, re.S).group(0)
+    assert rs.ROTULO_NAO_REVISADO in bloco and "Revisado por" not in bloco and rs.ROTULO not in bloco
 
 
 def test_gerar_sem_checklist_falha_antes_de_criar_o_cliente(proj):

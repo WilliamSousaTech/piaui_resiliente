@@ -6,7 +6,9 @@ porque é texto de apoio com revisor e data próprios, e não dado de modelo.
 
 Fluxo: `gerar` cria rascunhos `pendente_revisao`; uma pessoa lê, edita o texto se quiser (no próprio JSON) e roda
 `aprovar`, que valida o texto de novo (um número ou citação colocados à mão também são recusados) e grava quem revisou
-e quando; ou roda `rejeitar`. Só `revisado` aparece no site, sempre com o rótulo de `rascunhos.ROTULO`.
+e quando; ou roda `rejeitar`. No site, `revisado` leva o rótulo de `rascunhos.ROTULO`. `pendente_revisao` só aparece se o
+site for montado com `incluir_nao_revisados` (decisão D14), sempre com `rascunhos.ROTULO_NAO_REVISADO` e depois de passar
+de novo pela validação; `rejeitado` nunca aparece.
 
 Sem rede, sem ML, sem framework web.
 """
@@ -149,9 +151,20 @@ def rejeitar(arq: ArquivoRascunhos, cod: str, por: str, *, agora: datetime) -> A
 
 
 # ------------------------------------------------------------------ o que vai ao site
+def _item_do_pacote(r: rs.Rascunho, itens: dict) -> dict:
+    return {"cod": r.cod_ibge, "nome": r.nome, "mes": r.mes_referencia, "escala": r.escala, "resumo": r.resumo,
+            "revisado": r.status == "revisado", "revisado_por": r.revisado_por, "revisado_em": r.revisado_em_utc,
+            "modelo": r.modelo,
+            "itens": [{"titulo": itens[i.id].titulo, "descricao": itens[i.id].descricao,
+                       "fonte": itens[i.id].fonte, "porque": i.porque} for i in r.itens]}
+
+
 def para_pacote(arq: ArquivoRascunhos | None, checklist: Checklist | None, *, dataset_sha256: str,
-                checklist_sha256: str | None) -> tuple[dict | None, list[str]]:
-    """(pacote, avisos). O pacote só leva rascunhos revisados do dataset e do checklist atuais; None se não há nenhum."""
+                checklist_sha256: str | None, incluir_nao_revisados: bool = False) -> tuple[dict | None, list[str]]:
+    """(pacote, avisos). Só leva rascunhos do dataset e do checklist atuais; None se não há nenhum para mostrar.
+
+    Por padrão só os `revisado`. Com `incluir_nao_revisados`, entram também os `pendente_revisao` que passam de novo
+    pela validação (o JSON pode ter sido editado à mão); cada item diz em `revisado` se uma pessoa o aprovou."""
     if arq is None:
         return None, []
     avisos: list[str] = []
@@ -164,19 +177,24 @@ def para_pacote(arq: ArquivoRascunhos | None, checklist: Checklist | None, *, da
     if avisos:
         return None, avisos
     itens = checklist.por_id()
-    revisados = [r for r in arq.rascunhos.values() if r.status == "revisado"]
-    pendentes = sum(r.status == "pendente_revisao" for r in arq.rascunhos.values())
-    if pendentes:
-        avisos.append(f"{pendentes} rascunho(s) de IA aguardam revisão e não aparecem no site")
-    if not revisados:
+    incluidos = [r for r in arq.rascunhos.values() if r.status == "revisado"]
+    pendentes = [r for r in arq.rascunhos.values() if r.status == "pendente_revisao"]
+    if pendentes and not incluir_nao_revisados:
+        avisos.append(f"{len(pendentes)} rascunho(s) de IA aguardam revisão e não aparecem no site")
+    elif pendentes:
+        reprovados = [r for r in pendentes
+                      if rs.validar(r.resumo, [(i.id, i.porque) for i in r.itens], r.ficha, checklist)]
+        bons = [r for r in pendentes if r not in reprovados]
+        incluidos += bons
+        if reprovados:
+            avisos.append(f"{len(reprovados)} rascunho(s) pendente(s) não passam na validação e ficaram fora do site: "
+                          + ", ".join(sorted(r.cod_ibge for r in reprovados)))
+        if bons:
+            avisos.append(f"{len(bons)} rascunho(s) de IA ainda não revisado(s) aparecem no site com o rótulo de não revisado")
+    if not incluidos:
         return None, avisos
-    lista = []
-    for r in sorted(revisados, key=lambda x: (x.nome, x.cod_ibge)):
-        lista.append({"cod": r.cod_ibge, "nome": r.nome, "mes": r.mes_referencia, "escala": r.escala,
-                      "resumo": r.resumo, "revisado_por": r.revisado_por, "revisado_em": r.revisado_em_utc,
-                      "modelo": r.modelo,
-                      "itens": [{"titulo": itens[i.id].titulo, "descricao": itens[i.id].descricao,
-                                 "fonte": itens[i.id].fonte, "porque": i.porque} for i in r.itens]})
-    return {"rotulo": rs.ROTULO, "checklist": {"versao": checklist.versao, "elaborado_por": checklist.elaborado_por,
-                                               "atualizado_em": checklist.atualizado_em.isoformat()},
+    lista = [_item_do_pacote(r, itens) for r in sorted(incluidos, key=lambda x: (x.nome, x.cod_ibge))]
+    return {"rotulo": rs.ROTULO, "rotulo_nao_revisado": rs.ROTULO_NAO_REVISADO,
+            "checklist": {"versao": checklist.versao, "elaborado_por": checklist.elaborado_por,
+                          "atualizado_em": checklist.atualizado_em.isoformat()},
             "rascunhos": lista}, avisos
