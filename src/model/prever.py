@@ -11,7 +11,8 @@ Garantias (cada uma tem teste):
   * a rede e os números da validação têm de ser do mesmo `dataset_sha256` dos dados lidos agora;
   * a marca de baixa confiança do mês previsto é calculada dos parâmetros Gama do treino (a coluna
     `alvo_spiK_baixa_conf` do conjunto vem toda falsa nesse mês, porque o SPI futuro não existe);
-  * nenhum NaN ou infinito vira número no arquivo, e o arquivo só aparece inteiro (escrita atômica).
+  * nenhum NaN ou infinito vira número no arquivo, o arquivo só aparece inteiro (escrita atômica) e só é gravado se
+    passar na mesma conferência que o site faz ao ler (`src/data/previsao.py`).
 
 Uso:
     python -m src.model.prever [--params params.yaml] [--modelo artifacts/modelo_v2]
@@ -34,6 +35,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from src.data import previsao as pr
 from src.data.config import Config, load_config
 from src.model import baselines as bl
 from src.model import busca as bu
@@ -41,8 +43,8 @@ from src.model import entrada
 from src.model import features as fe
 from src.model import residuo as rs
 
-VERSAO = 1
-ARQUIVO_PADRAO = Path("data") / "reference" / "previsao_proximo_mes.json"
+VERSAO = pr.VERSAO
+ARQUIVO_PADRAO = pr.ARQUIVO_PADRAO
 PASTA_MODELO_PADRAO = Path("artifacts") / "modelo_v2"
 VALIDACAO_PADRAO = Path("artifacts") / "busca" / "confirmacao_B.json"
 AVISO = ("MVP experimental, em calibração com S2iD/TCE-PI. É uma previsão com margem de erro, não uma certeza: "
@@ -118,6 +120,8 @@ def _cabeca(alvo: str, escala: int, receita: dict, val: dict, mes_alvo: pd.Times
     seca = _pegar(val, "alerta_seca", alvo, principal, onde=onde)       # alarme no MESMO limiar que marca o município
     classes = _pegar(rede, "todas", "classes", onde=onde)
     marg = _pegar(val, "margem", alvo, onde=onde)
+    comp_pers = _pegar(val, "comparacao", alvo, "persistencia", "veredito", onde=onde)
+    comp_base = _pegar(val, "comparacao", alvo, "melhor_baseline", onde=onde)
     limiar = _finito(_pegar(receita, "limiares_alerta", alvo, onde="a receita do modelo"), f"limiar de {alvo}")
     limiar_val = _pegar(seca, "limiar_previsao", onde=onde)
     if not math.isclose(limiar, _finito(limiar_val, "limiar da validação")):
@@ -141,6 +145,9 @@ def _cabeca(alvo: str, escala: int, receita: dict, val: dict, mes_alvo: pd.Times
         "mae_parcial_climatologica": _arredondar(_finito(parc["mae"], "mae do baseline parcial"), CASAS_METRICA),
         "mae_mes_alvo": _arredondar(_finito(por_mes[chave_mes], "mae do mês-alvo"), CASAS_METRICA),
         "mae_mes_alvo_persistencia": _arredondar(_finito(pers_por_mes[chave_mes], "mae do mês-alvo (persistência)"), CASAS_METRICA),
+        "veredito_persistencia": str(comp_pers),
+        "melhor_baseline": str(_pegar(comp_base, "contra", onde=onde)),
+        "veredito_melhor_baseline": str(_pegar(comp_base, "veredito", onde=onde)),
         "acerto_classe": _arredondar(_finito(classes["acerto"], "acerto de classe"), CASAS_METRICA),
         "acerto_sempre_normal": _arredondar(_finito(classes["acerto_sempre_normal"], "acerto de 'sempre normal'"), CASAS_METRICA),
         "secas_reais": int(seca["secas_reais"]), "secas_pegas": int(seca["tp"]), "alarmes_falsos": int(seca["fp"]),
@@ -205,7 +212,9 @@ def prever_proximo_mes(c: fe.Conjunto, preditor, *, params_gama: pd.DataFrame, c
     return {
         "versao": VERSAO, "aviso": AVISO, "gerado_em": gerado_em.isoformat(),
         "origem": _mes(origem), "alvo": _mes(mes_alvo), "horizonte_meses": 1,
+        "corte_b": str(_pegar(validacao, "corte_b", onde="a validação (confirmacao_B.json)")),
         "alvo_ja_passou": bool(pd.Timestamp(gerado_em) >= fim_do_alvo),
+        "teste_congelado_lido": False,
         "dataset_sha256": str(validacao.get("dataset_sha256")),
         "cabecas": cabecas, "resumo": resumo, "municipios": municipios,
     }
@@ -242,6 +251,8 @@ def _ler_json(caminho: Path, o_que: str) -> dict:
 def gerar(cfg: Config, *, pasta_modelo=PASTA_MODELO_PADRAO, arquivo_validacao=VALIDACAO_PADRAO, destino=ARQUIVO_PADRAO,
           gerado_em: date | None = None) -> dict:
     """Lê dados, modelo e validação; confere que são do mesmo dataset; grava a previsão e devolve o documento."""
+    if cfg.split.teste_liberado:
+        raise PreverError("a previsão recusa rodar com split.teste_liberado: true (o teste congelado só entra na avaliação final)")
     pasta_modelo = Path(pasta_modelo)
     receita_txt = (pasta_modelo / "receita.json")
     receita = _ler_json(receita_txt, "a receita do modelo")
@@ -263,6 +274,10 @@ def gerar(cfg: Config, *, pasta_modelo=PASTA_MODELO_PADRAO, arquivo_validacao=VA
     doc["dataset_sha256"] = ins.dataset_sha256
     doc["modelo"] = {"pasta": pasta_modelo.as_posix(), "n_membros": int(receita["n_membros"]),
                      "receita_sha256": hashlib.sha256(receita_txt.read_bytes()).hexdigest()}
+    try:
+        pr.Previsao.model_validate(doc)                       # nunca grava um arquivo que o site recusaria
+    except ValueError as err:
+        raise PreverError(f"a previsão gerada não passa na conferência do site: {err}") from err
     gravar(doc, destino)
     return doc
 

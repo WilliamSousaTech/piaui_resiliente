@@ -32,6 +32,7 @@ import pandas as pd
 from src.data import chirps_raw
 from src.data import contexto_enso as ce
 from src.data import manifest as mf
+from src.data import previsao as prev_mod
 from src.data.config import Config, load_config
 from src.ia import arquivo as ia_arquivo
 from src.ia import checklist as ia_checklist
@@ -167,6 +168,7 @@ class Insumos:
     extraido_em: tuple[str, str] | None
     enso: ce.ContextoEnso | None = None
     planejamento: dict | None = None          # rascunhos de IA já revisados (src/ia/arquivo.py), ou None
+    previsao: prev_mod.Previsao | None = None  # previsão do próximo mês (src/model/prever.py), já conferida, ou None
     avisos: tuple[str, ...] = ()              # o que ficou de fora e por quê (mostrado pela CLI)
 
 
@@ -242,6 +244,8 @@ def montar_payload(ins: Insumos, cfg: Config, *, verificado_em: datetime) -> dic
                   "treino_fim": str(cfg.split.treino_fim)},
         "enso": ce.para_pacote(ins.enso) if ins.enso is not None else None,
         "planejamento": ins.planejamento,         # só vira página (não vai para o dados.js)
+        "previsao": prev_mod.para_pacote(ins.previsao) if ins.previsao is not None else None,   # idem
+        "tem_previsao": ins.previsao is not None,                 # este sim vai ao navegador: o monitor muda o texto de "indisponível"
         "titulo": cfg.projeto.nome,
         "equipe": cfg.projeto.equipe,
         "maturidade": cfg.projeto.maturidade,
@@ -302,6 +306,20 @@ def _planejamento(cfg: Config, dataset_sha256: str, *, incluir_nao_revisados: bo
                                   incluir_nao_revisados=incluir_nao_revisados)
 
 
+def _previsao(cfg: Config, dataset_sha256: str, cods) -> tuple[prev_mod.Previsao | None, list[str]]:
+    """Previsão do próximo mês, se houver e se for dos mesmos dados do site. Arquivo ausente: sem aviso (a página só
+    não aparece). Arquivo inválido ou de outro conjunto de dados: a página não aparece e a CLI diz por quê."""
+    caminho = cfg.raiz / prev_mod.ARQUIVO_PADRAO
+    if not caminho.is_file():
+        return None, []
+    try:
+        prev = prev_mod.carregar(caminho)
+        prev_mod.conferir_dataset(prev, dataset_sha256, cods)
+    except prev_mod.PrevisaoError as e:
+        return None, [f"previsão do próximo mês ignorada: {e}"]
+    return prev, []
+
+
 def carregar_insumos(cfg: Config, *, incluir_nao_revisados: bool = True) -> Insumos:
     """Confere o manifest inteiro (SHA-256 de tudo, inclusive `params.yaml`) e lê só o que ele lista."""
     m = mf.verificar_manifest(cfg)
@@ -316,13 +334,15 @@ def carregar_insumos(cfg: Config, *, incluir_nao_revisados: bool = True) -> Insu
     arq_enso = cfg.raiz / ce.ARQUIVO_PADRAO          # fora do manifest: contexto de fonte externa, com a própria data
     enso = ce.carregar(arq_enso) if arq_enso.is_file() else None
     plan, avisos = _planejamento(cfg, m["dataset_sha256"], incluir_nao_revisados=incluir_nao_revisados)
+    prev, avisos_prev = _previsao(cfg, m["dataset_sha256"], [f["properties"]["cod_ibge"] for f in malha["features"]])
     return Insumos(demo=ler("demo_observado"), qualidade=ler("qualidade_municipio"), raw=raw, malha=malha,
-                   manifest=m, extraido_em=_extracao(cfg, lotes), enso=enso, planejamento=plan, avisos=tuple(avisos))
+                   manifest=m, extraido_em=_extracao(cfg, lotes), enso=enso, planejamento=plan, previsao=prev,
+                   avisos=tuple([*avisos, *avisos_prev]))
 
 
 # ------------------------------------------------------------------ montagem da pasta do site
 def _dados_js(payload: dict) -> str:
-    dados = {k: v for k, v in payload.items() if k != "planejamento"}     # os rascunhos viram HTML, não vão ao navegador como dado
+    dados = {k: v for k, v in payload.items() if k not in ("planejamento", "previsao")}   # viram HTML, não vão ao navegador como dado
     j = json.dumps(dados, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
     return "window.PR_DADOS=" + j.replace("\u2028", "\\u2028").replace("\u2029", "\\u2029") + ";\n"
 
@@ -384,6 +404,7 @@ def gerar_site(cfg: Config, saida: Path | None = None, *, agora: datetime | None
             "dataset_sha256": payload["verificacao"]["dataset_sha256"], "maturity": payload["maturidade"],
             "enso": payload["enso"] is not None, "planejamento": len((payload["planejamento"] or {}).get("rascunhos", [])),
             "planejamento_revisados": sum(r["revisado"] for r in (payload["planejamento"] or {}).get("rascunhos", [])),
+            "previsao": payload["previsao"]["alvo"] if payload["previsao"] else None,
             "avisos": list(ins.avisos)}
 
 
@@ -408,6 +429,8 @@ def main(argv: list[str] | None = None) -> int:       # python -m src.web.build_
         print(f"AVISO: {aviso}")
     if r["planejamento"]:
         print(f"página Planejamento: {r['planejamento']} rascunho(s), {r['planejamento_revisados']} revisado(s) por pessoa")
+    if r["previsao"]:
+        print(f"página Previsão: previsão de {r['previsao']} (experimental, com margem de erro)")
     print(f"abra: {r['inicio']}" + ("" if r["enso"] else " | AVISO: sem data/reference/contexto_enso.json; a camada do El Niño aparece como indisponível"))
     return 0
 

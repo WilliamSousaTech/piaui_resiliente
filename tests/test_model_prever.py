@@ -61,7 +61,7 @@ def receita_e_validacao(sha="ab" * 32):
     alvos = ["alvo_spi3_h1", "alvo_spi6_h1"]
     receita = {"dataset_sha256": sha, "alvos": alvos, "limiares_alerta": {alvos[0]: -1.0, alvos[1]: -0.95},
                "n_membros": 5, "config": {"residuo": True, "regional": False}, "colunas": []}
-    val = {"dataset_sha256": sha, "principal": "rede_final",
+    val = {"dataset_sha256": sha, "principal": "rede_final", "corte_b": "2018-09",
            "modelos": {"rede_final": {a: _cabeca_val(0.40 + 0.1 * i) for i, a in enumerate(alvos)},
                        "persistencia": {a: {"todas": {"mae": 0.64 + 0.1 * i}, "por_mes_calendario": {str(m): 0.2 * m for m in range(1, 13)}}
                                         for i, a in enumerate(alvos)},
@@ -69,6 +69,9 @@ def receita_e_validacao(sha="ab" * 32):
            "alerta_seca": {a: {"rede_final": {"limiar_previsao": lim, "secas_reais": 200, "tp": 50, "fp": 40,
                                               "revocacao": 0.25, "precisao": 0.55}}
                            for a, lim in zip(alvos, (-1.0, -0.95))},
+           "comparacao": {a: {"persistencia": {"veredito": "superou"},
+                              "melhor_baseline": {"contra": "parcial_climatologica", "veredito": v}}
+                          for a, v in zip(alvos, ("indistinguivel", "superou"))},
            "margem": {a: {"q": 0.8, "valor": v, "cobertura_validacao": 0.80, "cobertura_2a_metade": 0.76, "estavel": est}
                       for a, v, est in zip(alvos, (0.6624, 0.5486), (True, False))}}
     return receita, val
@@ -100,7 +103,8 @@ def test_documento_traz_origem_alvo_e_so_a_ultima_origem(mundo, cfg):
     assert len(falso.vistos) == 1 and set(falso.vistos[0].meta["mes_origem"]) == {pd.Timestamp("2026-09-01")}
     assert [m["cod_ibge"] for m in doc["municipios"]] == [A, B, C]            # ordenado por código, não pela ordem de entrada
     assert doc["versao"] == pv.VERSAO and doc["aviso"] == pv.AVISO and "MVP" in doc["aviso"]
-    assert doc["gerado_em"] == "2026-11-19" and doc["alvo_ja_passou"] is True
+    assert doc["gerado_em"] == "2026-11-19" and doc["alvo_ja_passou"] is True and doc["corte_b"] == "2018-09"
+    assert doc["teste_congelado_lido"] is False
 
 
 def test_alvo_ja_passou_depende_da_data(mundo, cfg):
@@ -137,6 +141,8 @@ def test_cabecas_trazem_a_validacao_do_mesmo_limiar_e_a_margem(mundo, cfg):
     assert (h3["mae_mes_alvo"], h3["mae_mes_alvo_persistencia"]) == (1.0, 2.0)  # mês-calendário 10 do alvo
     assert (h3["secas_reais"], h3["secas_pegas"], h3["alarmes_falsos"], h3["revocacao"], h3["precisao"]) == (200, 50, 40, 0.25, 0.55)
     assert (h3["acerto_classe"], h3["acerto_sempre_normal"]) == (0.81, 0.7)
+    assert (h3["veredito_persistencia"], h3["melhor_baseline"], h3["veredito_melhor_baseline"]) == ("superou", "parcial_climatologica", "indistinguivel")
+    assert h6["veredito_melhor_baseline"] == "superou"
 
 
 def test_baixa_confianca_do_alvo_vem_dos_parametros_e_nao_da_coluna_do_conjunto(mundo, cfg):
@@ -466,6 +472,47 @@ def test_gerar_com_contexto_regional_na_receita(proj, monkeypatch):
     monkeypatch.setattr(bu, "carregar_final", lambda p, base: falso)
     pv.gerar(cfg, pasta_modelo=pasta, arquivo_validacao=arq_val, destino=raiz / "p.json", gerado_em=date(2026, 11, 19))
     assert "reg_chuva_lag0" in falso.vistos[0].colunas                                           # o preditor recebeu as colunas regionais
+
+
+def test_gerar_nao_grava_o_que_o_site_recusaria(proj, monkeypatch):
+    cfg, raiz = proj
+    sha = mf.verificar_manifest(cfg)["dataset_sha256"]
+    pasta, arq_val, receita, _ = _montar_modelo(cfg, raiz, sha)
+    receita["n_membros"] = 0                                             # o leitor do site exige pelo menos 1 rede
+    (pasta / "receita.json").write_text(json.dumps(receita), encoding="utf-8")
+    monkeypatch.setattr(bu, "carregar_final", lambda p, base: Falso(np.zeros((3, 2))))
+    destino = raiz / "p.json"
+    with pytest.raises(pv.PreverError, match="conferência do site"):
+        pv.gerar(cfg, pasta_modelo=pasta, arquivo_validacao=arq_val, destino=destino)
+    assert not destino.exists()
+
+
+def test_validacao_sem_corte_b(mundo, cfg):
+    r, v = receita_e_validacao()
+    del v["corte_b"]
+    with pytest.raises(pv.PreverError, match="não traz corte_b"):
+        chamar(mundo, cfg, np.zeros((3, 2)), receita=r, val=v)
+
+
+def test_gerar_recusa_rodar_com_o_teste_liberado(proj, monkeypatch):
+    cfg, raiz = proj
+    sha = mf.verificar_manifest(cfg)["dataset_sha256"]
+    pasta, arq_val, _, _ = _montar_modelo(cfg, raiz, sha)
+    monkeypatch.setattr(bu, "carregar_final", lambda p, base: pytest.fail("não podia nem carregar a rede"))
+    liberado = cfg.model_copy(update={"split": cfg.split.model_copy(update={"teste_liberado": True})})
+    with pytest.raises(pv.PreverError, match="teste_liberado"):
+        pv.gerar(liberado, pasta_modelo=pasta, arquivo_validacao=arq_val, destino=raiz / "p.json")
+
+
+@pytest.mark.parametrize("caminho", [("comparacao", "alvo_spi3_h1", "persistencia"), ("comparacao", "alvo_spi6_h1", "melhor_baseline")])
+def test_validacao_sem_comparacao_da_erro_claro(mundo, cfg, caminho):
+    r, v = receita_e_validacao()
+    d = v
+    for k in caminho[:-1]:
+        d = d[k]
+    del d[caminho[-1]]
+    with pytest.raises(pv.PreverError, match="não traz"):
+        chamar(mundo, cfg, np.zeros((3, 2)), receita=r, val=v)
 
 
 def test_gerar_recusa_modelo_de_outro_dataset(proj, monkeypatch):
