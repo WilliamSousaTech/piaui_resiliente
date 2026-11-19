@@ -292,6 +292,17 @@ def test_o_sistema_tem_as_regras_e_os_limites_do_codigo():
     assert set(re.findall(r"de 2 a (\d+)\)", s)) == {str(rs.MAX_ITENS_ESCOLHIDOS)}
 
 
+def test_o_sistema_orienta_contra_garantir_e_contra_id_abreviado(checklist=None):
+    """Nas rodadas reais, o modelo errou por escrever "garante/garantindo" e por abreviar ids longos. O prompt diz o que
+    fazer, e as palavras sugeridas no lugar passam no validador."""
+    s = rs.SISTEMA
+    assert 'Nunca escreva "garante", "garantir" nem "garantindo"' in s and "letra por letra" in s
+    for troca in ("assegurar", "ajudar a", "reforçar"):
+        assert not rs._CERTEZA.search(troca) and not rs._CITACAO.search(troca), troca
+    for proibida in ("garante", "garantir", "garantindo"):
+        assert rs._CERTEZA.search(proibida), proibida
+
+
 def test_o_formato_pedido_no_sistema_e_o_json_que_o_codigo_le():
     modelo = json.loads(rs.SISTEMA.strip().splitlines()[-1])
     assert set(modelo) == {"resumo", "itens"} and set(modelo["itens"][0]) == {"id", "porque"}

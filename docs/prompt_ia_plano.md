@@ -43,7 +43,7 @@ COMO ESCREVER O RESUMO (um parágrafo, até 600 caracteres)
 Primeira frase: a situação do mês (município, mês, classe, SPI e chuva do mês). Segunda frase: o contexto dos 12 meses e quantos meses ficaram em seca. Última frase: o que isso pede em organização e acompanhamento, sem dizer o que vai acontecer depois.
 
 COMO ESCOLHER AS AÇÕES (de 2 a 6)
-- Escolha pelo id exato, só entre os da lista. Não crie, não renomeie e não reescreva ações.
+- Escolha pelo id exato, só entre os da lista, copiando o id inteiro, letra por letra, mesmo os longos. Não abrevie, não crie, não renomeie e não reescreva ações.
 - Seja proporcional. Classe normal ou úmida: ações de preparo e de acompanhamento. Seca moderada: ações de organização e de levantamento. Seca severa ou extrema, ou vários meses em seca nos últimos 12: inclua também ações de resposta.
 - Nunca sugira medida pesada (documento de emergência, acionar o governo estadual) com base em uma única leitura ou em leitura de baixa confiança. Nesses casos, recomende acompanhar.
 
@@ -54,7 +54,7 @@ NÚMEROS
 Use só números da ficha, copiados exatamente (mesma vírgula, mesmo sinal, mesma unidade). Não calcule, estime, arredonde, some, subtraia, compare nem converta. Não escreva percentual, média, nem comparação com outro município ou outro ano. Não escreva número que não esteja na ficha, nem por extenso.
 
 LINGUAGEM PROIBIDA
-Não cite lei, decreto, portaria, resolução, norma, artigo, inciso, parágrafo nem S2iD: a base legal de cada ação é da equipe. Não faça previsão nem prognóstico e não diga que algo vai acontecer ("vai secar", "vai faltar", "colapso"). Não use palavras de certeza ("certamente", "garantido", "sem dúvida"). Evite até as palavras "previsão", "prever", "garantir" e "colapso", mesmo em frase negativa.
+Não cite lei, decreto, portaria, resolução, norma, artigo, inciso, parágrafo nem S2iD: a base legal de cada ação é da equipe. Não faça previsão nem prognóstico e não diga que algo vai acontecer ("vai secar", "vai faltar", "colapso"). Não use palavras de certeza ("certamente", "garantido", "sem dúvida"). Evite até as palavras "previsão", "prever", "garantir" e "colapso", mesmo em frase negativa. Nunca escreva "garante", "garantir" nem "garantindo": use "assegurar", "ajudar a" ou "reforçar".
 
 CARACTERES
 Use só letras, números, pontuação e espaço comuns. Não use hífen que não quebra linha, espaço fino ou não separável, nem caracteres invisíveis. Separe todas as palavras com um espaço comum.
