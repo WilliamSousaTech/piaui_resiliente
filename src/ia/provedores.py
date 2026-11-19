@@ -20,6 +20,7 @@ from src.ia import cliente_gemini as cg
 from src.ia.cliente_reserva import ClienteComReserva
 
 PADRAO = "anthropic"
+DESCANSO_S = 300.0               # quem falha fica 5 min de fora da lista, em vez de gastar 15 a 90 s de espera por município
 FABRICAS: dict[str, Callable] = {"anthropic": cl.desde_ambiente, "gemini": cg.desde_ambiente, "groq": co.groq_desde_ambiente}
 VAR_CHAVE: dict[str, str] = {"anthropic": cl.VAR_CHAVE, "gemini": cg.VAR_CHAVE, "groq": co.VAR_CHAVE_GROQ}
 
@@ -60,4 +61,4 @@ def montar_cliente(texto: str, modelo: str | None = None, *, ambiente=None, sess
         raise cl.ChaveAusente("nenhum provedor da lista tem chave nesta máquina; defina "
                               + " ou ".join(VAR_CHAVE[n] for n in lista)
                               + " (PowerShell: $env:NOME=\"sua-chave\"); ela não vai para o projeto nem para o Git")
-    return clientes[0] if len(clientes) == 1 else ClienteComReserva(clientes, aviso=aviso)
+    return clientes[0] if len(clientes) == 1 else ClienteComReserva(clientes, aviso=aviso, descanso_s=DESCANSO_S)

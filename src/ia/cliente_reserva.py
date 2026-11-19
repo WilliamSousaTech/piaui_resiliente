@@ -56,6 +56,10 @@ class ClienteComReserva:
         return tuple(c.modelo for c in self._clientes)
 
     @property
+    def descanso_s(self) -> float:
+        return self._descanso
+
+    @property
     def em_descanso(self) -> tuple[str, ...]:
         """Modelos que estão sendo pulados agora (falharam há menos de `descanso_s`), na ordem da lista."""
         agora = self._relogio()
@@ -78,8 +82,7 @@ class ClienteComReserva:
             except ErroLLM as e:
                 falhas.append((c.modelo, str(e)))
                 self._motivo[i] = str(e)
-                if self._descanso > 0:
-                    self._ate[i] = self._relogio() + self._descanso
+                self._ate[i] = self._relogio() + self._descanso       # com descanso 0, vence na hora: nunca pula
                 if self._aviso is not None:
                     self._aviso(c.modelo, str(e))
                 continue

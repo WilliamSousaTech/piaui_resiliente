@@ -106,6 +106,7 @@ def test_gerar_recusado_nao_grava_e_mostra_os_motivos(proj):
     codigo, saida = rodar(raiz, "gerar", "--municipios", A, cliente=c)
     assert codigo == 0 and c.chamadas == 3 and arquivo(raiz) is None
     assert "recusado em todas as tentativas" in saida and "número fora da ficha (999)" in saida
+    assert "Resumo: recusados: 1" in saida
     assert "Próximo passo" not in saida
 
 
@@ -241,9 +242,13 @@ def test_ver_mostra_ficha_resumo_itens_e_rotulo(proj):
     assert codigo == 0
     for trecho in ("Alfa do Norte", "FICHA (os únicos números permitidos)", "Município: Alfa do Norte", "RESUMO",
                    "Texto simples sobre o município.", "Mobilizar a Defesa Civil [mobilizar_defesa_civil]",
-                   "por quê: Prepara a equipe.", "situação: pendente_revisao", rs.ROTULO):
+                   "por quê: Prepara a equipe.", "situação: pendente_revisao", rs.ROTULO_NAO_REVISADO):
         assert trecho in saida, trecho
+    assert rs.ROTULO not in saida                                       # pendente não pode dizer que foi revisado
     assert rodar(raiz, "ver", B)[0] == 1
+    rodar(raiz, "aprovar", A, "--por", "Ana Souza")
+    _, depois = rodar(raiz, "ver", A)
+    assert rs.ROTULO in depois and rs.ROTULO_NAO_REVISADO not in depois
 
 
 def test_listar_mostra_status_revisor_e_se_vale_para_o_dataset_atual(proj):
@@ -367,3 +372,236 @@ def test_ajuda_do_gerar_cita_provedor_e_os_tres_modelos(capsys):
         cli.main(["gerar", "--help"])
     ajuda = " ".join(capsys.readouterr().out.split())
     assert "--provedor" in ajuda and "gemini,groq" in ajuda and "PR_GEMINI_MODELO" in ajuda and "PR_GROQ_MODELO" in ajuda
+
+
+# ------------------------------------------------------------------ --todos, --so-faltantes, --ordem, andamento e tokens
+class Registra:
+    """Responde BOM, anota a ordem dos municípios (pelo código na ficha) e simula falha ou texto ruim em alguns."""
+    modelo = "modelo-registra"
+
+    def __init__(self, uso=None, erro_em=(), ruim_em=()):
+        self.visto, self._uso, self.ultimo_uso = [], uso, None
+        self.erro_em, self.ruim_em = set(erro_em), set(ruim_em)
+
+    def gerar(self, sistema, usuario, *, max_tokens=1200):
+        cod = next(c for c in (A, B, C) if f"({c})" in usuario)
+        self.visto.append(cod)
+        if cod in self.erro_em:
+            raise cl.ErroLLM("HTTP 529 do provedor")
+        self.ultimo_uso = self._uso
+        return RUIM if cod in self.ruim_em else BOM
+
+
+def linhas_de_andamento(saida):
+    return [ln for ln in saida.splitlines() if ln.startswith("[")]
+
+
+def test_todos_gera_para_todos_os_municipios_com_dado_e_mostra_o_andamento(proj):
+    _, raiz = proj
+    c = Registra()
+    codigo, saida = rodar(raiz, "gerar", "--todos", cliente=c)
+    assert codigo == 0 and c.visto == [A, B, C] and set(arquivo(raiz).rascunhos) == {A, B, C}
+    andamento = linhas_de_andamento(saida)
+    assert [ln.split()[0] for ln in andamento] == ["[1/3]", "[2/3]", "[3/3]"]
+    assert andamento[0] == f"[1/3] {A} Alfa do Norte: pendente de revisão (1 tentativa(s))"
+    assert "Resumo: novos: 3" in saida and "Próximo passo" in saida
+
+
+@pytest.mark.parametrize("args", [("--todos", "--municipios", A), ()])
+def test_todos_e_municipios_sao_excludentes_e_um_dos_dois_e_obrigatorio(proj, capsys, args):
+    _, raiz = proj
+    with pytest.raises(SystemExit) as e:
+        cli.main(["--params", str(raiz / "params.yaml"), "gerar", *args], saida=lambda *_: None)
+    assert e.value.code == 2 and "usage: python -m src.ia.cli" in capsys.readouterr().err
+
+
+def test_so_faltantes_pula_quem_ja_tem_rascunho_de_qualquer_status_sem_chamar_o_modelo(proj):
+    _, raiz = proj
+    rodar(raiz, "gerar", "--municipios", f"{A},{B}", cliente=Registra())
+    assert rodar(raiz, "rejeitar", B, "--por", "Ana Souza")[0] == 0
+    c = Registra()
+    codigo, saida = rodar(raiz, "gerar", "--todos", "--so-faltantes", cliente=c)
+    assert codigo == 0 and c.visto == [C]
+    assert "já tinham rascunho: 2" in saida and "novos: 1" in saida
+    assert arquivo(raiz).rascunhos[B].status == "rejeitado"             # a decisão humana não é refeita
+    assert [ln.split()[1] for ln in linhas_de_andamento(saida)] == [C]  # com --todos, quem foi pulado não faz barulho
+
+
+def test_so_faltantes_com_lista_explicita_diz_por_que_pulou(proj):
+    _, raiz = proj
+    rodar(raiz, "gerar", "--municipios", A, cliente=Registra())
+    c = Registra()
+    _, saida = rodar(raiz, "gerar", "--municipios", f"{A},{B}", "--so-faltantes", cliente=c)
+    assert c.visto == [B] and f"{A} Alfa do Norte: já tem rascunho (pendente_revisao); nada a fazer" in saida
+
+
+def test_sem_so_faltantes_o_pendente_e_refeito_como_sempre(proj):
+    _, raiz = proj
+    rodar(raiz, "gerar", "--municipios", A, cliente=Registra())
+    c = Registra()
+    rodar(raiz, "gerar", "--municipios", A, cliente=c)
+    assert c.visto == [A]
+
+
+def test_so_faltantes_e_sobrescrever_se_contradizem(proj, capsys):
+    _, raiz = proj
+    codigo, _ = rodar(raiz, "gerar", "--todos", "--so-faltantes", "--sobrescrever", cliente=Registra())
+    assert codigo == 1 and "se contradizem" in capsys.readouterr().err and arquivo(raiz) is None
+
+
+def test_todos_pula_revisado_como_a_lista_explicita(proj):
+    _, raiz = proj
+    rodar(raiz, "gerar", "--municipios", A, cliente=Registra())
+    rodar(raiz, "aprovar", A, "--por", "Ana Souza")
+    c = Registra()
+    _, saida = rodar(raiz, "gerar", "--todos", cliente=c)
+    assert c.visto == [B, C] and "já revisados: 1" in saida and arquivo(raiz).rascunhos[A].status == "revisado"
+
+
+def test_max_com_todos_limita_as_chamadas_e_diz_quantos_faltam(proj):
+    _, raiz = proj
+    c = Registra()
+    codigo, saida = rodar(raiz, "gerar", "--todos", "--max", "2", cliente=c)
+    assert codigo == 0 and c.visto == [A, B] and set(arquivo(raiz).rascunhos) == {A, B}
+    assert "Faltam 1 município(s)" in saida and "--so-faltantes" in saida
+    c2 = Registra()
+    _, saida2 = rodar(raiz, "gerar", "--todos", "--so-faltantes", "--max", "2", cliente=c2)
+    assert c2.visto == [C] and "Faltam" not in saida2
+
+
+def test_max_nao_conta_quem_foi_pulado(proj):
+    _, raiz = proj
+    rodar(raiz, "gerar", "--municipios", A, cliente=Registra())
+    c = Registra()
+    _, saida = rodar(raiz, "gerar", "--todos", "--so-faltantes", "--max", "1", cliente=c)
+    assert c.visto == [B] and "Faltam 1 município(s)" in saida
+
+
+def test_max_zero_com_todos_e_erro(proj, capsys):
+    _, raiz = proj
+    codigo, _ = rodar(raiz, "gerar", "--todos", "--max", "0", cliente=Registra())
+    assert codigo == 1 and "pelo menos 1" in capsys.readouterr().err
+
+
+def test_ordem_seca_comeca_pelo_spi_mais_baixo(proj):
+    _, raiz = proj
+    c = Registra()
+    rodar(raiz, "gerar", "--todos", "--ordem", "seca", cliente=c)       # SPI sintético: C = 0,49 < A = 1,72 < B = 1,98
+    assert c.visto == [C, A, B]
+    c2 = Registra()
+    rodar(raiz, "gerar", "--todos", "--ordem", "seca", "--max", "1", "--recomecar", cliente=c2)
+    assert c2.visto == [C]                                              # com limite, leva o mais seco
+
+
+def test_ordem_invalida_e_erro_de_uso(proj, capsys):
+    _, raiz = proj
+    with pytest.raises(SystemExit) as e:
+        cli.main(["--params", str(raiz / "params.yaml"), "gerar", "--todos", "--ordem", "alfabetica"], saida=lambda *_: None)
+    assert e.value.code == 2
+
+
+@pytest.mark.parametrize("uso, esperado", [
+    ({"total_tokens": 5}, 5), ({"totalTokenCount": 7}, 7), ({"prompt_tokens": 3, "completion_tokens": 4}, 7),
+    ({"input_tokens": 3, "output_tokens": 4}, 7), ({"total_tokens": 5, "prompt_tokens": 1, "completion_tokens": 1}, 5),
+    ({}, None), (None, None), ("x", None), ({"total_tokens": True}, None), ({"total_tokens": -1}, None),
+    ({"total_tokens": "5"}, None), ({"total_tokens": 5.0}, None), ({"prompt_tokens": 3}, None),
+    ({"input_tokens": 3, "output_tokens": True}, None)])
+def test_tokens_do_uso(uso, esperado):
+    assert cli.tokens_do_uso(uso) == esperado
+
+
+def test_tokens_somam_todas_as_chamadas_inclusive_as_recusadas_e_aparecem_por_municipio_e_no_total(proj):
+    _, raiz = proj
+    respostas = iter([RUIM, BOM, BOM])                                  # A: recusado e depois bom (2 chamadas); B: bom
+
+    class Fila(Registra):
+        def gerar(self, sistema, usuario, *, max_tokens=1200):
+            super().gerar(sistema, usuario, max_tokens=max_tokens)
+            return next(respostas)
+    _, saida = rodar(raiz, "gerar", "--municipios", f"{A},{B}", cliente=Fila(uso={"total_tokens": 100}))
+    assert f"{A} Alfa do Norte: pendente de revisão (2 tentativa(s)) | 200 tokens" in saida
+    assert f"{B} Beta do Sul: pendente de revisão (1 tentativa(s)) | 100 tokens" in saida
+    assert "tokens no total: 300" in saida
+
+
+def test_sem_informacao_de_uso_nao_inventa_tokens(proj):
+    _, raiz = proj
+    _, saida = rodar(raiz, "gerar", "--municipios", A, cliente=Registra())
+    assert "tokens" not in saida
+
+
+def test_falha_do_provedor_num_municipio_nao_trava_os_seguintes_e_o_codigo_de_saida_avisa(proj):
+    _, raiz = proj
+    c = Registra(erro_em=[A])
+    codigo, saida = rodar(raiz, "gerar", "--todos", cliente=c)
+    assert codigo == 1 and c.visto == [A, B, C] and set(arquivo(raiz).rascunhos) == {B, C}
+    assert f"[1/3] {A} Alfa do Norte: falhou: HTTP 529 do provedor" in saida
+    assert "falharam: 1" in saida and "rode de novo com --so-faltantes" in saida
+
+
+def test_falhas_seguidas_interrompem_e_dizem_quantos_faltam(proj):
+    cfg, _ = proj
+    c = Registra(erro_em=[A, B, C])
+    r = cli.executar_gerar(cfg, [], c, todos=True, max_falhas_seguidas=2)
+    assert c.visto == [A, B] and r["restantes"] == 1 and "2 falhas seguidas" in r["interrompido"]
+    assert "HTTP 529 do provedor" in r["interrompido"]
+
+
+def test_uma_resposta_boa_zera_a_contagem_de_falhas_seguidas(proj):
+    cfg, _ = proj
+    c = Registra(erro_em=[A, C])
+    r = cli.executar_gerar(cfg, [], c, todos=True, max_falhas_seguidas=2)
+    assert c.visto == [A, B, C] and r["interrompido"] is None and r["restantes"] == 0
+
+
+def test_texto_recusado_pela_validacao_tambem_zera_a_contagem_porque_o_provedor_respondeu(proj):
+    cfg, _ = proj
+    c = Registra(erro_em=[A, C], ruim_em=[B])
+    r = cli.executar_gerar(cfg, [], c, todos=True, max_falhas_seguidas=2, tentativas=1)
+    assert c.visto == [A, B, C] and r["interrompido"] is None
+    assert [r["municipios"][k]["situacao"] for k in (A, B, C)] == ["falhou", "recusado", "falhou"]
+
+
+def test_tres_falhas_seguidas_e_o_padrao_e_o_comando_avisa_que_parou(proj):
+    _, raiz = proj
+    codigo, saida = rodar(raiz, "gerar", "--todos", cliente=Registra(erro_em=[A, B, C]))
+    assert codigo == 1 and "Parei: 3 falhas seguidas" in saida and arquivo(raiz) is None
+
+
+def test_max_falhas_seguidas_invalido_e_erro(proj):
+    cfg, _ = proj
+    with pytest.raises(cli.CliError, match="pelo menos 1"):
+        cli.executar_gerar(cfg, [], Registra(), todos=True, max_falhas_seguidas=0)
+
+
+def proj_com_b_sem_dado(tmp_path):
+    raw = raw_sintetico()
+    m = ((raw["cod_ibge"] == B) & (raw["mes"] <= pd.Timestamp("2012-12-01"))).to_numpy()
+    raw.loc[m, ["precip_mm", "precip_max_dia_mm", "dias_chuva"]] = np.nan
+    raw.loc[m, "dias_validos"] = 0
+    raw.loc[m, "pixels_validos_frac"] = np.float32(0.0)
+    cfg_e_raiz = montar_proj(tmp_path, raw)
+    raiz = cfg_e_raiz[1]
+    (raiz / ck.ARQUIVO_PADRAO).parent.mkdir(parents=True, exist_ok=True)
+    (raiz / ck.ARQUIVO_PADRAO).write_text(json.dumps(CHECKLIST), encoding="utf-8")
+    return cfg_e_raiz
+
+
+def test_todos_ignora_municipios_sem_dado_e_conta_no_resumo(tmp_path):
+    _, raiz = proj_com_b_sem_dado(tmp_path)
+    c = Registra()
+    codigo, saida = rodar(raiz, "gerar", "--todos", cliente=c)
+    assert codigo == 0 and c.visto == [A, C] and "sem dado: 1" in saida
+    assert [ln.split()[1] for ln in linhas_de_andamento(saida)] == [A, C]
+
+
+def test_ordem_seca_deixa_o_municipio_sem_dado_por_ultimo(tmp_path):
+    cfg, _ = proj_com_b_sem_dado(tmp_path)
+    r = cli.executar_gerar(cfg, [], Registra(), todos=True, ordem="seca")
+    assert list(r["municipios"]) == [C, A, B] and r["municipios"][B]["situacao"] == "sem_dado"
+
+
+def test_ordem_desconhecida_na_funcao_e_erro(proj):
+    cfg, _ = proj
+    with pytest.raises(cli.CliError, match="ordem desconhecida"):
+        cli.executar_gerar(cfg, [], Registra(), todos=True, ordem="alfabetica")

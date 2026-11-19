@@ -243,6 +243,7 @@ def test_erro_final_menciona_quem_foi_pulado_e_por_que():
     with pytest.raises(cl.ErroLLM) as e:
         c.gerar("S", "U")
     assert str(e.value) == "nenhum provedor respondeu: b: rede do b | a: em descanso (falhou antes: limite do a)"
+    assert c.falhas == [("b", "rede do b")]                 # `falhas` só lista quem foi de fato chamado
 
 
 def test_passado_o_descanso_volta_a_ordem_original_da_lista():
@@ -261,3 +262,31 @@ def test_passado_o_descanso_volta_a_ordem_original_da_lista():
 def test_descanso_negativo_e_erro(ruim):
     with pytest.raises(ValueError):
         ClienteComReserva([Falso("a")], descanso_s=ruim)
+
+
+def test_descanso_conta_a_partir_do_momento_da_falha_e_nao_do_comeco_da_chamada():
+    rel = Relogio()
+
+    class Lento(Falso):
+        def gerar(self, sistema, usuario, *, max_tokens=1200):
+            rel.t += 100                                    # a espera do timeout acontece antes do erro
+            return super().gerar(sistema, usuario, max_tokens=max_tokens)
+    a, b = Lento("a", erro=erro("timeout")), Falso("b", "texto-b")
+    c = ClienteComReserva([a, b], descanso_s=300, relogio=rel)
+    c.gerar("S", "U")                                       # começou em 1000, falhou em 1100: descansa até 1400
+    rel.t = 1399
+    assert c.em_descanso == ("a",)
+    c.gerar("S", "U")
+    assert len(a.chamadas) == 1                             # contando do começo da chamada (1300) já teria voltado
+
+
+def test_em_descanso_esvazia_quando_o_tempo_passa_mesmo_sem_nova_chamada():
+    rel = Relogio()
+    c = ClienteComReserva([Falso("a", erro=erro("x")), Falso("b", "ok")], descanso_s=300, relogio=rel)
+    c.gerar("S", "U")
+    rel.t += 299
+    assert c.em_descanso == ("a",)
+    rel.t += 1                                              # 300 s exatos
+    assert c.em_descanso == ()
+    rel.t += 500
+    assert c.em_descanso == ()

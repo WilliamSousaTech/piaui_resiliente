@@ -67,6 +67,11 @@ def test_lista_com_chaves_monta_reserva_na_ordem_pedida():
     assert c2.modelos == (cg.MODELO_PADRAO, co.MODELO_GROQ_PADRAO, cl.MODELO_PADRAO)
 
 
+def test_a_reserva_de_producao_deixa_de_fora_por_5_minutos_o_provedor_que_falhou():
+    assert pv.DESCANSO_S == 300.0
+    assert pv.montar_cliente("groq,gemini", ambiente=AMB_TODOS).descanso_s == pv.DESCANSO_S
+
+
 def test_lista_usa_a_variavel_de_modelo_de_cada_provedor():
     amb = {**AMB_TODOS, cg.VAR_MODELO: "g-env", co.VAR_MODELO_GROQ: "grupo/q-env"}
     assert pv.montar_cliente("gemini,groq", ambiente=amb).modelos == ("g-env", "grupo/q-env")

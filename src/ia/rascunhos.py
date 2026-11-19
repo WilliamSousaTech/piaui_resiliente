@@ -32,7 +32,13 @@ MAX_ITENS_ESCOLHIDOS = 6
 TENTATIVAS_PADRAO = 3
 MAX_TOKENS = 1200
 ROTULO = "Rascunho gerado por IA e revisado por humano, sem valor jurídico."
+ROTULO_NAO_REVISADO = "Rascunho gerado por IA e ainda não revisado por uma pessoa, sem valor jurídico."
 AVISO_MVP = "O site continua em MVP experimental, em calibração com S2iD/TCE-PI."
+
+
+def rotulo_do_status(status: str) -> str:
+    """O rótulo fixo que acompanha o texto. Só `revisado` pode dizer que uma pessoa revisou; o resto, nunca."""
+    return ROTULO if status == "revisado" else ROTULO_NAO_REVISADO
 
 
 class RascunhoError(ValueError):

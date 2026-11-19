@@ -254,6 +254,17 @@ def test_rotulo_e_aviso_fixos_estao_no_codigo_e_nao_no_texto_do_modelo():
     assert rs.AVISO_MVP.endswith("em calibração com S2iD/TCE-PI.")
 
 
+def test_rotulo_de_nao_revisado_e_fixo_e_nunca_diz_que_uma_pessoa_revisou():
+    assert rs.ROTULO_NAO_REVISADO == "Rascunho gerado por IA e ainda não revisado por uma pessoa, sem valor jurídico."
+    assert "revisado por humano" not in rs.ROTULO_NAO_REVISADO and "sem valor jurídico" in rs.ROTULO_NAO_REVISADO
+
+
+@pytest.mark.parametrize("status, esperado", [("revisado", rs.ROTULO), ("pendente_revisao", rs.ROTULO_NAO_REVISADO),
+                                              ("rejeitado", rs.ROTULO_NAO_REVISADO), ("qualquer", rs.ROTULO_NAO_REVISADO)])
+def test_rotulo_do_status_so_afirma_revisao_para_revisado(status, esperado):
+    assert rs.rotulo_do_status(status) == esperado
+
+
 # ------------------------------------------------------------------ higiene
 def test_modulo_sem_rede_arquivo_nem_framework():
     fonte = Path(rs.__file__).read_text(encoding="utf-8")
