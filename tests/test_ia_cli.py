@@ -260,3 +260,110 @@ def test_comando_obrigatorio(capsys):
     with pytest.raises(SystemExit) as e:
         cli.main([])
     assert e.value.code == 2 and "usage: python -m src.ia.cli" in capsys.readouterr().err
+
+
+# ------------------------------------------------------------------ --provedor (Gemini, Groq e reserva)
+class ModeloFalso:
+    """Cliente falso com nome próprio; levanta `erro` se houver."""
+
+    def __init__(self, modelo, *respostas, erro=None):
+        self.modelo, self.respostas, self.erro = modelo, list(respostas), erro
+
+    def gerar(self, sistema, usuario, *, max_tokens=1200):
+        if self.erro is not None:
+            raise self.erro
+        return self.respostas.pop(0)
+
+
+def rodar_prov(raiz, *args, fabrica_provedores, fabrica_cliente=None):
+    saida = []
+    fc = fabrica_cliente or (lambda modelo: pytest.fail("o provedor padrão não devia ser usado aqui"))
+    codigo = cli.main(["--params", str(raiz / "params.yaml"), *args], fabrica_cliente=fc,
+                      fabrica_provedores=fabrica_provedores, saida=saida.append)
+    return codigo, "\n".join(saida)
+
+
+def test_provedor_gemini_groq_monta_a_lista_com_o_texto_e_o_modelo_pedidos(proj):
+    _, raiz = proj
+    visto = {}
+
+    def fabrica(texto, modelo, *, aviso):
+        visto.update(texto=texto, modelo=modelo, aviso=aviso)
+        return ModeloFalso("m-gemini", BOM)
+    codigo, saida = rodar_prov(raiz, "gerar", "--provedor", "gemini,groq", "--municipios", A, fabrica_provedores=fabrica)
+    assert codigo == 0 and visto["texto"] == "gemini,groq" and visto["modelo"] is None
+    assert "modelo: m-gemini" in saida and arquivo(raiz).rascunhos[A].modelo == "m-gemini"
+
+
+def test_provedor_um_so_repassa_o_modelo(proj):
+    _, raiz = proj
+    visto = {}
+
+    def fabrica(texto, modelo, *, aviso):
+        visto.update(texto=texto, modelo=modelo)
+        return ModeloFalso("gemini-teste", BOM)
+    codigo, _ = rodar_prov(raiz, "gerar", "--provedor", "gemini", "--modelo", "gemini-teste", "--municipios", A,
+                           fabrica_provedores=fabrica)
+    assert codigo == 0 and visto == {"texto": "gemini", "modelo": "gemini-teste"}
+
+
+@pytest.mark.parametrize("args", [(), ("--provedor", "anthropic"), ("--provedor", " Anthropic ")])
+def test_sem_provedor_ou_anthropic_usa_a_fabrica_de_sempre(proj, args):
+    _, raiz = proj
+    codigo, _ = rodar_prov(raiz, "gerar", *args, "--municipios", A, fabrica_cliente=lambda modelo: ModeloFalso("claude-f", BOM),
+                           fabrica_provedores=lambda *a, **k: pytest.fail("não devia usar a lista de provedores"))
+    assert codigo == 0 and arquivo(raiz).rascunhos[A].modelo == "claude-f"
+
+
+def test_reserva_ponta_a_ponta_o_rascunho_grava_o_modelo_de_quem_respondeu_e_a_troca_e_avisada(proj):
+    from src.ia.cliente_reserva import ClienteComReserva
+    _, raiz = proj
+
+    def fabrica(texto, modelo, *, aviso):
+        return ClienteComReserva([ModeloFalso("gemini-x", erro=cl.ErroLLM("HTTP 429 do provedor: cota")),
+                                  ModeloFalso("groq-y", BOM, BOM)], aviso=aviso)
+    codigo, saida = rodar_prov(raiz, "gerar", "--provedor", "gemini,groq", "--municipios", f"{A},{B}", fabrica_provedores=fabrica)
+    assert codigo == 0
+    assert {r.modelo for r in arquivo(raiz).rascunhos.values()} == {"groq-y"}
+    assert saida.count("AVISO: gemini-x: HTTP 429 do provedor: cota") == 2
+    assert "respostas por modelo: groq-y = 2" in saida
+
+
+def test_cliente_unico_nao_imprime_respostas_por_modelo(proj):
+    _, raiz = proj
+    _, saida = rodar_prov(raiz, "gerar", "--provedor", "gemini", "--municipios", A,
+                          fabrica_provedores=lambda t, m, *, aviso: ModeloFalso("gemini-x", BOM))
+    assert "respostas por modelo" not in saida
+
+
+def test_provedor_desconhecido_e_erro_antes_de_gravar(proj, capsys):
+    _, raiz = proj
+    codigo = cli.main(["--params", str(raiz / "params.yaml"), "gerar", "--provedor", "grok", "--municipios", A],
+                      saida=lambda *_: None)
+    assert codigo == 1 and "provedor desconhecido: grok" in capsys.readouterr().err and arquivo(raiz) is None
+
+
+def test_lista_sem_nenhuma_chave_diz_quais_variaveis_definir_e_nao_grava(proj, capsys, monkeypatch):
+    _, raiz = proj
+    for v in ("GEMINI_API_KEY", "GROQ_API_KEY", "ANTHROPIC_API_KEY"):
+        monkeypatch.delenv(v, raising=False)
+    saida = []
+    codigo = cli.main(["--params", str(raiz / "params.yaml"), "gerar", "--provedor", "gemini,groq", "--municipios", A],
+                      saida=saida.append)
+    err = capsys.readouterr().err
+    assert codigo == 1 and "GEMINI_API_KEY ou GROQ_API_KEY" in err and arquivo(raiz) is None
+    assert "AVISO: gemini: ignorado" in "\n".join(saida) and "AVISO: groq: ignorado" in "\n".join(saida)
+
+
+def test_modelo_com_varios_provedores_e_erro(proj, capsys):
+    _, raiz = proj
+    codigo = cli.main(["--params", str(raiz / "params.yaml"), "gerar", "--provedor", "gemini,groq", "--modelo", "x",
+                       "--municipios", A], saida=lambda *_: None)
+    assert codigo == 1 and "--modelo vale para um provedor só" in capsys.readouterr().err and arquivo(raiz) is None
+
+
+def test_ajuda_do_gerar_cita_provedor_e_os_tres_modelos(capsys):
+    with pytest.raises(SystemExit):
+        cli.main(["gerar", "--help"])
+    ajuda = " ".join(capsys.readouterr().out.split())
+    assert "--provedor" in ajuda and "gemini,groq" in ajuda and "PR_GEMINI_MODELO" in ajuda and "PR_GROQ_MODELO" in ajuda

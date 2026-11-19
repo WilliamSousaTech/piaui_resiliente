@@ -7,6 +7,9 @@ mostra), chama o modelo e grava `data/reference/rascunhos_ia.json`. Por isso é 
 Uso (PowerShell, depois de `python -m src.data.build_demo`):
     $env:ANTHROPIC_API_KEY="sua-chave"                     # só nesta máquina; nunca no projeto
     python -m src.ia.cli gerar --municipios 2207801,2205706   # cria rascunhos pendentes (cada chamada ao modelo custa)
+    # Provedor gratuito, com reserva (cada chave só nesta máquina):
+    $env:GEMINI_API_KEY="sua-chave"; $env:GROQ_API_KEY="sua-chave"
+    python -m src.ia.cli gerar --provedor gemini,groq --municipios 2207801   # Gemini; se falhar, Groq
     python -m src.ia.cli ver 2207801                          # leia o texto e a ficha antes de decidir
     python -m src.ia.cli aprovar 2207801 --por "Seu Nome"     # só uma pessoa aprova; o texto é validado de novo
     python -m src.ia.cli rejeitar 2207801 --por "Seu Nome"
@@ -29,7 +32,10 @@ from src.data.config import Config, load_config
 from src.ia import arquivo as aq
 from src.ia import checklist as ck
 from src.ia import cliente as cl
+from src.ia import cliente_compat_openai as co
+from src.ia import cliente_gemini as cg
 from src.ia import fatos as ft
+from src.ia import provedores as pv
 from src.ia import rascunhos as rs
 from src.web import build_site as bs
 
@@ -143,7 +149,11 @@ def _parser() -> argparse.ArgumentParser:
     g.add_argument("--municipios", required=True, help="códigos IBGE separados por vírgula")
     g.add_argument("--mes", default=None, help="AAAA-MM; padrão: o mês de abertura do site")
     g.add_argument("--escala", type=int, default=None, help="escala do SPI; padrão: a do alvo")
-    g.add_argument("--modelo", default=None, help=f"padrão: ${cl.VAR_MODELO} ou {cl.MODELO_PADRAO}")
+    g.add_argument("--provedor", default=pv.PADRAO,
+                   help=f"{', '.join(pv.FABRICAS)}; vários separados por vírgula formam uma lista com reserva "
+                        f"(ex.: gemini,groq); padrão: {pv.PADRAO}")
+    g.add_argument("--modelo", default=None, help=f"só com um provedor; padrão: ${cl.VAR_MODELO} ou {cl.MODELO_PADRAO} "
+                   f"(Claude), ${cg.VAR_MODELO} (Gemini), ${co.VAR_MODELO_GROQ} (Groq)")
     g.add_argument("--tentativas", type=int, default=rs.TENTATIVAS_PADRAO)
     g.add_argument("--max", type=int, default=MAX_PADRAO, help="limite de municípios por execução")
     g.add_argument("--sobrescrever", action="store_true", help="refaz também os já revisados")
@@ -158,7 +168,8 @@ def _parser() -> argparse.ArgumentParser:
     return ap
 
 
-def main(argv: list[str] | None = None, *, fabrica_cliente=cl.desde_ambiente, saida=print) -> int:
+def main(argv: list[str] | None = None, *, fabrica_cliente=cl.desde_ambiente, fabrica_provedores=pv.montar_cliente,
+         saida=print) -> int:
     a = _parser().parse_args(argv)
     try:
         cfg = load_config(a.params)
@@ -166,10 +177,17 @@ def main(argv: list[str] | None = None, *, fabrica_cliente=cl.desde_ambiente, sa
         if a.comando == "gerar":
             cods = _municipios(a.municipios, a.max)
             lista, _ = _checklist(cfg)                       # falha cedo, antes de gastar com o modelo
-            cliente = fabrica_cliente(a.modelo)
+            if a.provedor.strip().lower() == pv.PADRAO:
+                cliente = fabrica_cliente(a.modelo)                  # comportamento de sempre (Claude)
+            else:
+                cliente = fabrica_provedores(a.provedor, a.modelo,
+                                             aviso=lambda quem, motivo: saida(f"AVISO: {quem}: {motivo}"))
             r = executar_gerar(cfg, cods, cliente, mes=a.mes, escala=a.escala, tentativas=a.tentativas,
                                sobrescrever=a.sobrescrever, recomecar=a.recomecar)
             saida(f"modelo: {r['modelo']} | arquivo: {r['arquivo']} | checklist com {len(lista.itens)} itens")
+            usados = getattr(cliente, "usados", None)
+            if usados:                                               # lista com reserva: quem escreveu o quê
+                saida("respostas por modelo: " + ", ".join(f"{m} = {n}" for m, n in usados.items()))
             for cod, x in r["municipios"].items():
                 extra = {"pendente_revisao": f"pendente de revisão ({x.get('tentativas')} tentativa(s))",
                          "sem_dado": "sem SPI no mês de referência; nada a escrever",
