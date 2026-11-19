@@ -1,5 +1,6 @@
 """Arquivo de rascunhos e revisão humana (dados sintéticos só aqui, em tests/)."""
 import json
+import os
 import stat
 from datetime import datetime, timezone
 
@@ -53,7 +54,8 @@ def test_gravar_e_carregar_ida_e_volta(tmp_path, payload, vazio):
     bruto = p.read_bytes()
     assert b"\r" not in bruto and bruto.endswith(b"\n")
     assert list(json.loads(bruto)["rascunhos"]) == sorted([A, B])           # ordem por código
-    assert stat.S_IMODE(p.stat().st_mode) == 0o644
+    if os.name != "nt":                                                    # o Windows não tem bits de permissão POSIX (sempre 0o666)
+        assert stat.S_IMODE(p.stat().st_mode) == 0o644
     assert not list(p.parent.glob("*.tmp"))
 
 
