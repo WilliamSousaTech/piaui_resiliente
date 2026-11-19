@@ -46,3 +46,8 @@ tzdata==2026.6
 uritemplate==4.2.0
 urllib3==2.8.0
 scipy==1.18.1
+scikit-learn==1.9.1
+joblib==1.6.0
+threadpoolctl==3.7.0
+# torch==2.15.0 (Item 9). Em máquina sem GPU: pip install torch==2.15.0 --index-url https://download.pytorch.org/whl/cpu
+torch==2.15.0
