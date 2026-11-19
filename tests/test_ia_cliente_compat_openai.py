@@ -319,3 +319,63 @@ def test_modulo_sem_chave_escrita_sem_arquivo_e_so_com_bibliotecas_esperadas():
             mods.add(n.module or "")
     assert {m for m in mods if m not in ("__future__", "os", "re", "time", "requests", "src.ia.cliente")} == set()
     assert not [n for n in ast.walk(arvore) if isinstance(n, ast.Call) and getattr(n.func, "id", "") == "open"]
+
+
+# ------------------------------------------------------------------ esforço de raciocínio
+def test_sem_esforco_o_corpo_nao_leva_o_campo():
+    s = Sessao(ok())
+    cliente(s).gerar("SIS", "USU")
+    assert "reasoning_effort" not in s.chamadas[0][1]["json"]
+
+
+@pytest.mark.parametrize("nivel", ["low", "medium", "high"])
+def test_esforco_vai_no_corpo_do_pedido(nivel):
+    s = Sessao(ok())
+    cliente(s, esforco_raciocinio=nivel).gerar("SIS", "USU", max_tokens=10)
+    corpo = s.chamadas[0][1]["json"]
+    assert corpo["reasoning_effort"] == nivel
+    assert set(corpo) == {"model", "messages", "max_completion_tokens", "reasoning_effort"}
+
+
+@pytest.mark.parametrize("nivel", ["", "LOW", "max", "none", "nenhum", " low"])
+def test_esforco_invalido_e_recusado_na_construcao(nivel):
+    with pytest.raises(ValueError, match="esforço de raciocínio"):
+        cliente(Sessao(ok()), esforco_raciocinio=nivel)
+
+
+def test_400_com_esforco_ensina_a_desligar_e_sem_esforco_nao_fala_disso():
+    com = cliente(Sessao(Resp(400, {"error": {"message": "bad"}})), esforco_raciocinio="low", var_modelo="PR_GROQ_MODELO")
+    with pytest.raises(cl.ErroLLM, match="PR_GROQ_ESFORCO=nenhum"):
+        com.gerar("s", "u")
+    sem = cliente(Sessao(Resp(400, {"error": {"message": "bad"}})), var_modelo="PR_GROQ_MODELO")
+    with pytest.raises(cl.ErroLLM) as e:
+        sem.gerar("s", "u")
+    assert "PR_GROQ_ESFORCO" not in str(e.value)
+
+
+def test_groq_pede_esforco_low_por_padrao():
+    s = Sessao(ok())
+    co.groq_desde_ambiente(ambiente={co.VAR_CHAVE_GROQ: CHAVE}, sessao=s).gerar("SIS", "USU")
+    assert s.chamadas[0][1]["json"]["reasoning_effort"] == "low" == co.ESFORCO_GROQ_PADRAO
+
+
+@pytest.mark.parametrize("valor, esperado", [("high", "high"), (" MEDIUM ", "medium"), ("Low", "low"),
+                                             ("nenhum", None), (" NENHUM", None)])
+def test_groq_esforco_pelo_ambiente(valor, esperado):
+    s = Sessao(ok())
+    co.groq_desde_ambiente(ambiente={co.VAR_CHAVE_GROQ: CHAVE, co.VAR_ESFORCO_GROQ: valor}, sessao=s).gerar("S", "U")
+    corpo = s.chamadas[0][1]["json"]
+    assert corpo.get("reasoning_effort") == esperado
+    assert ("reasoning_effort" in corpo) == (esperado is not None)
+
+
+def test_groq_esforco_invalido_no_ambiente_diz_qual_variavel():
+    with pytest.raises(ValueError, match="PR_GROQ_ESFORCO inválida"):
+        co.groq_desde_ambiente(ambiente={co.VAR_CHAVE_GROQ: CHAVE, co.VAR_ESFORCO_GROQ: "maximo"})
+
+
+def test_esforco_vazio_no_ambiente_vira_o_padrao():
+    s = Sessao(ok())
+    co.groq_desde_ambiente(ambiente={co.VAR_CHAVE_GROQ: CHAVE, co.VAR_ESFORCO_GROQ: "  "}, sessao=s).gerar("S", "U")
+    assert s.chamadas[0][1]["json"]["reasoning_effort"] == "low"
+

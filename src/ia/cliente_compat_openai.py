@@ -18,6 +18,10 @@ Modelo padrão: o changelog oficial do Groq anuncia o desligamento do `llama-3.3
 (a documentação consultada não confirma), por isso `gerar` pede `max_tokens + folga_raciocinio` ao provedor, como no
 cliente do Gemini. O nome do modelo muda com frequência: use `PR_GROQ_MODELO` ou `--modelo`, sem mexer no código.
 
+Esforço de raciocínio: `reasoning_effort` aceita `low`, `medium` (padrão do provedor) e `high` nos modelos gpt-oss
+(referência oficial, https://console.groq.com/docs/api-reference). Para texto curto e validado por código, `low` gasta
+menos tokens; `PR_GROQ_ESFORCO=nenhum` não envia o campo (para modelos que não o aceitam).
+
 Camada gratuita: tem limite por minuto e por dia. Em 429 e 503 o cliente espera e tenta de novo (`esperas`); se o limite
 persistir, sobe `ErroLLM` com a explicação.
 """
@@ -34,6 +38,9 @@ from src.ia.cliente import ChaveAusente, ErroLLM, RespostaTruncada
 URL_GROQ = "https://api.groq.com/openai/v1/chat/completions"
 VAR_CHAVE_GROQ = "GROQ_API_KEY"
 VAR_MODELO_GROQ = "PR_GROQ_MODELO"
+VAR_ESFORCO_GROQ = "PR_GROQ_ESFORCO"
+ESFORCO_GROQ_PADRAO = "low"
+ESFORCOS = ("low", "medium", "high")
 MODELO_GROQ_PADRAO = "openai/gpt-oss-120b"
 TIMEOUT_S = 90.0
 FOLGA_RACIOCINIO = 4096
@@ -46,7 +53,7 @@ class ClienteCompatOpenAI:
     def __init__(self, api_key: str, modelo: str, *, url: str, nome: str = "provedor", var_modelo: str = "o modelo",
                  sessao: requests.Session | None = None, timeout: float = TIMEOUT_S,
                  folga_raciocinio: int = FOLGA_RACIOCINIO, esperas: tuple[float, ...] = ESPERAS_S, dormir=time.sleep,
-                 campo_max_tokens: str = "max_completion_tokens"):
+                 campo_max_tokens: str = "max_completion_tokens", esforco_raciocinio: str | None = None):
         if not api_key or not api_key.strip():
             raise ValueError("chave de API vazia")
         nome_modelo = (modelo or "").strip()
@@ -60,6 +67,8 @@ class ClienteCompatOpenAI:
             raise ValueError("folga_raciocinio não pode ser negativa")
         if any(e < 0 for e in esperas):
             raise ValueError("esperas não podem ser negativas")
+        if esforco_raciocinio is not None and esforco_raciocinio not in ESFORCOS:
+            raise ValueError(f"esforço de raciocínio inválido; use {', '.join(ESFORCOS)}")
         self._chave = api_key.strip()
         self._modelo = nome_modelo
         self._url = url
@@ -70,6 +79,7 @@ class ClienteCompatOpenAI:
         self._esperas = tuple(float(e) for e in esperas)
         self._dormir = dormir
         self._campo = campo_max_tokens.strip()
+        self._esforco = esforco_raciocinio
         self._sessao = sessao if sessao is not None else requests.Session()
         self.ultimo_uso: dict | None = None            # `usage` da última chamada, para o relatório da CLI
 
@@ -100,6 +110,8 @@ class ClienteCompatOpenAI:
         mensagens.append({"role": "user", "content": usuario})
         cabecalhos = {"Authorization": f"Bearer {self._chave}", "Content-Type": "application/json"}
         corpo = {"model": self._modelo, "messages": mensagens, self._campo: int(max_tokens) + self._folga}
+        if self._esforco:
+            corpo["reasoning_effort"] = self._esforco
         for tentativa in range(len(self._esperas) + 1):
             r = self._enviar(cabecalhos, corpo)
             if r.status_code in _REPETIVEIS and tentativa < len(self._esperas):
@@ -123,6 +135,8 @@ class ClienteCompatOpenAI:
             texto += " (limite de uso da camada gratuita por minuto ou por dia; espere e rode de novo)"
         elif status in (400, 404):
             texto += f" (se o modelo não existe mais, troque pelo nome atual: {self._var_modelo} ou --modelo)"
+            if self._esforco:
+                texto += f"; se ele não aceita esforço de raciocínio, defina {VAR_ESFORCO_GROQ}=nenhum"
         return texto
 
     def _texto_da_resposta(self, dados) -> str:
@@ -155,5 +169,11 @@ def groq_desde_ambiente(modelo: str | None = None, *, ambiente=None,
     if not chave:
         raise ChaveAusente(f"defina a variável de ambiente {VAR_CHAVE_GROQ} nesta máquina "
                            f"(PowerShell: $env:{VAR_CHAVE_GROQ}=\"sua-chave\"); ela não vai para o projeto nem para o Git")
+    esforco = (amb.get(VAR_ESFORCO_GROQ) or "").strip().lower() or ESFORCO_GROQ_PADRAO
+    if esforco == "nenhum":
+        esforco = None
+    elif esforco not in ESFORCOS:
+        raise ValueError(f"{VAR_ESFORCO_GROQ} inválida; use {', '.join(ESFORCOS)} ou nenhum")
     return ClienteCompatOpenAI(chave, modelo or (amb.get(VAR_MODELO_GROQ) or "").strip() or MODELO_GROQ_PADRAO,
-                               url=URL_GROQ, nome="groq", var_modelo=VAR_MODELO_GROQ, sessao=sessao)
+                               url=URL_GROQ, nome="groq", var_modelo=VAR_MODELO_GROQ, sessao=sessao,
+                               esforco_raciocinio=esforco)
