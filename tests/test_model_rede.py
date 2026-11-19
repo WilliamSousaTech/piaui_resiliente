@@ -247,3 +247,34 @@ def test_salvar_recusa_nome_e_meta_invalidos(tmp_path):
     with pytest.raises(rd.RedeError, match="JSON puro"):
         rd.salvar(r, tmp_path / "rede.pt", {"x": np.float32(1.0)})
     assert not list(tmp_path.iterdir())                                     # nada gravado quando recusa
+
+
+# ------------------------------------------------------------------ tipos de perda (mse, l1, huber)
+def test_perdas_batem_com_a_conta_a_mao():
+    pred = torch.tensor([[0.25], [1.0], [-2.0]])
+    y = torch.zeros(3, 1)
+    m = torch.ones(3, 1, dtype=torch.bool)
+    assert rd.perda_mascarada(pred, y, m, "mse").item() == pytest.approx((0.0625 + 1.0 + 4.0) / 3)
+    assert rd.perda_mascarada(pred, y, m, "l1").item() == pytest.approx((0.25 + 1.0 + 2.0) / 3)
+    # Huber com delta 0,5: 0,5*0,0625 (quadrática); 0,5*(1,0 - 0,25) e 0,5*(2,0 - 0,25) (lineares)
+    esperado = (0.5 * 0.0625 + 0.5 * (1.0 - 0.25) + 0.5 * (2.0 - 0.25)) / 3
+    assert rd.DELTA_HUBER == 0.5 and rd.perda_mascarada(pred, y, m, "huber").item() == pytest.approx(esperado)
+    assert rd.perda_mascarada(pred, y, m).item() == rd.perda_mascarada(pred, y, m, "mse").item()      # padrão: mse
+
+
+@pytest.mark.parametrize("tipo", ["mse", "l1", "huber"])
+def test_cada_perda_ignora_o_que_esta_fora_da_mascara(tipo):
+    pred = torch.tensor([[1.0, 2.0], [3.0, 4.0]], requires_grad=True)
+    y = torch.tensor([[0.0, float("nan")], [float("inf"), 0.0]])
+    m = torch.tensor([[True, False], [False, True]])
+    perda = rd.perda_mascarada(pred, y, m, tipo)
+    perda.backward()
+    assert torch.isfinite(perda) and torch.isfinite(pred.grad).all()
+    assert pred.grad[0, 1] == 0 and pred.grad[1, 0] == 0 and pred.grad[0, 0] != 0 and pred.grad[1, 1] != 0
+    vazio = rd.perda_mascarada(torch.randn(3, 2), torch.full((3, 2), float("nan")), torch.zeros(3, 2, dtype=torch.bool), tipo)
+    assert vazio.item() == 0.0
+
+
+def test_perda_desconhecida_e_recusada():
+    with pytest.raises(rd.RedeError, match="perda 'rmse' desconhecida"):
+        rd.perda_mascarada(torch.zeros(2, 1), torch.zeros(2, 1), torch.ones(2, 1, dtype=torch.bool), "rmse")

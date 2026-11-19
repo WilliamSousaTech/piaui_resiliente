@@ -241,3 +241,32 @@ def test_cli_recusa_teste_liberado_arquivo_adulterado_e_argumento_ruim(proj):
     linhas.clear()
     assert tn.main(["--params", str(raiz / "params.yaml"), "--lr", "0"], saida=linhas.append) == 1
     assert "lr" in linhas[-1]
+
+
+# ------------------------------------------------------------------ escolha da perda
+def test_perda_do_treino_e_da_epoca_escolhida_e_a_pedida(dados):
+    hp1 = dataclasses.replace(HP, epocas_max=1, paciencia=1)
+    for tipo in ("mse", "l1", "huber"):
+        res = tn.treinar(dados["tr"], dados["va"], dados["p"], seed=1, hp=dataclasses.replace(hp1, perda=tipo))
+        Z = torch.from_numpy(dados["p"].transformar(dados["va"]))
+        with torch.no_grad():
+            P = res.rede(Z)
+        esperado = float(rd.perda_mascarada(P, torch.from_numpy(dados["va"].Y), torch.from_numpy(dados["va"].M), tipo))
+        assert res.historico[0]["perda_val"] == pytest.approx(esperado, rel=1e-5)
+        assert res.hiperparametros.perda == tipo
+    a = tn.treinar(dados["tr"], dados["va"], dados["p"], seed=1, hp=dataclasses.replace(hp1, perda="mse"))
+    b = tn.treinar(dados["tr"], dados["va"], dados["p"], seed=1, hp=dataclasses.replace(hp1, perda="l1"))
+    assert a.historico[0]["perda_val"] != b.historico[0]["perda_val"]
+    assert not torch.equal(a.rede.state_dict()["tronco.0.weight"], b.rede.state_dict()["tronco.0.weight"])  # o gradiente também muda
+
+
+def test_perda_invalida_e_recusada_e_a_cli_guarda_a_escolha(proj):
+    with pytest.raises(tn.TreinoError, match="perda"):
+        tn.Hiperparametros(perda="rmse")
+    cfg, raiz = proj
+    assert tn.main(["--params", str(raiz / "params.yaml"), "--epocas", "2", "--ocultas", "8", "--perda", "l1"],
+                   saida=lambda _: None) == 0
+    doc = json.loads((raiz / "artifacts" / "modelo" / "rede.json").read_text(encoding="utf-8"))
+    assert doc["meta"]["hiperparametros"]["perda"] == "l1"
+    with pytest.raises(SystemExit):
+        tn.main(["--perda", "rmse"])

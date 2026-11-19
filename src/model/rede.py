@@ -86,11 +86,19 @@ def criar(arq: Arquitetura, seed: int) -> RedeSeca:
     return RedeSeca(arq)
 
 
-def perda_mascarada(pred: torch.Tensor, y: torch.Tensor, m: torch.Tensor) -> torch.Tensor:
-    """Erro quadrático médio só nas posições com rótulo (`m` verdadeiro), média simples entre as cabeças.
+PERDAS = ("mse", "l1", "huber")
+DELTA_HUBER = 0.5                    # em unidades de SPI: abaixo disso a Huber é quadrática, acima é linear
 
-    Posição sem rótulo não entra na perda nem no gradiente, e o valor dela (NaN) é trocado antes da conta:
-    NaN * 0 continuaria NaN. Cabeça sem nenhum rótulo no lote é ignorada; lote sem rótulo nenhum dá perda 0."""
+
+def perda_mascarada(pred: torch.Tensor, y: torch.Tensor, m: torch.Tensor, tipo: str = "mse") -> torch.Tensor:
+    """Perda média só nas posições com rótulo (`m` verdadeiro), média simples entre as cabeças.
+
+    `tipo`: `mse` (erro quadrático), `l1` (erro absoluto, o mesmo MAE das métricas) ou `huber` (quadrática até
+    `DELTA_HUBER`, linear depois). Posição sem rótulo não entra na perda nem no gradiente, e o valor dela (NaN) é
+    trocado antes da conta: NaN * 0 continuaria NaN. Cabeça sem nenhum rótulo no lote é ignorada; lote sem
+    rótulo nenhum dá perda 0."""
+    if tipo not in PERDAS:
+        raise RedeError(f"perda {tipo!r} desconhecida; use uma de {PERDAS}")
     if pred.dim() != 2 or pred.shape != y.shape or pred.shape != m.shape:
         raise RedeError(f"pred, y e m devem ter o mesmo shape (n, cabeças): {tuple(pred.shape)}, "
                         f"{tuple(y.shape)}, {tuple(m.shape)}")
@@ -99,7 +107,14 @@ def perda_mascarada(pred: torch.Tensor, y: torch.Tensor, m: torch.Tensor) -> tor
     if not bool(torch.isfinite(y[m]).all()):
         raise RedeError("rótulo não finito em posição com máscara verdadeira")
     y0 = torch.where(m, y, torch.zeros_like(y))
-    quad = torch.where(m, (pred - y0) ** 2, torch.zeros_like(pred))
+    e = torch.abs(pred - y0)
+    if tipo == "mse":
+        termo = e ** 2
+    elif tipo == "l1":
+        termo = e
+    else:
+        termo = torch.where(e <= DELTA_HUBER, 0.5 * e ** 2, DELTA_HUBER * (e - 0.5 * DELTA_HUBER))
+    quad = torch.where(m, termo, torch.zeros_like(pred))
     n = m.sum(dim=0)
     por_cabeca = quad.sum(dim=0) / n.clamp(min=1).to(pred.dtype)
     ativa = (n > 0).to(pred.dtype)

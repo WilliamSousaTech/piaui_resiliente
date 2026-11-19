@@ -44,8 +44,11 @@ class Hiperparametros:
     epocas_max: int = 80
     paciencia: int = 10
     n_threads: int = 1
+    perda: str = "mse"                # mse, l1 ou huber (rede.PERDAS); vale para o treino e para a escolha da época
 
     def __post_init__(self):
+        if self.perda not in rd.PERDAS:
+            raise TreinoError(f"perda deve ser uma de {rd.PERDAS} (recebi {self.perda!r})")
         if not (self.lr > 0 and np.isfinite(self.lr)) or not (self.weight_decay >= 0 and np.isfinite(self.weight_decay)):
             raise TreinoError("lr deve ser > 0 e weight_decay >= 0, ambos finitos")
         for nome in ("lote", "epocas_max", "paciencia", "n_threads"):
@@ -140,7 +143,7 @@ def treinar(treino: fe.Conjunto, val: fe.Conjunto, padronizador: fe.Padronizador
             for i in range(0, n, hp.lote):
                 idx = perm[i:i + hp.lote]
                 opt.zero_grad()
-                perda = rd.perda_mascarada(rede(Ztr[idx]), Ytr[idx], Mtr[idx])
+                perda = rd.perda_mascarada(rede(Ztr[idx]), Ytr[idx], Mtr[idx], hp.perda)
                 if not torch.isfinite(perda):
                     raise TreinoError(f"perda não finita na época {epoca}: reduza lr ou revise os dados")
                 perda.backward()
@@ -148,7 +151,7 @@ def treinar(treino: fe.Conjunto, val: fe.Conjunto, padronizador: fe.Padronizador
                 soma += float(perda.detach()) * len(idx)
             rede.eval()
             with torch.no_grad():
-                perda_val = float(rd.perda_mascarada(rede(Zva), Yva, Mva))
+                perda_val = float(rd.perda_mascarada(rede(Zva), Yva, Mva, hp.perda))
             if not np.isfinite(perda_val):
                 raise TreinoError(f"perda de validação não finita na época {epoca}")
             reg = {"epoca": epoca, "perda_treino": soma / n, "perda_val": perda_val}
@@ -211,9 +214,11 @@ def main(argv: list[str] | None = None, *, saida: Callable[[str], None] = print,
     ap.add_argument("--lr", type=float, default=Hiperparametros.lr)
     ap.add_argument("--ocultas", type=_inteiros, default=Hiperparametros.ocultas)
     ap.add_argument("--dropout", type=float, default=Hiperparametros.dropout)
+    ap.add_argument("--perda", choices=rd.PERDAS, default=Hiperparametros.perda)
     a = ap.parse_args(argv)
     try:
-        hp = Hiperparametros(ocultas=a.ocultas, dropout=a.dropout, lr=a.lr, epocas_max=a.epocas, paciencia=a.paciencia)
+        hp = Hiperparametros(ocultas=a.ocultas, dropout=a.dropout, lr=a.lr, epocas_max=a.epocas, paciencia=a.paciencia,
+                             perda=a.perda)
         cfg = carregar_cfg(a.params)
         if cfg.split.teste_liberado:
             raise TreinoError("o treino recusa rodar com split.teste_liberado: true (o teste só entra na avaliação final)")
