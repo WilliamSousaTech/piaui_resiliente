@@ -80,7 +80,7 @@ ARQ_LOCK = "confirmacao_B.lock"
 ARQ_CONFIRMACAO = "confirmacao_B.json"
 ARQ_RELATORIO = "relatorio.md"
 AVISO = ("MVP experimental, em calibração com S2iD/TCE-PI. Métricas de validação; o teste congelado não foi lido. "
-         "A metade B da validação foi lida uma única vez, ao final.")
+         "A metade B da validação só é lida uma vez, ao final da busca; antes disso, nenhum número aqui vem dela.")
 
 
 class BuscaError(RuntimeError):
