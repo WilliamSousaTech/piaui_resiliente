@@ -19,7 +19,7 @@
       <svg class="gota" viewBox="0 0 144 208" aria-hidden="true"><use href="#pr-gota"/></svg>
       <span class="nome"><b>Piauí</b><span>Resiliente</span></span>
     </a>
-    <nav aria-label="Páginas do site"><a href="index.html">Início</a><a href="monitor.html">Monitor</a><a href="municipios.html">Municípios</a><a href="el-nino.html">El Niño</a><a href="metodo.html">Método</a><a href="sobre.html" aria-current="page">O projeto</a></nav>
+    <nav aria-label="Páginas do site"><a href="index.html">Início</a><a href="monitor.html">Monitor</a><a href="municipios.html">Municípios</a><a href="previsao.html">Previsão</a><a href="el-nino.html">El Niño</a><a href="planejamento.html">Planejamento</a><a href="metodo.html">Método</a><a href="sobre.html" aria-current="page">O projeto</a></nav>
     <button class="btn btn-tema" id="btnTema" type="button" aria-label="Alternar tema claro e escuro">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="5.2"/><path d="M8 2.8v10.4"/><path d="M8 2.8a5.2 5.2 0 0 1 0 10.4z" fill="currentColor" stroke="none"/></svg><span>Tema</span>
     </button>
@@ -28,7 +28,7 @@
 <div class="aviso" role="note">
   <div class="wrap">
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 2 14.5 13.5h-13z" stroke-linejoin="round"/><path d="M8 6.5v3.2M8 11.6v.1" stroke-linecap="round"/></svg>
-    <span><b>MVP experimental.</b> Em calibração com S2iD/TCE-PI. Não substitui alerta oficial: mostra a chuva já observada, não uma previsão.</span>
+    <span><b>MVP experimental.</b> Em calibração com S2iD/TCE-PI. Não substitui alerta oficial: o monitor mostra a chuva já observada; a única previsão está na página Previsão, com margem de erro.</span>
   </div>
 </div>
 <main id="conteudo">
@@ -43,8 +43,22 @@
     <ul class="indisp-grande">
       <li><b>Monitor da chuva observada</b><span>Pronto, neste site. Mapa dos 216 municípios, linha do tempo desde 1981 e série de cada município, com a confiança de cada leitura.</span></li>
       <li><b>Antecedência contra os decretos</b><span>Em preparação. Compara o primeiro alerta com a data do decreto de estiagem ou seca. Falta confirmar o formato dos dados oficiais do S2iD.</span></li>
-      <li><b>Previsão com margem de erro</b><span>Indisponível. A rede neural de previsão está em calibração e só aparece depois de uma avaliação auditada.</span></li>
-      <li><b>Cartão do município e rascunho técnico</b><span>Em preparação. O rascunho para a Defesa Civil é um documento de apoio, escrito com IA e revisado por uma pessoa. Não tem valor jurídico e não substitui o plano do município.</span></li>
+      <li><b>Previsão com margem de erro</b><span>Disponível só como experimento, na página Previsão: o SPI-3 e o SPI-6 de outubro de 2026 em cada município, com margem de erro. Foi avaliada apenas na validação; o teste final ainda não foi aberto.</span></li>
+      <li><b>Cartão do município e rascunho técnico</b><span>Disponível como MVP na página Planejamento: 8 rascunhos escritos com IA a partir da ficha do município, 2 revisados por uma pessoa. Os outros mostram o selo “Ainda não revisado”. É um documento de apoio, sem valor jurídico, e não substitui o plano do município.</span></li>
+    </ul>
+  </section>
+
+  <section class="secao">
+    <h2>Próximas etapas</h2>
+    <p class="sub" style="margin-top:8px">O que falta para o monitor apoiar decisões de verdade. Nada desta lista está pronto hoje.</p>
+    <ul class="indisp-grande">
+      <li><b>Decretos reais (S2iD)</b><span>Comparar o primeiro alerta com a data dos decretos de situação de emergência do Piauí, para medir com quanta antecedência o monitor avisaria. Falta obter o arquivo oficial e conferir as colunas.</span></li>
+      <li><b>Chuva medida em solo (INMET)</b><span>Conferir o satélite com os pluviômetros das estações do INMET e ver onde o CHIRPS mais se afasta da chuva medida. Ainda não integrado.</span></li>
+      <li><b>Reservatórios (ANA)</b><span>Mostrar o volume dos açudes monitorados ao lado do SPI, como contexto do plano. A lista de açudes e o baixador existem; falta ler os arquivos reais.</span></li>
+      <li><b>Uso do solo (MapBiomas)</b><span>Cruzar a seca com a cobertura e o uso da terra (Coleção 10) para entender onde ela pesa mais. A coleção foi escolhida; os dados ainda não entraram.</span></li>
+      <li><b>Mais uma régua para o modelo (XGBoost)</b><span>Hoje o modelo é comparado com persistência, climatologia, Ridge e floresta aleatória. O XGBoost entra como mais uma comparação.</span></li>
+      <li><b>Teste final do modelo</b><span>O período de teste, de junho de 2021 a dezembro de 2025, segue fechado e será lido uma única vez, com autorização da equipe. Só ele dá a medida final.</span></li>
+      <li><b>Diretrizes do TCE-PI e do MIDR</b><span>Conferir o texto das diretrizes para ligar cada item do checklist a uma fonte. Hoje os itens sem base legal conferida dizem isso na tela.</span></li>
     </ul>
   </section>
 
@@ -92,7 +106,7 @@
     </div>
     <div>
       <h2>Verificação e limites</h2>
-      <p>40 arquivos conferidos por SHA-256 em 19/11/2026 00:28. Conjunto de dados <button class="hash" type="button" data-cheio="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab" title="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab">7043e6c2f9e012d2…</button>.</p>
+      <p>40 arquivos conferidos por SHA-256 em 19/11/2026 15:12. Conjunto de dados <button class="hash" type="button" data-cheio="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab" title="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab">7043e6c2f9e012d2…</button>.</p>
       <p>O SPI descreve falta de chuva e não prova colapso de manancial. Até 2015, ele descreve o próprio período usado no ajuste. <a href="metodo.html">Método e limites</a>.</p>
     </div>
   </div>

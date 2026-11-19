@@ -197,7 +197,7 @@ const desenharMes = () => {
 /* o que ainda não existe */
 {
   const ic = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="5.6"/><path d="m4 12 8-8"/></svg>';
-  const itens = [['Previsão do próximo mês', 'Indisponível: modelo em calibração. Só aparece depois de uma avaliação auditada, com margem de erro.'],
+  const itens = [['Previsão do próximo mês', D.tem_previsao ? 'Só como experimento: veja a página Previsão, com margem de erro. O teste final ainda não foi aberto.' : 'Indisponível: modelo em calibração. Só aparece depois de uma avaliação auditada, com margem de erro.'],
                  ['Antecedência em relação aos decretos (S2iD)', 'Indisponível: sem dado oficial validado.'],
                  ['Plano de Contingência (MUNIC/IBGE)', 'Sem informação oficial carregada neste painel.']];
   const ul = $('indisp'); itens.forEach(([a, b]) => { const li = h('li'); li.innerHTML = ic; const d = h('div'); d.append(h('b', null, a), document.createElement('br'), document.createTextNode(b)); li.appendChild(d); ul.appendChild(li); });

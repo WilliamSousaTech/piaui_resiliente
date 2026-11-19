@@ -19,7 +19,7 @@
       <svg class="gota" viewBox="0 0 144 208" aria-hidden="true"><use href="#pr-gota"/></svg>
       <span class="nome"><b>Piauí</b><span>Resiliente</span></span>
     </a>
-    <nav aria-label="Páginas do site"><a href="index.html">Início</a><a href="monitor.html">Monitor</a><a href="municipios.html">Municípios</a><a href="el-nino.html">El Niño</a><a href="metodo.html" aria-current="page">Método</a><a href="sobre.html">O projeto</a></nav>
+    <nav aria-label="Páginas do site"><a href="index.html">Início</a><a href="monitor.html">Monitor</a><a href="municipios.html">Municípios</a><a href="previsao.html">Previsão</a><a href="el-nino.html">El Niño</a><a href="planejamento.html">Planejamento</a><a href="metodo.html" aria-current="page">Método</a><a href="sobre.html">O projeto</a></nav>
     <button class="btn btn-tema" id="btnTema" type="button" aria-label="Alternar tema claro e escuro">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="5.2"/><path d="M8 2.8v10.4"/><path d="M8 2.8a5.2 5.2 0 0 1 0 10.4z" fill="currentColor" stroke="none"/></svg><span>Tema</span>
     </button>
@@ -28,7 +28,7 @@
 <div class="aviso" role="note">
   <div class="wrap">
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 2 14.5 13.5h-13z" stroke-linejoin="round"/><path d="M8 6.5v3.2M8 11.6v.1" stroke-linecap="round"/></svg>
-    <span><b>MVP experimental.</b> Em calibração com S2iD/TCE-PI. Não substitui alerta oficial: mostra a chuva já observada, não uma previsão.</span>
+    <span><b>MVP experimental.</b> Em calibração com S2iD/TCE-PI. Não substitui alerta oficial: o monitor mostra a chuva já observada; a única previsão está na página Previsão, com margem de erro.</span>
   </div>
 </div>
 <main id="conteudo">
@@ -61,7 +61,7 @@
     <h2>O que o site ainda não mostra</h2>
     <p class="sub">O que não tem dado oficial validado aparece como indisponível, nunca com valor de exemplo.</p>
     <ul class="indisp-grande">
-      <li><b>Previsão do próximo mês</b><span>Indisponível: o modelo está em calibração. Só aparece depois de uma avaliação auditada, com margem de erro.</span></li>
+      <li><b>Previsão do próximo mês</b><span>Só como experimento: a página Previsão mostra o SPI de outubro de 2026 com margem de erro. O teste final ainda não foi aberto e o alarme de seca pega só uma parte das secas reais.</span></li>
       <li><b>Antecedência em relação aos decretos</b><span>Indisponível: o formato dos dados oficiais do S2iD ainda não foi confirmado.</span></li>
       <li><b>Plano de Contingência (MUNIC/IBGE)</b><span>Sem informação oficial carregada neste site.</span></li>
       <li><b>Nível de reservatórios</b><span>Sem dado carregado. O SPI mede falta de chuva e não prova que um açude vai secar.</span></li>
@@ -84,7 +84,7 @@
     <ul style="margin-top:12px">
       <li><b>Chuva:</b> CHIRPS v2.0 final (UCSB/CHC), coleção UCSB-CHG/CHIRPS/DAILY no Google Earth Engine, de janeiro de 1981 a setembro de 2026, extraído em 17/11/2026 23:55 a 18/11/2026 21:18.</li>
       <li><b>Municípios:</b> malha do IBGE (2022); semiárido da Resolução CONDEL/SUDENE 150/2021, mais Luís Correia pela regra de transição da Resolução 176/2024 (fonte ainda em confirmação).</li>
-      <li><b>Conferência:</b> 40 arquivos conferidos por SHA-256 em 19/11/2026 00:28. Conjunto de dados <code>7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab</code>.</li>
+      <li><b>Conferência:</b> 40 arquivos conferidos por SHA-256 em 19/11/2026 15:12. Conjunto de dados <code>7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab</code>.</li>
       <li><b>Reprodução:</b> o site é gerado com <code>python -m src.web.build_site</code> a partir do manifesto, sem rede.</li>
     </ul>
   </section>
@@ -105,7 +105,7 @@
     </div>
     <div>
       <h2>Verificação e limites</h2>
-      <p>40 arquivos conferidos por SHA-256 em 19/11/2026 00:28. Conjunto de dados <button class="hash" type="button" data-cheio="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab" title="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab">7043e6c2f9e012d2…</button>.</p>
+      <p>40 arquivos conferidos por SHA-256 em 19/11/2026 15:12. Conjunto de dados <button class="hash" type="button" data-cheio="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab" title="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab">7043e6c2f9e012d2…</button>.</p>
       <p>O SPI descreve falta de chuva e não prova colapso de manancial. Até 2015, ele descreve o próprio período usado no ajuste. <a href="metodo.html">Método e limites</a>.</p>
     </div>
   </div>
