@@ -7,7 +7,7 @@
 projeto:
   nome: "Piauí Resiliente"
   equipe: "V.I.G.I.A."
-  versao_params: "0.2.1"
+  versao_params: "0.3.1"
   maturidade: "MVP experimental — em calibração com S2iD/TCE-PI"
   seed: 42
 
@@ -29,7 +29,7 @@ escopo:
 
 janela:
   inicio: "1981-01"
-  fim: "2025-12"                     # congelado; dados de 2026 ficam fora do dataset
+  fim: "2026-09"                     # D7 reaberta: último mês com CHIRPS v2 final no GEE (imagens 1981-01-01..2026-09-30 = 16709); 2026 fica fora de treino/val/teste (split.teste_fim = 2025-12)
 
 alvo:
   tipo: "spi"
@@ -54,7 +54,8 @@ spi:
   agrupar_por: ["cod_ibge", "mes_calendario"]
   min_anos_treino: 30
   min_positivos_ajuste: 10           # proposta
-  q_baixa_confianca: 0.5             # proposta: q acima disso => spi3_baixa_conf
+  q_baixa_confianca: 0.5             # proposta: q acima disso => spiK_baixa_conf
+  media_min_mm_por_mes: 10.0         # proposta (calibrar): média do treino da janela, por mês da janela (mm), abaixo disso => spiK_baixa_conf; 0 desliga. Na estação seca poucos mm viram SPI alto (diagnóstico de 2026-11-18)
 
 qualidade:
   min_cobertura_dias_mes: 1.0        # proposta: mês incompleto vira NaN

@@ -14,7 +14,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 ARQUIVO = RAIZ / ".gitattributes"
 
 TEXTO = ["*.py", "*.md", "*.txt", "*.toml", "*.yaml", "*.yml", "*.json", "*.geojson", "*.csv", "*.html"]
-BINARIOS = ["*.parquet", "*.zip", "*.pdf", "*.png", "*.xlsx", "*.npy", "*.pkl", "*.pt", "*.pth"]
+BINARIOS = ["*.parquet", "*.zip", "*.pdf", "*.png", "*.xlsx", "*.npy", "*.pkl", "*.pt", "*.pth", "*.woff2"]
 
 
 def regras() -> dict[str, set[str]]:
@@ -68,6 +68,8 @@ CASOS_GIT = [
     ("data/reference/fonte/PI_Municipios_2022.zip", {"text": "unset"}),
     ("data/reference/fonte/resolucao150.pdf", {"text": "unset"}),
     ("artifacts/modelo.pt", {"text": "unset"}),
+    ("src/web/assets/AtkinsonHyperlegibleNext-latin-wght.woff2", {"text": "unset"}),
+    ("src/web/template.html", {"eol": "lf", "text": "set"}),
 ]
 
 

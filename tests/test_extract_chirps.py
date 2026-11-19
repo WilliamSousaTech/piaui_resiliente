@@ -9,6 +9,7 @@ Dados sintéticos existem só aqui (testes); nada disto entra em data/ nem na in
 """
 import json
 import sys
+import threading
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -25,9 +26,9 @@ PARAMS_REAL = Path(__file__).resolve().parents[1] / "params.yaml"
 LIMIAR = 2.5                      # diferente do 1.0 do params real: pega limiar fixo no código
 COD = ["2200053", "2200251", "2200277", "2205706", "2207801"]   # ordem ordenada (rodar ordena)
 IDX = {c: i for i, c in enumerate(COD)}
-MAX_LINHAS = 500                  # 5 municípios x 100 meses por lote -> 540 meses = 6 lotes
+MAX_LINHAS = 500                  # 5 municípios x 100 meses por lote -> 549 meses = 6 lotes (o último com 49)
 MESES_POR_LOTE = 100
-N_MESES = 540                     # 1981-01 a 2025-12
+N_MESES = 549                     # 1981-01 a 2026-09
 N_LOTES = 6
 
 
@@ -155,6 +156,9 @@ class Img:
         ee.chamadas.append((reducer.tipo, tuple(self.bandas)))
         if ee.falhar_apos is not None and len(ee.chamadas) > ee.falhar_apos:
             raise EEErro("falha permanente simulada")
+        if ee.travar > 0:                                # chamada HTTP presa, sem erro e sem resposta
+            ee.travar -= 1
+            ee.liberar.wait(30)
         if ee.falhas > 0:
             ee.falhas -= 1
             raise EEErro("Too many concurrent aggregations")
@@ -194,8 +198,9 @@ class EEFalso:
     EEException = EEErro
 
     def __init__(self, *, falhas=0, falhar_apos=None, sem_dado=(), ausentes=(), n_imagens=None,
-                 total_imagens=12345):
+                 total_imagens=12345, travar=0):
         self.falhas, self.falhar_apos = falhas, falhar_apos
+        self.travar, self.liberar = travar, threading.Event()   # `travar` chamadas ficam presas até `liberar`
         self.sem_dado, self.ausentes = set(sem_dado), set(ausentes)
         self.n_imagens, self.total_imagens = dict(n_imagens or {}), total_imagens
         self.chamadas, self.limiares, self.colecoes, self.geometrias = [], [], [], []
@@ -422,6 +427,71 @@ def test_com_retry_esgota_tentativas_e_encadeia_o_erro_original():
     assert isinstance(e.value.__cause__, EEErro)
 
 
+def test_chamar_com_limite_devolve_o_valor():
+    assert m._chamar_com_limite(lambda: 7, 5.0) == 7
+
+
+@pytest.mark.parametrize("limite", [None, 0])
+def test_chamar_com_limite_sem_limite_roda_na_propria_thread(limite):
+    assert m._chamar_com_limite(threading.get_ident, limite) == threading.get_ident()
+
+
+def test_chamar_com_limite_com_limite_roda_em_thread_daemon():
+    info = m._chamar_com_limite(lambda: (threading.get_ident(), threading.current_thread().daemon), 5.0)
+    assert info[0] != threading.get_ident() and info[1] is True
+
+
+def test_chamar_com_limite_repassa_a_excecao_original_intacta():
+    erro = EEErro("falha do gee")
+
+    def fn():
+        raise erro
+
+    with pytest.raises(EEErro) as e:
+        m._chamar_com_limite(fn, 5.0)
+    assert e.value is erro
+
+
+def test_chamar_com_limite_levanta_timeout_quando_a_chamada_prende():
+    solta = threading.Event()
+    try:
+        with pytest.raises(TimeoutError, match="sem resposta"):
+            m._chamar_com_limite(lambda: solta.wait(30), 0.05)
+    finally:
+        solta.set()
+
+
+def test_timeout_e_um_oserror_logo_o_retry_repete():
+    assert issubclass(TimeoutError, OSError)
+
+
+def test_com_retry_repete_a_chamada_presa_e_recupera():
+    solta, chamadas, esperas = threading.Event(), [], []
+
+    def fn():
+        chamadas.append(1)
+        if len(chamadas) == 1:
+            solta.wait(30)                      # 1ª tentativa trava
+        return "ok"
+
+    try:
+        assert m._com_retry(fn, EEFalso(), esperas.append, limite_s=0.05) == "ok"
+    finally:
+        solta.set()
+    assert len(chamadas) == 2 and esperas == [m.ESPERA_S]
+
+
+def test_com_retry_presa_em_todas_as_tentativas_esgota_com_causa_timeout():
+    solta, esperas = threading.Event(), []
+    try:
+        with pytest.raises(m.ExtracaoError, match="3 tentativas") as e:
+            m._com_retry(lambda: solta.wait(30), EEFalso(), esperas.append, limite_s=0.02)
+    finally:
+        solta.set()
+    assert isinstance(e.value.__cause__, TimeoutError)
+    assert esperas == [m.ESPERA_S, m.ESPERA_S * 2]
+
+
 def test_com_retry_erro_de_programacao_nao_e_repetido():
     tentativas, esperas = [], []
 
@@ -579,6 +649,102 @@ def test_falha_no_meio_preserva_lotes_prontos_e_a_retomada_completa(cfg):
     assert any("RAW completo" in s for s in saidas)
 
 
+def test_chamada_presa_no_gee_e_repetida_e_o_lote_e_gravado(cfg):
+    ee = EEFalso(travar=1)
+    try:
+        _, esperas = executar(cfg, ee, so_primeiro_lote=True, limite_s=0.2)
+    finally:
+        ee.liberar.set()
+    assert esperas == [m.ESPERA_S]                                  # uma única repetição
+    assert len(parquets(cfg)) == 1
+    df = raw.ler_lote(parquets(cfg)[0])
+    assert len(df) == MESES_POR_LOTE * len(COD) and df["precip_mm"].notna().all()
+
+
+def test_chamada_sempre_presa_levanta_e_nao_grava_nada(cfg):
+    ee = EEFalso(travar=99)
+    try:
+        with pytest.raises(m.ExtracaoError, match="3 tentativas"):
+            executar(cfg, ee, so_primeiro_lote=True, limite_s=0.02)
+    finally:
+        ee.liberar.set()
+    assert parquets(cfg) == []
+
+
+def test_progresso_uma_linha_por_mes_com_indice_global_do_lote(cfg):
+    saidas, _ = executar(cfg, EEFalso(), lotes=(2, 2))
+    por_mes = [s for s in saidas if s.startswith(f"RODAR | lote 2/{N_LOTES} | mes ")]
+    assert len(por_mes) == MESES_POR_LOTE
+    assert por_mes[0].startswith(f"RODAR | lote 2/{N_LOTES} | mes 1989-05 | ")      # lote 2 começa 100 meses após 1981-01
+    assert por_mes[0].endswith("s") and por_mes[0].split(" | ")[-1][:-1].isdigit()
+
+
+def test_progresso_mede_o_tempo_de_cada_mes_com_o_relogio_injetado(cfg):
+    ticks = iter(range(0, 10_000, 7))
+    saidas = []
+    m.rodar(cfg, EEFalso(), so_primeiro_lote=True, dormir=lambda s: None, relogio=lambda: next(ticks),
+            saida=lambda *a, sep=" ": saidas.append(sep.join(map(str, a))))
+    por_mes = [s for s in saidas if " | mes " in s]
+    assert len(por_mes) == MESES_POR_LOTE and all(s.endswith("| 7s") for s in por_mes)
+
+
+def test_lotes_extrai_so_a_faixa_pedida_e_nao_confere_a_janela(cfg):
+    ee = EEFalso()
+    saidas, _ = executar(cfg, ee, lotes=(2, 3))
+    assert len(ee.chamadas) == 2 * MESES_POR_LOTE * 3
+    assert [p.name for p in parquets(cfg)] == sorted(
+        raw.caminho_lote(raw.diretorio_raw(cfg), *l).name for l in raw.dividir_em_lotes(
+            raw.meses_janela(cfg), len(COD), MAX_LINHAS)[1:3])
+    assert f"selecao=2:3/{N_LOTES}" in saidas[0] and "lotes=2" in saidas[0] and "a_extrair=2" in saidas[0]
+    assert not any("RAW completo" in s for s in saidas)
+
+
+def test_lotes_a_b_iguais_extrai_um_lote(cfg):
+    ee = EEFalso()
+    executar(cfg, ee, lotes=(N_LOTES, N_LOTES))
+    assert len(parquets(cfg)) == 1 and len(ee.chamadas) == (N_MESES - 5 * MESES_POR_LOTE) * 3
+
+
+def test_tres_faixas_em_execucoes_separadas_completam_o_raw_sem_reextrair(cfg, monkeypatch):
+    for faixa in ((1, 2), (3, 4), (5, N_LOTES)):
+        executar(cfg, EEFalso(), lotes=faixa)
+    assert len(parquets(cfg)) == N_LOTES
+    monkeypatch.setattr(m, "_carregar_ee", lambda c: pytest.fail("não deveria carregar o ee"))
+    saidas = []
+    m.rodar(cfg, None, saida=lambda *a, sep=" ": saidas.append(sep.join(map(str, a))))
+    assert "a_extrair=0" in saidas[0]
+    assert any("RAW completo" in s and f"linhas={N_MESES * len(COD)}" in s for s in saidas)
+
+
+def test_faixas_sobrepostas_nao_reextraem_o_que_ja_esta_gravado(cfg):
+    executar(cfg, EEFalso(), lotes=(1, 3))
+    ee = EEFalso()
+    saidas, _ = executar(cfg, ee, lotes=(2, 4))
+    assert len(ee.chamadas) == MESES_POR_LOTE * 3                  # só o lote 4
+    assert "ja_gravados=2" in saidas[0] and "a_extrair=1" in saidas[0]
+
+
+def test_lotes_com_lote_adulterado_dentro_da_faixa_e_detectado(cfg):
+    executar(cfg, EEFalso(), lotes=(1, 1))
+    with open(parquets(cfg)[0], "ab") as f:
+        f.write(b"x")
+    with pytest.raises(raw.RawIntegridadeError):
+        m.rodar(cfg, None, lotes=(1, 2), saida=lambda *a, sep=" ": None)
+
+
+@pytest.mark.parametrize("faixa", [(0, 2), (3, 2), (1, N_LOTES + 1), (N_LOTES + 1, N_LOTES + 1)])
+def test_lotes_fora_do_intervalo_e_recusado_antes_de_chamar_o_gee(cfg, monkeypatch, faixa):
+    monkeypatch.setattr(m, "_carregar_ee", lambda c: pytest.fail("não deveria carregar o ee"))
+    with pytest.raises(m.ExtracaoError, match="fora de"):
+        m.rodar(cfg, None, lotes=faixa, saida=lambda *a, sep=" ": None)
+    assert parquets(cfg) == []
+
+
+def test_lote_teste_e_lotes_juntos_sao_recusados(cfg):
+    with pytest.raises(m.ExtracaoError, match="só um entre"):
+        executar(cfg, EEFalso(), so_primeiro_lote=True, lotes=(1, 2))
+
+
 @pytest.mark.parametrize("quem", ["sem_dado", "ausentes"])
 def test_municipio_sem_dado_vira_nan_triplo_e_nao_contamina_os_outros(cfg, quem):
     ruim = "2205706"
@@ -639,8 +805,32 @@ def test_cli_encaminha_para_sonda_e_rodar(monkeypatch):
     chamadas = []
     monkeypatch.setattr(m, "load_config", lambda: "CFG")
     monkeypatch.setattr(m, "sonda", lambda c: chamadas.append(("sonda", c)))
-    monkeypatch.setattr(m, "rodar", lambda c, so_primeiro_lote: chamadas.append(("rodar", c, so_primeiro_lote)))
+    monkeypatch.setattr(m, "rodar", lambda c, so_primeiro_lote, lotes: chamadas.append(("rodar", c, so_primeiro_lote, lotes)))
     m.main(["sonda"])
     m.main(["rodar"])
     m.main(["rodar", "--lote-teste"])
-    assert chamadas == [("sonda", "CFG"), ("rodar", "CFG", False), ("rodar", "CFG", True)]
+    m.main(["rodar", "--lotes", "1:10"])
+    m.main(["rodar", "--lotes", "21:30"])
+    m.main(["rodar", "--lotes", "7:7"])
+    assert chamadas == [("sonda", "CFG"), ("rodar", "CFG", False, None), ("rodar", "CFG", True, None),
+                        ("rodar", "CFG", False, (1, 10)), ("rodar", "CFG", False, (21, 30)),
+                        ("rodar", "CFG", False, (7, 7))]
+
+
+@pytest.mark.parametrize("argv", [
+    ["sonda", "--lotes", "1:10"],
+    ["rodar", "--lote-teste", "--lotes", "1:10"],
+    ["rodar", "--lotes", "abc"],
+    ["rodar", "--lotes", "3"],
+    ["rodar", "--lotes", "1:2:3"],
+    ["rodar", "--lotes", "0:5"],
+    ["rodar", "--lotes", "5:2"],
+    ["rodar", "--lotes", "-1:4"],
+])
+def test_cli_lotes_invalido_sai_com_codigo_2_antes_de_carregar_a_config(monkeypatch, argv):
+    monkeypatch.setattr(m, "load_config", lambda: pytest.fail("não deveria carregar a config"))
+    monkeypatch.setattr(m, "rodar", lambda *a, **k: pytest.fail("não deveria rodar"))
+    monkeypatch.setattr(m, "sonda", lambda *a, **k: pytest.fail("não deveria sondar"))
+    with pytest.raises(SystemExit) as e:
+        m.main(argv)
+    assert e.value.code == 2

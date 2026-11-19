@@ -1,6 +1,6 @@
 """Testes de src/data/quality.py (Item 3). Sem internet; séries sintéticas só aqui (nunca em data/).
 
-Janela real do params.yaml: 1981-01..2025-12 (540 meses). Treino até 2015-12 (420 meses).
+Janela real do params.yaml: 1981-01..2026-09 (549 meses). Treino até 2015-12 (420 meses).
 """
 from pathlib import Path
 
@@ -15,7 +15,7 @@ from src.data import spi as sp
 from src.data.config import PendenciaError, load_config
 
 PARAMS_REAL = Path(__file__).resolve().parents[1] / "params.yaml"
-MESES = pd.period_range("1981-01", "2025-12", freq="M")
+MESES = pd.period_range("1981-01", "2026-09", freq="M")
 N_TREINO = 420          # 1981-01..2015-12
 A, B = "2200001", "2200002"
 
@@ -195,7 +195,7 @@ def test_mes_que_nao_e_dia_1(cfg):
 def test_mes_fora_da_janela(cfg):
     raw = raw_sintetico()
     extra = raw.iloc[[0]].copy()
-    extra["mes"] = pd.Timestamp("2026-01-01")
+    extra["mes"] = pd.Timestamp("2026-10-01")
     with pytest.raises(qd.QualidadeError, match="fora da janela"):
         qd.cobertura_mensal(pd.concat([raw, extra], ignore_index=True), cfg)
 
@@ -310,9 +310,9 @@ def test_climatologia_so_usa_o_treino_corte_exato(cfg):
     base = qd.climatologia(qd.serie_valida(raw, cfg), cfg)
     # 2016-01 é o primeiro mês depois do corte: nada que aconteça de 2016-01 em diante muda a climatologia
     fora = raw.copy()
-    fora.loc[sel(fora, A, "2016-01", "2025-12"), "precip_mm"] = np.float32(1999.0)
+    fora.loc[sel(fora, A, "2016-01", "2026-09"), "precip_mm"] = np.float32(1999.0)
     assert_frame_equal(qd.climatologia(qd.serie_valida(fora, cfg), cfg), base)
-    assert_frame_equal(qd.climatologia(qd.serie_valida(sem_dado(raw.copy(), A, "2016-01", "2025-12"), cfg), cfg), base)
+    assert_frame_equal(qd.climatologia(qd.serie_valida(sem_dado(raw.copy(), A, "2016-01", "2026-09"), cfg), cfg), base)
     # 2015-12 é o último mês do treino: invalidá-lo tira uma amostra de dezembro (e só de dezembro) do município A
     dentro = qd.climatologia(qd.serie_valida(sem_dado(raw.copy(), A, "2015-12"), cfg), cfg)
     n0 = base.set_index(["cod_ibge", "mes_calendario"])["n_amostras"]
@@ -495,7 +495,7 @@ def test_exclusao_no_limite_exato_de_95_por_cento(cfg):
 
 
 def test_exclusao_so_olha_o_treino(cfg):
-    raw = sem_dado(raw_sintetico(), A, "2016-01", "2025-12")        # 120 meses ruins, todos depois do treino
+    raw = sem_dado(raw_sintetico(), A, "2016-01", "2026-09")        # 129 meses ruins, todos depois do treino
     m = _municipios(raw, cfg)
     assert m.loc[A, "frac_meses_validos"] == 1.0 and not m.loc[A, "excluded"]
 
@@ -556,5 +556,5 @@ def test_spi_usa_a_serie_valida_e_nao_a_imputada(cfg):
 def test_escala_real_216_municipios(cfg):
     cods = tuple(f"22{i:05d}" for i in range(216))
     r = qd.avaliar_qualidade(raw_sintetico(cods=cods, seed=2), cfg)
-    assert len(r.cobertura) == 216 * 540 and len(r.municipios) == 216 and len(r.climatologia) == 216 * 12
+    assert len(r.cobertura) == 216 * 549 and len(r.municipios) == 216 and len(r.climatologia) == 216 * 12
     assert r.cobertura["valido"].all() and not r.municipios["excluded"].any()

@@ -1,6 +1,6 @@
 """Testes de src/data/build_demo.py (Item 10). Sem internet; séries sintéticas só aqui (nunca em data/).
 
-Janela real do params.yaml: 1981-01..2025-12 (540 meses). Treino até 2015-12 (420 meses).
+Janela real do params.yaml: 1981-01..2026-09 (549 meses). Treino até 2015-12 (420 meses).
 """
 import ast
 import json
@@ -19,7 +19,7 @@ from src.data.config import Caminhos, load_config
 
 RAIZ = Path(__file__).resolve().parents[1]
 PARAMS_REAL = RAIZ / "params.yaml"
-MESES = pd.period_range("1981-01", "2025-12", freq="M")
+MESES = pd.period_range("1981-01", "2026-09", freq="M")
 N_MESES = len(MESES)
 A, B, C = "2200001", "2200002", "2200003"
 AGORA = datetime(2026, 11, 17, 12, 30, 45, tzinfo=timezone.utc)
@@ -66,7 +66,7 @@ def linha(df, cod, mes):
     return df[(df["cod_ibge"] == cod) & (df["mes"] == pd.Period(mes, "M").to_timestamp())].iloc[0]
 
 
-def escrever_raw(raiz: Path, raw: pd.DataFrame, cods, cortes=("1981-01", "2000-12", "2001-01", "2025-12")) -> None:
+def escrever_raw(raiz: Path, raw: pd.DataFrame, cods, cortes=("1981-01", "2000-12", "2001-01", "2026-09")) -> None:
     """Grava o RAW em dois lotes imutáveis, como o extrator faria."""
     cfg = load_config(raiz / "params.yaml")
     d = chirps_raw.diretorio_raw(cfg)
@@ -152,7 +152,7 @@ def test_grade_completa_ordenada_e_sem_duplicata(res_base):
     assert len(d) == 3 * N_MESES
     assert not d.duplicated(["cod_ibge", "mes"]).any()
     assert d.equals(d.sort_values(["cod_ibge", "mes"]).reset_index(drop=True))
-    assert d["mes"].min() == pd.Timestamp("1981-01-01") and d["mes"].max() == pd.Timestamp("2025-12-01")
+    assert d["mes"].min() == pd.Timestamp("1981-01-01") and d["mes"].max() == pd.Timestamp("2026-09-01")
     assert sorted(d["cod_ibge"].unique()) == [A, B, C]
 
 
@@ -507,7 +507,7 @@ def test_manifest_lista_artefatos_lotes_e_referencia(proj):
     nomes = set(mf.verificar_manifest(cfg)["arquivos"])
     assert set(bd.ARTEFATOS) <= nomes
     assert {"raw_chirps/chirps_mensal_198101_200012.parquet",
-            "raw_chirps/chirps_mensal_200101_202512.parquet"} <= nomes
+            "raw_chirps/chirps_mensal_200101_202609.parquet"} <= nomes
     assert {"referencia/municipios_semiarido.csv", "referencia/malha_pi_2022.parquet",
             "referencia/malha_pi_2022_gee.geojson", "referencia/referencia.sha256.json"} <= nomes
     assert not any(n.endswith(".sha256.json") and n.startswith("raw_chirps") for n in nomes)
@@ -571,11 +571,11 @@ def test_adulteracao_de_artefato_e_detectada(proj):
 def test_adulteracao_do_raw_e_detectada_pelo_manifest_e_pela_leitura(proj):
     cfg, _ = proj
     rodar(proj)
-    lote = chirps_raw.diretorio_raw(cfg) / "chirps_mensal_200101_202512.parquet"
+    lote = chirps_raw.diretorio_raw(cfg) / "chirps_mensal_200101_202609.parquet"
     dados = bytearray(lote.read_bytes())
     dados[len(dados) // 2] ^= 0xFF
     lote.write_bytes(bytes(dados))
-    with pytest.raises(mf.ManifestIntegridadeError, match="chirps_mensal_200101_202512"):
+    with pytest.raises(mf.ManifestIntegridadeError, match="chirps_mensal_200101_202609"):
         mf.verificar_manifest(cfg)
     with pytest.raises(chirps_raw.RawIntegridadeError):
         rodar(proj)
@@ -592,8 +592,8 @@ def test_params_alterado_depois_do_manifest_e_detectado(proj):
 
 def test_raw_incompleto_nao_grava_nada(proj):
     cfg, _ = proj
-    (chirps_raw.diretorio_raw(cfg) / "chirps_mensal_200101_202512.parquet").unlink()
-    with pytest.raises(chirps_raw.RawSchemaError, match="faltam 900 linha"):
+    (chirps_raw.diretorio_raw(cfg) / "chirps_mensal_200101_202609.parquet").unlink()
+    with pytest.raises(chirps_raw.RawSchemaError, match="faltam 927 linha"):
         rodar(proj)
     assert not any(bd.destino(cfg, n).exists() for n in bd.ARTEFATOS)
     assert not (cfg.raiz / cfg.manifest.arquivo).exists()

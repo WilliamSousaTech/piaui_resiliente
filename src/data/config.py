@@ -140,6 +140,7 @@ class Spi(_Base):
     min_anos_treino: StrictInt = Field(ge=1)
     min_positivos_ajuste: StrictInt = Field(ge=2)
     q_baixa_confianca: float = Field(gt=0, lt=1)
+    media_min_mm_por_mes: Annotated[float, Field(strict=True, ge=0, le=100)]   # 0 desliga; média do treino da janela / k abaixo disso => baixa confiança (mm por mês da janela)
 
     @field_validator("janelas_meses")
     @classmethod

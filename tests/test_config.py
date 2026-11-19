@@ -46,9 +46,10 @@ def test_params_real_carrega():
     assert cfg.fontes.mapbiomas.defasagem_anos >= 1
 
 
-def test_params_real_versao_0_2_1():
+def test_params_real_versao_0_3_1():
     cfg = load_config(PARAMS_REAL)
-    assert cfg.projeto.versao_params == "0.2.1"
+    assert cfg.projeto.versao_params == "0.3.1"
+    assert cfg.spi.media_min_mm_por_mes == 10.0 and cfg.spi.q_baixa_confianca == 0.5
     assert cfg.spi.janelas_meses == (3, 6) and cfg.spi.convencao_zero == "q"
     assert cfg.split.embargo_meses == 5 and cfg.alvo.escala_spi_meses in cfg.spi.janelas_meses
     assert cfg.fontes.chirps.limiar_dia_chuva_mm == 1.0
@@ -101,6 +102,10 @@ VIOLACOES = [
     ("limiar de dia de chuva acima do maximo", ("fontes", "chirps", "limiar_dia_chuva_mm"), 50.1, "limiar_dia_chuva_mm"),
     ("limiar de dia de chuva texto", ("fontes", "chirps", "limiar_dia_chuva_mm"), "1.0", "limiar_dia_chuva_mm"),
     ("limiar de dia de chuva booleano", ("fontes", "chirps", "limiar_dia_chuva_mm"), True, "limiar_dia_chuva_mm"),
+    ("media minima negativa", ("spi", "media_min_mm_por_mes"), -0.1, "media_min_mm_por_mes"),
+    ("media minima acima de 100", ("spi", "media_min_mm_por_mes"), 100.1, "media_min_mm_por_mes"),
+    ("media minima texto", ("spi", "media_min_mm_por_mes"), "10.0", "media_min_mm_por_mes"),
+    ("media minima booleana", ("spi", "media_min_mm_por_mes"), True, "media_min_mm_por_mes"),
     ("janelas vazia", ("spi", "janelas_meses"), [], "spi.janelas_meses"),
     ("janelas repetidas", ("spi", "janelas_meses"), [3, 3], "estritamente crescentes"),
     ("janelas decrescentes", ("spi", "janelas_meses"), [6, 3], "estritamente crescentes"),
@@ -132,6 +137,14 @@ def test_chave_ausente(tmp_path, base):
     del base["spi"]["q_baixa_confianca"]
     with pytest.raises(ConfigError, match=r"spi\.q_baixa_confianca.*ausente"):
         load_config(escreve(tmp_path, base))
+
+
+def test_media_minima_ausente_e_recusada_e_zero_desliga(tmp_path, base):
+    del base["spi"]["media_min_mm_por_mes"]
+    with pytest.raises(ConfigError, match=r"spi\.media_min_mm_por_mes.*ausente"):
+        load_config(escreve(tmp_path, base))
+    base["spi"]["media_min_mm_por_mes"] = 0.0
+    assert load_config(escreve(tmp_path, base)).spi.media_min_mm_por_mes == 0.0
 
 
 @pytest.mark.parametrize("chave", ["incluir_transicao", "simplificacao_graus"])
@@ -245,3 +258,11 @@ def test_config_e_imutavel(tmp_path, base):
     cfg = load_config(escreve(tmp_path, base))
     with pytest.raises(ValidationError):
         cfg.split.embargo_meses = 0
+
+
+def test_params_real_janela_vai_ate_2026_09_e_o_teste_congelado_para_em_2025_12():
+    """D7 reaberta: 2026-01..2026-09 entram no RAW/demo, mas ficam fora de treino, validação e teste congelado."""
+    cfg = load_config(PARAMS_REAL)
+    assert (str(cfg.janela.inicio), str(cfg.janela.fim)) == ("1981-01", "2026-09")
+    assert str(cfg.split.teste_fim) == "2025-12" and cfg.janela.fim > cfg.split.teste_fim
+    assert cfg.split.teste_liberado is False

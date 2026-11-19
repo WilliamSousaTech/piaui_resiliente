@@ -36,7 +36,7 @@ def valida(df, cods=CODS, meses=MESES):
 def test_meses_janela_e_diretorio_do_params_real():
     cfg = load_config(PARAMS_REAL)
     ms = r.meses_janela(cfg)
-    assert (len(ms), str(ms[0]), str(ms[-1])) == (540, "1981-01", "2025-12")
+    assert (len(ms), str(ms[0]), str(ms[-1])) == (549, "1981-01", "2026-09")
     assert r.diretorio_raw(cfg) == cfg.raiz / "data" / "raw" / "chirps"
 
 

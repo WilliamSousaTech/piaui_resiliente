@@ -103,7 +103,7 @@ def test_estrutura_e_campos_basicos(proj):
     assert m["params_sha256"] == mf.sha256_arquivo(raiz / "params.yaml")
     assert m["projeto"] == {"nome": cfg.projeto.nome, "equipe": cfg.projeto.equipe,
                             "versao_params": cfg.projeto.versao_params, "seed": cfg.projeto.seed}
-    assert m["janela"] == {"inicio": "1981-01", "fim": "2025-12"}
+    assert m["janela"] == {"inicio": "1981-01", "fim": "2026-09"}
     assert m["alvo"] == {"escala_spi_meses": 3, "horizonte_h": 1, "janelas_spi": [3, 6]}
     assert m["escopo"]["incluir_transicao"] is True and m["escopo"]["modo"] == cfg.escopo.modo
     assert m["fontes"]["chirps"]["gee_id"] == "UCSB-CHG/CHIRPS/DAILY"

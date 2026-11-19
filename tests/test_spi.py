@@ -25,6 +25,11 @@ def cfg():
     return load_config(PARAMS_REAL)
 
 
+def com_media_min(cfg, mm):
+    """Cópia da config com outro limite de chuva esperada (mm por mês da janela); 0 desliga a regra."""
+    return cfg.model_copy(update={"spi": cfg.spi.model_copy(update={"media_min_mm_por_mes": mm})})
+
+
 def meses(inicio="1981-01", fim="2025-12"):
     return pd.period_range(inicio, fim, freq="M")
 
@@ -238,7 +243,7 @@ def test_baixa_confianca_quando_q_acima_do_limite(cfg):
 def test_baixa_confianca_e_estritamente_maior_que_o_limite(cfg):
     S = pd.DataFrame({"A": np.arange(1.0, 25.0)}, index=meses("2001-01", "2002-12"))
     for q, esperado in [(0.5, False), (0.5001, True)]:
-        _, _, baixa = sp._aplicar(S, params_manual("A", q, 2.0, 10.0), cfg)
+        _, _, baixa = sp._aplicar(S, params_manual("A", q, 2.0, 10.0), com_media_min(cfg, 0.0))   # isola o critério de zeros
         assert bool(baixa.any()) is esperado
 
 
@@ -422,3 +427,83 @@ def test_janelas_da_config_definem_as_colunas_de_saida(tmp_path):
     cfg3 = cfg_variante(tmp_path, janelas_meses=[3])
     d = sp.calcular_spi(precip_sintetica(n_cod=1, seed=26), cfg3).spi
     assert "spi3" in d.columns and "spi6" not in d.columns
+
+
+# ================================================================== baixa confiança por pouca chuva esperada
+def _baixa(cfg, mm, q, shape, scale, k=3, valido=True, S=None):
+    S = S if S is not None else pd.DataFrame({"A": np.arange(1.0, 25.0)}, index=meses("2001-01", "2002-12"))
+    p = params_manual("A", q, shape, scale, valido).assign(escala_meses=np.int8(k))
+    spi, inval, baixa = sp._aplicar(S, p, com_media_min(cfg, mm))
+    return spi, inval, baixa
+
+
+def test_media_por_mes_e_um_menos_q_vezes_forma_vezes_escala_sobre_k(cfg):
+    # q = 0,25; forma 2; escala 8; k = 3 -> (0,75 * 16) / 3 = 4,0 mm por mês, conta exata em ponto flutuante
+    assert not _baixa(cfg, 4.0, 0.25, 2.0, 8.0)[2].any()            # estritamente menor: 4,0 < 4,0 é falso
+    assert _baixa(cfg, 4.0000001, 0.25, 2.0, 8.0)[2].all()
+    assert not _baixa(cfg, 3.9999999, 0.25, 2.0, 8.0)[2].any()
+
+
+def test_media_por_mes_divide_pela_escala_do_spi(cfg):
+    # mesmos parâmetros: k = 3 dá 4,0 mm/mês (acima de 3 -> sem marca); k = 6 dá 2,0 mm/mês (abaixo de 3 -> marca)
+    assert not _baixa(cfg, 3.0, 0.25, 2.0, 8.0, k=3)[2].any()
+    assert _baixa(cfg, 3.0, 0.25, 2.0, 8.0, k=6)[2].all()
+
+
+def test_zeros_do_treino_reduzem_a_media_esperada(cfg):
+    # mesma Gama (forma 2, escala 10 -> 20 mm por mês de janela em k=1... aqui k=3): q = 0 dá 6,67; q = 0,6 dá 2,67
+    assert not _baixa(cfg, 5.0, 0.0, 2.0, 10.0)[2].any()
+    assert _baixa(cfg, 5.0, 0.6, 2.0, 10.0)[2].all()
+
+
+def test_limite_zero_desliga_a_regra(cfg):
+    assert not _baixa(cfg, 0.0, 0.0, 2.0, 0.001)[2].any()            # chuva esperada ínfima, mas a regra está desligada
+
+
+def test_celula_invalida_nunca_e_baixa_confianca(cfg):
+    spi, inval, baixa = _baixa(cfg, 50.0, 0.0, 2.0, 0.5, valido=False)
+    assert inval.all() and np.isnan(spi).all() and not baixa.any()
+
+
+def test_aplicar_recusa_parametros_de_mais_de_uma_escala(cfg):
+    S = pd.DataFrame({"A": np.arange(1.0, 25.0)}, index=meses("2001-01", "2002-12"))
+    p = pd.concat([params_manual("A", 0.0, 2.0, 10.0), params_manual("A", 0.0, 2.0, 10.0).assign(escala_meses=np.int8(6))])
+    with pytest.raises(sp.SpiError, match="única escala"):
+        sp._aplicar(S, p, cfg)
+
+
+def test_regra_so_acrescenta_marcas_e_nao_muda_o_spi(cfg):
+    base = precip_sintetica(n_cod=3, seed=11)
+    com = sp.calcular_spi(base, cfg)                                  # limite do params.yaml (10 mm por mês)
+    sem = sp.calcular_spi(base, com_media_min(cfg, 0.0))
+    for k in (3, 6):
+        np.testing.assert_array_equal(com.spi[f"spi{k}"].to_numpy(), sem.spi[f"spi{k}"].to_numpy())
+        assert (com.spi[f"spi{k}_invalid"] == sem.spi[f"spi{k}_invalid"]).all()
+        assert (com.spi[f"spi{k}_baixa_conf"] | ~sem.spi[f"spi{k}_baixa_conf"]).all()          # sem => com
+    assert com.spi["spi3_baixa_conf"].sum() > sem.spi["spi3_baixa_conf"].sum()
+    marcado = com.spi.loc[com.spi["spi3_baixa_conf"] & ~sem.spi["spi3_baixa_conf"], "mes"].dt.month
+    assert set(marcado) <= {5, 6, 7, 8, 9, 10, 11}                  # só meses secos; a estação chuvosa não é marcada
+
+
+def test_marca_por_pouca_chuva_depende_so_do_treino(cfg):
+    """Anti-vazamento: inflar a chuva depois do treino não pode mudar nenhuma marca."""
+    base = precip_sintetica(n_cod=2, seed=3)
+    alterado = base.copy()
+    alterado.loc[alterado["mes"] > pd.Timestamp("2015-12-01"), "precip_mm"] *= 100.0
+    a, b = sp.calcular_spi(base, cfg), sp.calcular_spi(alterado, cfg)
+    for k in (3, 6):
+        assert (a.spi[f"spi{k}_baixa_conf"] == b.spi[f"spi{k}_baixa_conf"]).all()
+
+
+def test_media_derivada_dos_parametros_bate_com_a_media_amostral_do_treino(cfg):
+    """A regra usa (1 - q) * forma * escala no lugar da média do treino: no MLE com loc = 0 elas coincidem."""
+    base = precip_sintetica(n_cod=2, seed=21)
+    res = sp.calcular_spi(base, cfg)
+    S = sp.acumular(sp.para_matriz(base), 3)
+    treino = S[S.index <= cfg.split.treino_fim]
+    p = res.parametros
+    p = p[(p["escala_meses"] == 3) & p["valido"]]
+    assert len(p) > 0
+    for _, r in p.iterrows():
+        x = treino.loc[treino.index.month == r["mes_calendario"], r["cod_ibge"]].dropna()
+        assert (1 - r["q"]) * r["shape"] * r["scale"] == pytest.approx(x.mean(), rel=1e-4)

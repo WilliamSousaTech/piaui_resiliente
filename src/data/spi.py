@@ -9,7 +9,12 @@ Método (contrato, seção 7), por escala k em `spi.janelas_meses`:
   4. Células sem condição de ajuste (poucas amostras, poucos positivos, série constante, MLE que
      não converge) ficam `valido = False`: o SPI é NaN e `spiK_invalid = True` (nunca ±inf).
      H é limitado a [EPS_H, 1 - EPS_H], então |SPI| <= ~4,75.
-  5. `spiK_baixa_conf = True` quando q > `spi.q_baixa_confianca` (muitos zeros no mês-calendário).
+  5. `spiK_baixa_conf = True` (com SPI válido) quando há pouca chuva esperada na janela, por um destes motivos:
+       a) q > `spi.q_baixa_confianca` (muitos zeros no mês-calendário); ou
+       b) média do treino da janela por mês da janela < `spi.media_min_mm_por_mes`, com
+          média = (1 - q) * shape * scale / k (no MLE da Gama com loc = 0, shape * scale é a média dos positivos).
+     Nesses casos poucos milímetros viram SPI alto ou baixo (limitação conhecida do índice em estação seca);
+     o SPI não muda, só a marcação. Depende só dos parâmetros do treino, então não vaza.
 
 O SPI das linhas de treino é in-sample (limitação registrada no contrato). A função não lê nem
 grava arquivos: persistir `parametros` em `artifacts/spi_gamma_params` é papel do build.
@@ -132,8 +137,16 @@ def ajustar_gama(S: pd.DataFrame, k: int, cfg: Config, treino_fim: pd.Period) ->
                       "scale": "float64", "n_amostras": "int32", "n_positivos": "int32", "valido": "bool"})
 
 
+def _escala_unica(params: pd.DataFrame) -> int:
+    ks = pd.unique(params["escala_meses"])
+    if len(ks) != 1:
+        raise SpiError(f"parametros de uma única escala esperados, recebi {sorted(int(k) for k in ks)}")
+    return int(ks[0])
+
+
 def _aplicar(S: pd.DataFrame, params: pd.DataFrame, cfg: Config):
     """SPI, invalid e baixa_conf (matrizes T x J) a partir de S_k e dos parâmetros da escala."""
+    k = _escala_unica(params)
     def por_mes(col):
         p = params.pivot(index="mes_calendario", columns="cod_ibge", values=col)
         return p.reindex(index=range(1, 13), columns=S.columns).to_numpy()
@@ -145,7 +158,9 @@ def _aplicar(S: pd.DataFrame, params: pd.DataFrame, cfg: Config):
     xs, a, esc, q = (np.where(ok, arr, fill) for arr, fill in ((x, 1.0), (a, 1.0), (esc, 1.0), (q, 0.0)))
     h = np.clip(q + (1.0 - q) * stats.gamma.cdf(xs, a, scale=esc), EPS_H, 1.0 - EPS_H)
     spi = np.where(ok, stats.norm.ppf(h), np.nan)
-    return spi, ~ok, ok & (q > cfg.spi.q_baixa_confianca)
+    media_por_mes = (1.0 - q) * a * esc / k              # mm por mês da janela; valores de preenchimento só onde ~ok
+    pouca_chuva = media_por_mes < cfg.spi.media_min_mm_por_mes
+    return spi, ~ok, ok & ((q > cfg.spi.q_baixa_confianca) | pouca_chuva)
 
 
 # ---------------------------------------------------------------- orquestração

@@ -32,3 +32,6 @@
 *.pt      binary
 *.pth     binary
 *.onnx    binary
+*.woff2   binary
+*.woff    binary
+*.ttf     binary
