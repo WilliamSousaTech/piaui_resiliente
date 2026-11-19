@@ -3,6 +3,38 @@
   "dataset_sha256": "7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab",
   "checklist_sha256": "53d3d087ae36b2a2f1f5afc7d06f7fa4fdd20d3c61ecdc9bf4ac7a4b9ed08c92",
   "rascunhos": {
+    "2200053": {
+      "cod_ibge": "2200053",
+      "nome": "Acauã",
+      "mes_referencia": "2026-07",
+      "escala": 3,
+      "ficha": "Município: Acauã (2200053)\nMês de referência: julho de 2026\nSPI-3 observado: −0,30 (classe: Próximo do normal)\nLeitura de baixa confiança: sim (pouca chuva esperada na janela; o SPI pode exagerar)\nChuva no mês: 1,9 mm\nChuva nos 12 meses até o mês de referência: 523,9 mm\nMeses em seca (SPI-3 de −1,0 ou menos) entre as leituras confiáveis dos últimos 12 meses: 0 de 8",
+      "resumo": "Acauã registra, em julho de 2026, SPI-3 de −0,30 (classe Próximo do normal) e chuva no mês de 1,9 mm. Nos últimos 12 meses a precipitação acumulou 523,9 mm e não houve meses em seca (0 de 8). A leitura tem baixa confiança, podendo exagerar o SPI por pouca chuva esperada; assim, é prioritário acompanhar a evolução da chuva e dos reservatórios antes de tomar medidas.",
+      "itens": [
+        {
+          "id": "reunir_defesa_civil",
+          "porque": "Com o SPI próximo do normal e chuva baixa (1,9 mm), a equipe precisa definir papéis e contatos para reagir rapidamente caso a condição se altere."
+        },
+        {
+          "id": "revisar_plano_contingencia",
+          "porque": "O plano deve ser verificado porque a seca ainda não se manifestou, mas a leitura de baixa confiança pode exagerar o SPI; conferir o plano agora evita pressa depois."
+        },
+        {
+          "id": "levantar_fontes_de_agua",
+          "porque": "Conhecer açudes, poços e carro-pipa é essencial já que a precipitação mensal foi de apenas 1,9 mm e pode haver demanda repentina."
+        },
+        {
+          "id": "acompanhar_chuva_e_reservatorios",
+          "porque": "Monitorar mensalmente o SPI, a chuva e os níveis dos reservatórios permite detectar mudanças cedo, especialmente porque a leitura tem baixa confiança."
+        }
+      ],
+      "modelo": "openai/gpt-oss-120b",
+      "gerado_em_utc": "2026-11-19T15:37:46Z",
+      "tentativas": 1,
+      "status": "revisado",
+      "revisado_por": "William",
+      "revisado_em_utc": "2026-11-19T15:42:52Z"
+    },
     "2200905": {
       "cod_ibge": "2200905",
       "nome": "Aroazes",
@@ -119,9 +151,9 @@
       "modelo": "claude-sonnet-5-5 (redigido na sessão de desenvolvimento, sem chamada de API)",
       "gerado_em_utc": "2026-11-19T12:36:33Z",
       "tentativas": 1,
-      "status": "pendente_revisao",
-      "revisado_por": null,
-      "revisado_em_utc": null
+      "status": "revisado",
+      "revisado_por": "William Sousa",
+      "revisado_em_utc": "2026-11-19T12:44:09Z"
     },
     "2209153": {
       "cod_ibge": "2209153",
