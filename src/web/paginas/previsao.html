@@ -1,0 +1,52 @@
+<div class="wrap">
+  <section class="secao">
+    <h1 class="titulo-pagina">Previsão do próximo mês</h1>
+    <p class="sub">O SPI de {{previsao_alvo}} em cada município do semiárido, estimado por uma rede neural treinada do zero com a chuva do próprio Piauí. Cada número vem com a faixa de erro que a validação mostrou.</p>
+    {{previsao_aviso}}
+    {{previsao_fatos}}
+  </section>
+
+  <section class="secao">
+    <h2>Os {{previsao_n_mun}} municípios, do mais seco ao mais úmido</h2>
+    <p class="sub">A ordem usa o menor dos dois SPI previstos. Clique no nome para abrir a chuva observada do município no monitor.</p>
+    {{previsao_legenda}}
+    <div class="filtros" id="filtrosPrev" hidden>
+      <label class="busca"><span class="sr">Buscar município</span><input id="buscaPrev" type="search" placeholder="Buscar município" autocomplete="off"></label>
+      <div class="seg" role="group" aria-label="Município com ou sem sinal de seca" id="segSinal">
+        <button type="button" data-f="todos" aria-pressed="true">Todos</button>
+        <button type="button" data-f="sinal" aria-pressed="false">Com sinal de seca</button>
+      </div>
+    </div>
+    <p class="contagem" id="contagemPrev" aria-live="polite"></p>
+    <div class="tabela-mun tabela-prev" style="margin-top:10px" tabindex="0" role="region" aria-label="Previsão do SPI por município. Use as setas para rolar.">
+      <table>
+        <thead><tr>
+          <th scope="col">Município</th>
+          <th scope="col">SPI-3 previsto</th>
+          <th scope="col">SPI-6 previsto</th>
+          <th scope="col">Alarme de seca</th>
+        </tr></thead>
+        <tbody id="corpoPrev">{{previsao_tabela}}</tbody>
+      </table>
+      <p class="vazio" id="vazioPrev" style="padding:16px" hidden>Nenhum município com esses filtros.</p>
+    </div>
+  </section>
+
+  <section class="secao">
+    <h2>Quanto confiar nesta previsão</h2>
+    <p class="sub">Tudo vem da validação, a parte dos dados em que o modelo foi comparado com o que realmente choveu. Nenhum número abaixo é de teste final.</p>
+    {{previsao_confianca}}
+  </section>
+
+  <section class="secao leitura">
+    <h2>Como a previsão é feita</h2>
+    <ul style="margin-top:12px">
+      <li>O SPI de {{previsao_alvo}} é previsto com a chuva medida até {{previsao_origem}}, mês a mês, pelo CHIRPS. Nenhuma chuva do mês previsto entra na conta.</li>
+      <li>A previsão parte de uma conta simples, a chuva mediana do mês convertida em SPI, e uma rede neural corrige essa conta. A rede nasce com pesos aleatórios e aprende só com os dados do site, de {{ano_ini}} a {{treino_fim_ano}}. Não há modelo pré-treinado.</li>
+      <li>São {{previsao_membros}} redes treinadas com sementes diferentes; a previsão é a média delas.</li>
+      <li>A margem de erro não vem da divergência entre as redes, que é pequena. Vem do erro real que elas tiveram na validação.</li>
+      <li>O SPI mede falta ou excesso de chuva, não o nível de um açude nem a água que chega às casas.</li>
+      <li>Este experimento ainda está sendo calibrado com decretos reais (S2iD) e com o TCE-PI. Não substitui o alerta oficial da Defesa Civil.</li>
+    </ul>
+  </section>
+</div>

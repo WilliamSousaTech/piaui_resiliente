@@ -50,7 +50,7 @@ VALIDACAO_PADRAO = Path("artifacts") / "busca" / "confirmacao_B.json"
 AVISO = ("MVP experimental, em calibração com S2iD/TCE-PI. É uma previsão com margem de erro, não uma certeza: "
          "na validação o modelo errou, em média, bem menos que a persistência, mas pegou só uma parte das secas reais.")
 CASAS = 2                                   # SPI com duas casas; o sinal de alerta vale para o número arredondado
-CASAS_METRICA = 3                           # MAE, margem e taxas da validação (o contrato cita 0,395 e 0,309)
+CASAS_METRICA = 6                           # MAE, margem e taxas da validação; arredondar cedo causaria arredondamento duplo na página
 
 
 class PreverError(ValueError):

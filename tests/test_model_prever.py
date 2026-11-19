@@ -67,11 +67,11 @@ def receita_e_validacao(sha="ab" * 32):
                                         for i, a in enumerate(alvos)},
                        "parcial_climatologica": {a: {"todas": {"mae": 0.41 + 0.1 * i}} for i, a in enumerate(alvos)}},
            "alerta_seca": {a: {"rede_final": {"limiar_previsao": lim, "secas_reais": 200, "tp": 50, "fp": 40,
-                                              "revocacao": 0.25, "precisao": 0.55}}
+                                              "revocacao": 0.254980079, "precisao": 0.55}}
                            for a, lim in zip(alvos, (-1.0, -0.95))},
-           "comparacao": {a: {"persistencia": {"veredito": "superou"},
-                              "melhor_baseline": {"contra": "parcial_climatologica", "veredito": v}}
-                          for a, v in zip(alvos, ("indistinguivel", "superou"))},
+           "comparacao": {a: {"persistencia": {"veredito": vp}, "melhor_baseline": {"contra": b, "veredito": v}}
+                          for a, vp, b, v in zip(alvos, ("superou", "indistinguivel"), ("parcial_climatologica", "ridge"),
+                                                 ("indistinguivel", "superou"))},
            "margem": {a: {"q": 0.8, "valor": v, "cobertura_validacao": 0.80, "cobertura_2a_metade": 0.76, "estavel": est}
                       for a, v, est in zip(alvos, (0.6624, 0.5486), (True, False))}}
     return receita, val
@@ -134,15 +134,15 @@ def test_cabecas_trazem_a_validacao_do_mesmo_limiar_e_a_margem(mundo, cfg):
     doc, _ = chamar(mundo, cfg, np.zeros((3, 2)))
     h3, h6 = doc["cabecas"]
     assert (h3["id"], h3["escala"], h3["limiar_alerta"], h6["id"], h6["escala"], h6["limiar_alerta"]) == ("spi3", 3, -1.0, "spi6", 6, -0.95)
-    assert (h3["margem"], h6["margem"]) == (0.662, 0.549)                       # três casas
+    assert (h3["margem"], h6["margem"]) == (0.6624, 0.5486)
     assert (h3["margem_estavel"], h6["margem_estavel"]) == (True, False)
     assert (h3["margem_q"], h3["margem_cobertura_validacao"], h3["margem_cobertura_2a_metade"]) == (0.8, 0.8, 0.76)
     assert (h3["mae"], h3["mae_persistencia"], h3["mae_parcial_climatologica"]) == (0.4, 0.64, 0.41)
     assert (h3["mae_mes_alvo"], h3["mae_mes_alvo_persistencia"]) == (1.0, 2.0)  # mês-calendário 10 do alvo
-    assert (h3["secas_reais"], h3["secas_pegas"], h3["alarmes_falsos"], h3["revocacao"], h3["precisao"]) == (200, 50, 40, 0.25, 0.55)
+    assert (h3["secas_reais"], h3["secas_pegas"], h3["alarmes_falsos"], h3["revocacao"], h3["precisao"]) == (200, 50, 40, 0.25498, 0.55)   # sem arredondar cedo
     assert (h3["acerto_classe"], h3["acerto_sempre_normal"]) == (0.81, 0.7)
     assert (h3["veredito_persistencia"], h3["melhor_baseline"], h3["veredito_melhor_baseline"]) == ("superou", "parcial_climatologica", "indistinguivel")
-    assert h6["veredito_melhor_baseline"] == "superou"
+    assert (h6["veredito_persistencia"], h6["melhor_baseline"], h6["veredito_melhor_baseline"]) == ("indistinguivel", "ridge", "superou")
 
 
 def test_baixa_confianca_do_alvo_vem_dos_parametros_e_nao_da_coluna_do_conjunto(mundo, cfg):

@@ -69,12 +69,22 @@ PAGINA_PLANEJAMENTO = Pagina(
     ("planejamento",), "planejamento.html")
 
 
+# Só entra na lista quando há previsão conferida (ver `paginas_do_site`).
+PAGINA_PREVISAO = Pagina(
+    "previsao", "previsao.html", "Previsão", "Previsão do próximo mês",
+    "Estimativa experimental do SPI do próximo mês em cada município do semiárido, com margem de erro e o que a validação mostrou.",
+    ("previsao",), "previsao.html")
+
+
 def paginas_do_site(payload: dict) -> tuple[Pagina, ...]:
-    """As seis páginas fixas, mais Planejamento (antes de Método) se o pacote traz rascunhos de IA."""
-    if not payload.get("planejamento"):
-        return PAGINAS
-    i = next(n for n, p in enumerate(PAGINAS) if p.id == "metodo")
-    return PAGINAS[:i] + (PAGINA_PLANEJAMENTO,) + PAGINAS[i:]
+    """As seis páginas fixas, mais Previsão (antes de El Niño) se o pacote traz a previsão conferida e Planejamento
+    (antes de Método) se traz rascunhos de IA."""
+    lista = list(PAGINAS)
+    if payload.get("previsao"):
+        lista.insert(next(n for n, p in enumerate(lista) if p.id == "el-nino"), PAGINA_PREVISAO)
+    if payload.get("planejamento"):
+        lista.insert(next(n for n, p in enumerate(lista) if p.id == "metodo"), PAGINA_PLANEJAMENTO)
+    return tuple(lista)
 
 
 # ------------------------------------------------------------------ pequenos formatadores
@@ -146,10 +156,13 @@ def html_nav(paginas: tuple[Pagina, ...], atual: str) -> Html:
                         for p in paginas))
 
 
-def html_aviso(maturidade: str) -> Html:
+def html_aviso(maturidade: str, com_previsao: bool = False) -> Html:
     resto = re.sub(r"^MVP experimental\s*[—-]?\s*", "", maturidade, flags=re.I).strip()
     resto = (resto[:1].upper() + resto[1:]).rstrip(".") + ". " if resto else ""
-    return Html(f"<b>MVP experimental.</b> {esc(resto)}Não substitui alerta oficial: mostra a chuva já observada, não uma previsão.")
+    fecho = ("Não substitui alerta oficial: o monitor mostra a chuva já observada; a única previsão está na página Previsão, "
+             "com margem de erro." if com_previsao else
+             "Não substitui alerta oficial: mostra a chuva já observada, não uma previsão.")
+    return Html(f"<b>MVP experimental.</b> {esc(resto)}{fecho}")
 
 
 # ------------------------------------------------------------------ El Niño
@@ -290,6 +303,183 @@ def texto_checklist(pac: dict | None) -> str:
     return f"Base do checklist: versão {c['versao']}, de {c['elaborado_por']}, atualizada em {dia_br(c['atualizado_em'])}."
 
 
+# ------------------------------------------------------------------ previsão do próximo mês
+FAIXA_MIN, FAIXA_MAX = -2.5, 2.5                    # a faixa desenhada cobre SPI de −2,5 a +2,5; o que passar disso é cortado
+NOME_BASELINE = {"parcial_climatologica": "a conta simples com a chuva mediana do mês", "persistencia": "repetir o mês anterior",
+                 "climatologia": "a chuva mediana de sempre", "ridge": "a regressão linear (Ridge)",
+                 "floresta_aleatoria": "a floresta aleatória"}
+INDISPONIVEL_PREVISAO = ("Indisponível: o modelo está em calibração. Só aparece depois de uma avaliação auditada, "
+                         "com margem de erro.")
+
+
+def _spi_br(x: float) -> str:
+    return num_br(x, 2)
+
+
+def _n_municipios(n: int) -> str:
+    return f"{n} município" if n == 1 else f"{n} municípios"
+
+
+def _pct_br(x: float) -> str:
+    return num_br(x * 100, 0)
+
+
+def _pos_faixa(x: float) -> float:
+    return (min(max(x, FAIXA_MIN), FAIXA_MAX) - FAIXA_MIN) / (FAIXA_MAX - FAIXA_MIN) * 100.0
+
+
+def _faixa(cel: dict, cab: dict) -> str:
+    """Desenho de uma previsão: ponto no SPI previsto, barra com a margem de erro e a zona de alerta de seca atrás."""
+    lo, hi = cel["previsto"] - cab["margem"], cel["previsto"] + cab["margem"]
+    a, b = _pos_faixa(lo), _pos_faixa(hi)
+    return (f'<span class="faixa" aria-hidden="true"><i class="zona" style="width:{_pos_faixa(cab["limiar_alerta"]):.1f}%"></i>'
+            f'<i class="zero"></i><i class="mg" style="left:{a:.1f}%;width:{b - a:.1f}%"></i>'
+            f'<i class="pt" style="left:{_pos_faixa(cel["previsto"]):.1f}%"></i></span>')
+
+
+def _celula_previsao(cel: dict, cab: dict) -> str:
+    lo, hi = cel["previsto"] - cab["margem"], cel["previsto"] + cab["margem"]
+    bc = '<small class="bc">baixa confiança</small>' if cel["baixa_conf"] else ""
+    return (f'<td class="celula-prev">{_faixa(cel, cab)}<span class="v">{_spi_br(cel["previsto"])}</span>'
+            f'<span class="sr"> (faixa provável de {_spi_br(lo)} a {_spi_br(hi)})</span>{bc}</td>')
+
+
+def html_previsao_tabela(pac: dict | None, municipios: list[dict]) -> Html:
+    """Linhas dos municípios, do SPI previsto mais baixo para o mais alto (vale o menor dos dois SPI)."""
+    if not pac:
+        return Html("")
+    nomes = {m["cod"]: m["nome"] for m in municipios}
+    cab = {c["id"]: c for c in pac["cabecas"]}
+    faltam = [m["cod_ibge"] for m in pac["municipios"] if m["cod_ibge"] not in nomes]
+    if faltam:
+        raise PaginaError(f"previsão de município que não está no site: {faltam[:5]}")
+    ordem = sorted(pac["municipios"], key=lambda m: (min(m["spi3"]["previsto"], m["spi6"]["previsto"]), nomes[m["cod_ibge"]]))
+    linhas = []
+    for m in ordem:
+        alvos = [f"SPI-{cab[i]['escala']}" for i in ("spi3", "spi6") if m[i]["alerta"]]
+        sinal = (f'<span class="selo atencao">Sinal de seca: {lista_pt(alvos, "e")}</span>' if alvos
+                 else '<span class="sem-sinal">Sem sinal</span>')
+        linhas.append(
+            f'<tr data-sinal="{1 if alvos else 0}"><th scope="row"><a href="monitor.html#m={esc(m["cod_ibge"])}">'
+            f'{esc(nomes[m["cod_ibge"]])}</a></th>{_celula_previsao(m["spi3"], cab["spi3"])}'
+            f'{_celula_previsao(m["spi6"], cab["spi6"])}<td>{sinal}</td></tr>')
+    return Html("".join(linhas))
+
+
+def html_previsao_aviso(pac: dict | None, payload: dict) -> Html:
+    if not pac:
+        return Html("")
+    alvo, origem = mes_extenso(pac["alvo"]), mes_extenso(pac["origem"])
+    if pac["alvo_ja_passou"]:
+        data = (f"O mês previsto, {esc(alvo)}, já passou: a chuva medida que o site tem termina em {esc(origem)}. Esta página mostra "
+                f"o que o modelo previu com o último mês disponível e não serve para decidir hoje. Quando a chuva de {esc(alvo)} "
+                f"entrar nos dados, ela será a primeira conferência real da previsão, fora da validação.")
+    else:
+        data = (f"O mês previsto, {esc(alvo)}, ainda não tem chuva medida no site, que termina em {esc(origem)}. Quando ela entrar "
+                f"nos dados, será a primeira conferência real da previsão, fora da validação.")
+    return Html(f'<div class="aviso-previsao"><p><b>Experimento, não alerta.</b> {esc(pac["aviso"])}</p><p>{data}</p></div>')
+
+
+def html_previsao_fatos(pac: dict | None) -> Html:
+    if not pac:
+        return Html("")
+    c3, c6 = (next(c for c in pac["cabecas"] if c["id"] == i) for i in ("spi3", "spi6"))
+    r = pac["resumo"]
+    return Html(
+        f'<div class="fatos">'
+        f'<div><strong>{r["n_alerta_algum"]} de {r["n_municipios"]}</strong><span>municípios com sinal de seca em '
+        f'{esc(mes_extenso(pac["alvo"]))}: {r["n_alerta_spi3"]} pelo SPI-3 e {r["n_alerta_spi6"]} pelo SPI-6. O sinal é um alarme '
+        f'experimental, não uma certeza.</span></div>'
+        f'<div><strong>±{_spi_br(c3["margem"])} e ±{_spi_br(c6["margem"])}</strong><span>margem de erro do SPI-3 e do SPI-6. Na validação, '
+        f'{_pct_br(c3["margem_q"])}% dos erros ficaram dentro dela.</span></div>'
+        f'<div><strong>{_pct_br(c3["revocacao"])}% e {_pct_br(c6["revocacao"])}%</strong><span>das secas reais da validação que o alarme '
+        f'pegou, no SPI-3 e no SPI-6. Quando ele soou, acertou {_pct_br(c3["precisao"])}% e {_pct_br(c6["precisao"])}% das vezes.</span></div>'
+        f'</div>')
+
+
+def _frase_baseline(c: dict) -> str:
+    nome = NOME_BASELINE.get(c["melhor_baseline"], c["melhor_baseline"])
+    n = f" ({num_br(c['mae_parcial_climatologica'], 2)})" if c["melhor_baseline"] == "parcial_climatologica" else ""
+    return {"superou": f"{nome}{n} errou um pouco mais que a previsão", "pior": f"{nome}{n} errou menos que a previsão",
+            "indistinguivel": f"entre a previsão e {nome}{n} não há diferença clara",
+            "indefinido": f"a comparação com {nome} não é conclusiva"}[c["veredito_melhor_baseline"]]
+
+
+def html_previsao_confianca(pac: dict | None, payload: dict) -> Html:
+    """O que a validação mostrou, em frases com os números do arquivo. Nada aqui é calculado: só formatado."""
+    if not pac:
+        return Html("")
+    c = {x["id"]: x for x in pac["cabecas"]}
+    c3, c6, r = c["spi3"], c["spi6"], pac["resumo"]
+    mes_alvo = MESES[int(pac["alvo"][5:7]) - 1]
+    itens = []
+    for h in (c3, c6):
+        pers = {"superou": "errou menos que", "pior": "errou mais que", "indistinguivel": "ficou sem diferença clara de",
+                "indefinido": "não deu para comparar com"}[h["veredito_persistencia"]]
+        itens.append(
+            f'<li><b>Erro médio no SPI-{h["escala"]}: {_spi_br(h["mae"])}</b><span>Na validação, a previsão {pers} repetir o mês '
+            f'anterior ({_spi_br(h["mae_persistencia"])}); {_frase_baseline(h)}.</span></li>')
+    itens.append(
+        f'<li><b>No mês desta previsão o erro foi outro</b><span>Só nos meses de {esc(mes_alvo)} da validação, o erro médio foi '
+        f'{_spi_br(c3["mae_mes_alvo"])} no SPI-3 e {_spi_br(c6["mae_mes_alvo"])} no SPI-6, contra {_spi_br(c3["mae"])} e '
+        f'{_spi_br(c6["mae"])} em todos os meses.</span></li>')
+    itens.append(
+        f'<li><b>O alarme de seca pega pouco</b><span>Pegou {c3["secas_pegas"]} de {c3["secas_reais"]} secas reais no SPI-3 e '
+        f'{c6["secas_pegas"]} de {c6["secas_reais"]} no SPI-6, com {c3["alarmes_falsos"]} e {c6["alarmes_falsos"]} alarmes falsos. '
+        f'Sem sinal de seca não quer dizer sem seca.</span></li>')
+    instaveis = [f"SPI-{h['escala']}" for h in (c3, c6) if not h["margem_estavel"]]
+    estab = (f" No {lista_pt(instaveis, 'e')} ela não se manteve estável entre as duas metades: trate a margem como aproximada."
+             if instaveis else "")
+    itens.append(
+        f'<li><b>A margem de erro é aproximada</b><span>Calibrada para cobrir {_pct_br(c3["margem_q"])}% dos erros. Calibrada só na '
+        f'primeira metade da validação, ela cobriu {_pct_br(c3["margem_cobertura_2a_metade"])}% dos erros da segunda (SPI-3) e '
+        f'{_pct_br(c6["margem_cobertura_2a_metade"])}% (SPI-6). A segunda metade começa em {esc(mes_extenso(pac["corte_b"]))}.{esc(estab)}</span></li>')
+    itens.append(
+        f'<li><b>Baixa confiança</b><span>Em {esc(mes_alvo)} se espera pouca chuva em {_n_municipios(r["n_baixa_conf_spi3"])} no SPI-3 e '
+        f'{r["n_baixa_conf_spi6"]} no SPI-6. Neles, poucos milímetros mudam muito o índice; eles aparecem marcados na tabela.</span></li>')
+    itens.append(
+        f'<li><b>O teste final ainda não foi aberto</b><span>Em {esc(dia_br(pac["gerado_em"]))}, os dados reservados para a medida '
+        f'definitiva (até {esc(mes_extenso(payload["periodo"]["teste_fim"]))}) continuavam sem uso. Todos os números acima são de validação, '
+        f'onde a própria equipe escolheu configurações.</span></li>')
+    return Html(f'<ul class="indisp-grande">{"".join(itens)}</ul>')
+
+
+def html_previsao_legenda(pac: dict | None) -> Html:
+    if not pac:
+        return Html("")
+    c = pac["cabecas"][0]
+    exemplo = {"previsto": -0.4, "dispersao": 0, "baixa_conf": False, "alerta": False}
+    return Html(f'<div class="leg-faixa">{_faixa(exemplo, {**c, "margem": 0.7})}<ul>'
+                f'<li><b>Ponto</b>: o SPI previsto.</li>'
+                f'<li><b>Barra</b>: a faixa provável, o previsto mais e menos a margem de erro.</li>'
+                f'<li><b>Fundo terracota</b>: zona de seca (SPI no limiar do alarme ou abaixo dele; {_spi_br(c["limiar_alerta"])} no SPI-3).</li>'
+                f'<li><b>Linha fina</b>: SPI zero, a chuva normal.</li></ul></div>')
+
+
+def valores_previsao(payload: dict) -> dict:
+    """Valores dos modelos que falam da previsão. Sem previsão no pacote, o site continua dizendo que ela está indisponível."""
+    pac = payload.get("previsao")
+    n_mun = pac["resumo"]["n_municipios"] if pac else 0
+    if pac:
+        alvo = mes_extenso(pac["alvo"])
+        sobre = (f"Disponível só como experimento, na página Previsão: o SPI-3 e o SPI-6 de {alvo} em cada município, com margem de "
+                 f"erro. Foi avaliada apenas na validação; o teste final ainda não foi aberto.")
+        indisp = (f"Só como experimento: a página Previsão mostra o SPI de {alvo} com margem de erro. O teste final ainda não foi "
+                  f"aberto e o alarme de seca pega só uma parte das secas reais.")
+    else:
+        sobre = "Indisponível. A rede neural de previsão está em calibração e só aparece depois de uma avaliação auditada."
+        indisp = INDISPONIVEL_PREVISAO
+    return {
+        "previsao_alvo": mes_extenso(pac["alvo"]) if pac else "", "previsao_origem": mes_extenso(pac["origem"]) if pac else "",
+        "previsao_n_mun": n_mun,
+        "previsao_aviso": html_previsao_aviso(pac, payload), "previsao_fatos": html_previsao_fatos(pac),
+        "previsao_tabela": html_previsao_tabela(pac, payload["municipios"]), "previsao_confianca": html_previsao_confianca(pac, payload),
+        "previsao_legenda": html_previsao_legenda(pac),
+        "previsao_membros": pac["modelo"]["n_membros"] if pac else 0,
+        "previsao_sobre": sobre, "previsao_metodo": indisp,
+    }
+
+
 # ------------------------------------------------------------------ textos derivados do pacote
 def frase_abertura(payload: dict) -> str:
     t, ultimo = payload["abertura"], len(payload["meses"]) - 1
@@ -374,6 +564,7 @@ def valores_base(payload: dict, ctx: dict) -> dict:
         "planejamento_resumo": resumo_planejamento(payload.get("planejamento")),
         "sobre_planejamento": sobre_planejamento(payload.get("planejamento")),
         "checklist_info": texto_checklist(payload.get("planejamento")),
+        **valores_previsao(payload),
     }
     v.update(textos_clima(payload))
     v.update(ctx)
@@ -388,7 +579,8 @@ def renderizar_pagina(pagina: Pagina, paginas: tuple[Pagina, ...], payload: dict
     v.update({
         "pagina": pagina.id, "titulo_pagina": pagina.titulo, "descricao": pagina.descricao,
         "favicon": Html(marca.favicon_data_uri()), "simbolo": Html(marca.simbolo()),
-        "nav": html_nav(paginas, pagina.id), "aviso": html_aviso(payload["maturidade"]),
+        "nav": html_nav(paginas, pagina.id),
+        "aviso": html_aviso(payload["maturidade"], bool(payload.get("previsao"))),
         "conteudo": Html(conteudo), "scripts": Html(scripts),
     })
     return preencher(ler_modelo("_base.html"), v, f"{pagina.arquivo} (base)")
