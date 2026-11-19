@@ -1,6 +1,7 @@
 """Arquivo de rascunhos e revisão humana (dados sintéticos só aqui, em tests/)."""
 import json
 import os
+import re
 import stat
 from datetime import datetime, timezone
 
@@ -135,6 +136,13 @@ def test_aprovar_valida_de_novo_o_texto_editado_a_mao(payload, vazio, lista):
     inventado = aq.registrar(vazio, rascunho(payload, itens=(("inventado", "x"), ("mobilizar_defesa_civil", "y"))))
     with pytest.raises(aq.ArquivoError, match="não existe na base"):
         aq.aprovar(inventado, A, "Ana", agora=REVISAO, checklist=lista)
+
+
+@pytest.mark.parametrize("char, codigo", [("\u200b", "U+200B"), ("\u00a0", "U+00A0")])
+def test_aprovar_recusa_caractere_invisivel_colado_a_mao(payload, vazio, lista, char, codigo):
+    ruim = aq.registrar(vazio, rascunho(payload, resumo=f"Texto com{char}problema."))
+    with pytest.raises(aq.ArquivoError, match="não passa na validação.*" + re.escape(codigo)):
+        aq.aprovar(ruim, A, "Ana", agora=REVISAO, checklist=lista)
 
 
 @pytest.mark.parametrize("por", ["", " ", "A", "x" * 81, "Ana\nSouza", "<b>Ana</b>"])

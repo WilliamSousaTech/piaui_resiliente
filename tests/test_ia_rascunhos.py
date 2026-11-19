@@ -1,6 +1,7 @@
 """Pedido, validação e registro do rascunho (cliente falso, dados sintéticos só aqui, em tests/)."""
 import ast
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -74,7 +75,8 @@ def test_o_pedido_leva_a_ficha_e_o_checklist_sem_fonte_e_o_sistema_com_as_regras
     assert sistema == rs.SISTEMA and max_tokens == 777
     assert ficha in usuario and "mobilizar_defesa_civil: Mobilizar a Defesa Civil." in usuario
     assert "Fonte de teste" not in usuario                      # a IA não vê a fonte
-    for regra in ("Não cite lei", "somente os fatos da ficha", "baixa confiança", "somente com um objeto JSON"):
+    for regra in ("Não cite lei", "Use só números da ficha", "baixa confiança", "somente com um objeto JSON",
+                  "Seja proporcional"):
         assert regra.lower() in sistema.lower()
 
 
@@ -264,3 +266,103 @@ def test_modulo_sem_rede_arquivo_nem_framework():
     proibidos = ("requests", "httpx", "urllib", "socket", "http", "os", "pathlib", "src.web", "src.ia.cliente", "fastapi",
                  "flask", "sqlite3", "sqlalchemy", "torch")
     assert not [m for m in mods if any(m == p or m.startswith(p + ".") for p in proibidos)]
+
+
+# ------------------------------------------------------------------ prompt de sistema
+def test_o_sistema_tem_as_regras_e_os_limites_do_codigo():
+    s = rs.SISTEMA
+    for trecho in ("Seja proporcional", "LEITURA DE BAIXA CONFIANÇA", "CARACTERES", "SE FALTAR INFORMAÇÃO",
+                   "ANTES DE RESPONDER, CONFIRA", f"até {rs.MAX_RESUMO} caracteres", f"até {rs.MAX_PORQUE} caracteres",
+                   f"de 2 a {rs.MAX_ITENS_ESCOLHIDOS})"):
+        assert trecho in s, trecho
+    assert "{MAX_" not in s and "{{" not in s and "}}" not in s            # nenhum marcador ficou sem trocar
+    # toda menção a limite diz o mesmo número que o validador usa (o prompt cita cada limite em mais de um lugar)
+    assert set(re.findall(r"até (\d+) caracteres", s)) == {str(rs.MAX_RESUMO), str(rs.MAX_PORQUE)}
+    assert set(re.findall(r"de 2 a (\d+)\)", s)) == {str(rs.MAX_ITENS_ESCOLHIDOS)}
+
+
+def test_o_formato_pedido_no_sistema_e_o_json_que_o_codigo_le():
+    modelo = json.loads(rs.SISTEMA.strip().splitlines()[-1])
+    assert set(modelo) == {"resumo", "itens"} and set(modelo["itens"][0]) == {"id", "porque"}
+    resumo, itens = rs.interpretar(json.dumps(modelo))
+    assert resumo == modelo["resumo"] and itens == [("id_da_acao", modelo["itens"][0]["porque"])]
+
+
+# ------------------------------------------------------------------ caracteres invisíveis e especiais
+ITENS_OK = [("mobilizar_defesa_civil", "Prepara a equipe."), ("revisar_abastecimento", "Confere a água.")]
+
+
+@pytest.mark.parametrize("entrada, saida", [
+    ("SPI\u20113", "SPI-3"), ("SPI\u20103", "SPI-3"),                      # hífen e hífen que não quebra linha
+    ("a\u00a0b", "a b"), ("a\u202fb", "a b"), ("a\u2009b", "a b"), ("a\u3000b", "a b"),
+    ("−0,30 – x ’ “é” ç", "−0,30 – x ’ “é” ç"),                          # menos, travessão, aspas e acentos ficam
+    ("a\u200bb", "a\u200bb"),                                           # invisível não é limpo: é recusado
+    ("a\tb", "a\tb"),
+])
+def test_limpar_texto(entrada, saida):
+    assert rs.limpar_texto(entrada) == saida
+
+
+def test_limpar_texto_devolve_o_que_nao_e_texto_como_veio():
+    assert rs.limpar_texto(None) is None and rs.limpar_texto(5) == 5
+
+
+@pytest.mark.parametrize("char, codigo", [
+    ("\u200b", "U+200B"), ("\u200d", "U+200D"), ("\u00ad", "U+00AD"), ("\ufeff", "U+FEFF"), ("\t", "U+0009"),
+    ("\x00", "U+0000"), ("\u2028", "U+2028"), ("\u2029", "U+2029"), ("\u00a0", "U+00A0"), ("\u202f", "U+202F"),
+])
+def test_resumo_com_caractere_invisivel_ou_especial_e_recusado(lista, ficha, char, codigo):
+    motivos = rs.validar(f"O município pede{char}atenção.", ITENS_OK, ficha, lista)
+    assert any(m.startswith("resumo:") and codigo in m and "invisível ou especial" in m for m in motivos), motivos
+
+
+def test_porque_com_caractere_invisivel_e_recusado_no_item_certo(lista, ficha):
+    itens = [("mobilizar_defesa_civil", "Prepara\u200ba equipe."), ("revisar_abastecimento", "Confere a água.")]
+    motivos = rs.validar("Texto ok.", itens, ficha, lista)
+    assert any(m.startswith("item 1") and "U+200B" in m for m in motivos)
+    assert not any(m.startswith("item 2") or m.startswith("resumo") for m in motivos)
+
+
+def test_acento_sinal_de_menos_travessao_e_aspas_tipograficas_sao_aceitos(lista, ficha):
+    texto = "Ação, coração, lá, ç, ã: “aspas”, ’, sinal − e travessão – são aceitos."
+    assert rs.validar(texto, ITENS_OK, ficha, lista) == []
+
+
+def test_quebra_de_linha_tem_so_o_motivo_de_formato(lista, ficha):
+    motivos = rs.validar("Linha um.\nLinha dois.", ITENS_OK, ficha, lista)
+    assert any("quebra de linha" in m for m in motivos) and not any("invisível" in m for m in motivos)
+
+
+def test_o_motivo_lista_no_maximo_cinco_codigos_em_ordem_e_sem_repetir(lista, ficha):
+    ruins = "\ufeff\u2060\u200f\u200e\u200d\u200c\u200b\u200b"          # 7 diferentes, um repetido
+    motivo = next(m for m in rs.validar(f"a{ruins}b", ITENS_OK, ficha, lista) if "invisível" in m)
+    assert motivo.count("U+") == 5
+    assert "U+200B, U+200C, U+200D, U+200E, U+200F" in motivo
+
+
+def test_interpretar_limpa_hifen_e_espaco_especial_no_resumo_e_no_porque_mas_nao_no_id():
+    bruto = json.dumps({"resumo": "SPI\u20113 em\u202fjulho.",
+                        "itens": [{"id": "a\u00a0b", "porque": "Item\u00a0A e SPI\u20113."}]})
+    resumo, itens = rs.interpretar(bruto)
+    assert resumo == "SPI-3 em julho."
+    assert itens == [("a\u00a0b", "Item A e SPI-3.")]
+
+
+def test_interpretar_mantem_o_invisivel_para_a_validacao_recusar():
+    resumo, itens = rs.interpretar(json.dumps({"resumo": "pode\u200bexagerar",
+                                               "itens": [{"id": "x", "porque": "ok\u200b"}]}))
+    assert "\u200b" in resumo and "\u200b" in itens[0][1]
+
+
+def test_texto_com_caractere_invisivel_volta_ao_modelo_e_a_segunda_vale(fatos, lista):
+    c = ClienteFalso(resp("pode\u200bexagerar a falta."), resp("pode exagerar a falta."))
+    r = rs.gerar_rascunho(fatos, lista, c, agora=AGORA)
+    assert r.tentativas == 2 and r.resumo == "pode exagerar a falta."
+    assert "U+200B" in c.pedidos[1][1] and "invisível" in c.pedidos[1][1]
+
+
+def test_hifen_especial_do_modelo_e_gravado_como_hifen_comum(fatos, lista):
+    c = ClienteFalso(resp("O SPI\u20113 pede\u202fatenção."))
+    r = rs.gerar_rascunho(fatos, lista, c, agora=AGORA)
+    assert r.tentativas == 1 and r.resumo == "O SPI-3 pede atenção."
+

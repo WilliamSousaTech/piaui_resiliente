@@ -24,6 +24,8 @@ Travas no código (já implementadas e testadas, contrato 5.8): ids existentes, 
 
 ## 3. Prompt de sistema proposto
 
+> **Aplicado em 2026-11-19** em `src/ia/rascunhos.py` (`SISTEMA`), com uma seção a mais, CARACTERES (só espaço e hífen comuns). A regra de proporção continua sendo proposta: a equipe precisa confirmar. Os limites vêm das constantes do código.
+
 Compatível com o validador atual (mesmas regras, mesmo formato de saída). Os limites (600, 300, 6) vêm das constantes de `rascunhos.py`.
 
 ```text
@@ -53,6 +55,9 @@ Use só números da ficha, copiados exatamente (mesma vírgula, mesmo sinal, mes
 
 LINGUAGEM PROIBIDA
 Não cite lei, decreto, portaria, resolução, norma, artigo, inciso, parágrafo nem S2iD: a base legal de cada ação é da equipe. Não faça previsão nem prognóstico e não diga que algo vai acontecer ("vai secar", "vai faltar", "colapso"). Não use palavras de certeza ("certamente", "garantido", "sem dúvida"). Evite até as palavras "previsão", "prever", "garantir" e "colapso", mesmo em frase negativa.
+
+CARACTERES
+Use só letras, números, pontuação e espaço comuns. Não use hífen que não quebra linha, espaço fino ou não separável, nem caracteres invisíveis. Separe todas as palavras com um espaço comum.
 
 LEITURA DE BAIXA CONFIANÇA
 Se a ficha disser que a leitura é de baixa confiança, diga no resumo que o SPI do mês pode exagerar, porque a chuva esperada na janela é pouca, e priorize acompanhar antes de agir.
