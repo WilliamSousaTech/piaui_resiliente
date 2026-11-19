@@ -1,0 +1,120 @@
+{
+  "aviso": "MVP experimental, em calibração com S2iD/TCE-PI. Métricas de validação; o teste congelado não foi lido. A metade B da validação só é lida uma vez, ao final da busca; antes disso, nenhum número aqui vem dela.",
+  "protocolo": 1,
+  "dataset_sha256": "7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab",
+  "seed": 42,
+  "config": {
+    "idx": 30,
+    "residuo": true,
+    "regional": false,
+    "perda": "l1",
+    "ocultas": [
+      64,
+      32
+    ],
+    "dropout": 0.1,
+    "weight_decay": 0.01,
+    "lr": 0.001
+  },
+  "limites": {
+    "epocas_max": 80,
+    "paciencia": 10,
+    "lote": 512
+  },
+  "n_membros": 5,
+  "seeds_membros": [
+    10042,
+    10043,
+    10044,
+    10045,
+    10046
+  ],
+  "pesos_sha256": [
+    "e4e046b6e24b0936bc71c18e6157bd8969cb6e248e4b39a3d31cbc6bcb895888",
+    "49bac3273913cf25cbb6c71cb2dc834587294521208cd10142086898c51f62b4",
+    "7d3e7ed54ee4cc853e607a97874fac8225530a1075f701816f4fdb30c8851639",
+    "c358c98194dae118f1a4fb137f283119d9ecb4eabdecc9e97413ea7f47645aee",
+    "eee4fcf88c5fb6e10386d7ee9f81cc7c2cdd1024c68d97a13acd99f39eda540a"
+  ],
+  "colunas": [
+    "chuva_lag0",
+    "chuva_lag1",
+    "chuva_lag2",
+    "chuva_lag3",
+    "chuva_lag4",
+    "chuva_lag5",
+    "chuva_lag6",
+    "chuva_lag7",
+    "chuva_lag8",
+    "chuva_lag9",
+    "chuva_lag10",
+    "chuva_lag11",
+    "chuva_falta_lag0",
+    "chuva_falta_lag1",
+    "chuva_falta_lag2",
+    "chuva_falta_lag3",
+    "chuva_falta_lag4",
+    "chuva_falta_lag5",
+    "chuva_falta_lag6",
+    "chuva_falta_lag7",
+    "chuva_falta_lag8",
+    "chuva_falta_lag9",
+    "chuva_falta_lag10",
+    "chuva_falta_lag11",
+    "spi3_lag0",
+    "spi3_lag1",
+    "spi3_lag2",
+    "spi3_ausente_lag0",
+    "spi3_ausente_lag1",
+    "spi3_ausente_lag2",
+    "spi3_baixa_lag0",
+    "spi6_lag0",
+    "spi6_lag1",
+    "spi6_lag2",
+    "spi6_ausente_lag0",
+    "spi6_ausente_lag1",
+    "spi6_ausente_lag2",
+    "spi6_baixa_lag0",
+    "mes_alvo_sin",
+    "mes_alvo_cos",
+    "clim_mm_alvo",
+    "base_alvo_spi3_h1",
+    "base_alvo_spi6_h1"
+  ],
+  "alvos": [
+    "alvo_spi3_h1",
+    "alvo_spi6_h1"
+  ],
+  "corte_b": "2018-09",
+  "limiares_alerta": {
+    "alvo_spi3_h1": -1.0,
+    "alvo_spi6_h1": -0.95
+  },
+  "rodadas": {
+    "1": 40,
+    "2": 20,
+    "parada": "20 tentativas seguidas sem ganho de pelo menos 0.0005 no MAE médio da metade A"
+  },
+  "margens_a": {
+    "alvo_spi3_h1": 0.45853284001350403,
+    "alvo_spi6_h1": 0.33126991987228394
+  },
+  "margem_por_estacao_a": {
+    "alvo_spi3_h1": {
+      "chuvosa": 0.612125813961029,
+      "seca": 0.2606261372566223
+    },
+    "alvo_spi6_h1": {
+      "chuvosa": 0.5618080496788025,
+      "seca": 0.07619328796863556
+    }
+  },
+  "razao_dispersao_a": {
+    "alvo_spi3_h1": 5.026626110076904,
+    "alvo_spi6_h1": 3.720026969909668
+  },
+  "tentativa_vencedora": {
+    "idx": 30,
+    "mae_medio_a": 0.2296464498061394
+  }
+}

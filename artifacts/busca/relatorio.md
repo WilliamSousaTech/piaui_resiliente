@@ -113,4 +113,84 @@ A tentativa vencedora foi escolhida entre várias nos mesmos dados: o MAE dela n
 | 30 | não | não | mse | (64, 32) | 0.1 | 0.001 | 0.003 | 2 | 0,363 | 0,248 | 0,3057 |
 | 17 | não | sim | huber | (16,) | 0.3 | 0.0001 | 0.003 | 16 | 0,360 | 0,266 | 0,3131 |
 
+## Confirmação na metade B (lida uma única vez)
+
+6048 linhas, meses-alvo a partir de 2018-09. Conjunto de 5 redes da configuração vencedora. Baselines ajustados no treino (Ridge com alfa escolhido na metade A).
+
+### alvo_spi3_h1
+
+| Modelo | MAE | RMSE | Viés | Seca: precisão | Seca: revocação | Seca: F1 | Acerto de classe |
+|---|---|---|---|---|---|---|---|
+| Persistência | 0,638 | 0,831 | -0,015 | 0,284 | 0,299 | 0,291 | 0,680 |
+| Climatologia | 0,752 | 0,922 | -0,458 | — | 0,000 | — | 0,701 |
+| Parcial + climatologia | 0,414 | 0,641 | -0,235 | 0,545 | 0,263 | 0,355 | 0,794 |
+| Ridge | 0,512 | 0,695 | -0,133 | 0,286 | 0,072 | 0,115 | 0,744 |
+| Floresta aleatória | 0,486 | 0,692 | -0,148 | 0,234 | 0,044 | 0,074 | 0,761 |
+| Rede final (conjunto) | 0,395 | 0,626 | -0,178 | 0,561 | 0,255 | 0,351 | 0,809 |
+
+Prever sempre "normal" acertaria 0,701 das classes: o acerto de classe só vale acima disso.
+
+- Rede final − Persistência (persistência): diferença de MAE -0,2432 [-0,3490; -0,1493] (95%, bootstrap de 28 meses): a rede erra menos (intervalo inteiro abaixo de zero).
+- Rede final − Parcial + climatologia (melhor baseline): diferença de MAE -0,0186 [-0,0380; 0,0003] (95%, bootstrap de 28 meses): diferença indistinguível de ruído (o intervalo contém zero).
+
+Alerta de seca com o limiar ajustado na metade A (a previsão dispara o alerta quando o SPI previsto fica abaixo do limiar; seca real continua sendo SPI <= -1):
+
+| Modelo | Limiar | Precisão | Revocação | F1 | Secas reais pegas | Alarmes falsos |
+|---|---|---|---|---|---|---|
+| Persistência | -0,90 | 0,248 | 0,319 | 0,279 | 80 de 251 | 242 |
+| Climatologia | -1,50 | — | 0,000 | — | 0 de 251 | 0 |
+| Parcial + climatologia | -1,00 | 0,545 | 0,263 | 0,355 | 66 de 251 | 55 |
+| Ridge | -0,75 | 0,314 | 0,199 | 0,244 | 50 de 251 | 109 |
+| Floresta aleatória | -0,70 | 0,200 | 0,163 | 0,180 | 41 de 251 | 164 |
+| Rede final (conjunto) | -1,00 | 0,561 | 0,255 | 0,351 | 64 de 251 | 50 |
+
+Margem de erro (80% dos erros na metade A), cobertura obtida na metade B:
+
+| Margem | Valor | Cobertura B | Estação chuvosa | Estação seca |
+|---|---|---|---|---|
+| Global | ±0,459 | 0,691 | 0,537 | 0,844 |
+| Por estação | chuvosa ±0,612, seca ±0,261 | 0,698 | 0,661 | 0,736 |
+| Proporcional à dispersão do conjunto | ±0,474 em média | 0,718 | 0,599 | 0,837 |
+
+### alvo_spi6_h1
+
+| Modelo | MAE | RMSE | Viés | Seca: precisão | Seca: revocação | Seca: F1 | Acerto de classe |
+|---|---|---|---|---|---|---|---|
+| Persistência | 0,473 | 0,665 | -0,008 | 0,297 | 0,349 | 0,321 | 0,755 |
+| Climatologia | 0,790 | 0,944 | -0,592 | — | 0,000 | — | 0,669 |
+| Parcial + climatologia | 0,326 | 0,561 | -0,198 | 0,296 | 0,270 | 0,282 | 0,836 |
+| Ridge | 0,369 | 0,571 | -0,123 | 0,275 | 0,238 | 0,255 | 0,821 |
+| Floresta aleatória | 0,337 | 0,558 | -0,122 | 0,333 | 0,230 | 0,272 | 0,825 |
+| Rede final (conjunto) | 0,309 | 0,545 | -0,156 | 0,297 | 0,262 | 0,278 | 0,843 |
+
+Prever sempre "normal" acertaria 0,669 das classes: o acerto de classe só vale acima disso.
+
+- Rede final − Persistência (persistência): diferença de MAE -0,1641 [-0,2286; -0,1000] (95%, bootstrap de 28 meses): a rede erra menos (intervalo inteiro abaixo de zero).
+- Rede final − Parcial + climatologia (melhor baseline): diferença de MAE -0,0169 [-0,0329; -0,0019] (95%, bootstrap de 28 meses): a rede erra menos (intervalo inteiro abaixo de zero).
+
+Alerta de seca com o limiar ajustado na metade A (a previsão dispara o alerta quando o SPI previsto fica abaixo do limiar; seca real continua sendo SPI <= -1):
+
+| Modelo | Limiar | Precisão | Revocação | F1 | Secas reais pegas | Alarmes falsos |
+|---|---|---|---|---|---|---|
+| Persistência | -0,90 | 0,234 | 0,357 | 0,283 | 45 de 126 | 147 |
+| Climatologia | -1,50 | — | 0,000 | — | 0 de 126 | 0 |
+| Parcial + climatologia | -0,95 | 0,279 | 0,310 | 0,293 | 39 de 126 | 101 |
+| Ridge | -0,80 | 0,218 | 0,341 | 0,266 | 43 de 126 | 154 |
+| Floresta aleatória | -0,95 | 0,317 | 0,254 | 0,282 | 32 de 126 | 69 |
+| Rede final (conjunto) | -0,95 | 0,285 | 0,294 | 0,289 | 37 de 126 | 93 |
+
+Margem de erro (80% dos erros na metade A), cobertura obtida na metade B:
+
+| Margem | Valor | Cobertura B | Estação chuvosa | Estação seca |
+|---|---|---|---|---|
+| Global | ±0,331 | 0,689 | 0,455 | 0,923 |
+| Por estação | chuvosa ±0,562, seca ±0,076 | 0,722 | 0,656 | 0,787 |
+| Proporcional à dispersão do conjunto | ±0,312 em média | 0,710 | 0,490 | 0,931 |
+
+## Leitura
+
+- Rede final supera a persistência em todas as cabeças: sim.
+- Rede final supera o melhor baseline em todas as cabeças: não.
+- A metade B não participou de escolha alguma (nem de baseline). Ela é uma medida honesta, mas de 28 meses de uma só região: o teste congelado continua sendo a medida final.
+
 MVP experimental, em calibração com S2iD/TCE-PI. Métricas de validação; o teste congelado não foi lido. A metade B da validação só é lida uma vez, ao final da busca; antes disso, nenhum número aqui vem dela.
