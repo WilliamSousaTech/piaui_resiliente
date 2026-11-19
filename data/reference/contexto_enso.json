@@ -1,0 +1,62 @@
+{
+  "versao": 1,
+  "obtido_em": "2026-11-18",
+  "transcrito_de": "páginas oficiais abertas em 2026-11-18; os textos são paráfrases e os números foram copiados da fonte",
+  "fontes": [
+    {
+      "id": "cpc",
+      "instituicao": "NOAA/NWS Climate Prediction Center (CPC)",
+      "titulo": "ENSO Diagnostic Discussion",
+      "emitido_em": "2026-11-12",
+      "url": "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso_advisory/ensodisc.shtml",
+      "proxima_atualizacao": "2026-12-10"
+    },
+    {
+      "id": "inmet",
+      "instituicao": "INMET, com INPE, ANA, CEMADEN, SGB, SEDEC e CENSIPAM",
+      "titulo": "Painel El Niño 2026-2027, boletim mensal nº 5 (outubro de 2026)",
+      "emitido_em": "2026-10-29",
+      "url": "https://portal.inmet.gov.br/noticias/painel-el-nino-boletim-de-outubro-e-divulgado",
+      "url_documento": "https://portal.inmet.gov.br/uploads/notastecnicas/Painel-El-Ni%C3%B1o-5-edi%C3%A7%C3%A3o1.pdf"
+    }
+  ],
+  "situacao": {
+    "fonte": "cpc",
+    "status_alerta": "El Niño Advisory",
+    "resumo_pt": "O El Niño está em curso e continua se intensificando.",
+    "forca_pt": "forte a muito forte",
+    "nino34_c": 2.5,
+    "prob_forte_ou_muito_forte_min_pct": 79,
+    "periodo_forte_pt": "até janeiro-março de 2027",
+    "prob_evento_historico_pct": 60,
+    "periodo_historico_pt": "outubro-dezembro e novembro-janeiro",
+    "impactos_pt": "As chances de impactos típicos de El Niño são maiores, mas não garantidas."
+  },
+  "leituras": [
+    {
+      "fonte": "inmet",
+      "escopo_pt": "Nordeste, novembro de 2026 a janeiro de 2027",
+      "texto": "O INMET aponta condições favoráveis a chuva abaixo da normal em grande parte do Norte e em áreas do Nordeste e do Centro-Oeste."
+    },
+    {
+      "fonte": "inmet",
+      "escopo_pt": "Semiárido, novembro de 2026 a janeiro de 2027",
+      "texto": "Na previsão agrometeorológica do boletim, chuva abaixo da média e temperatura acima da média devem manter a baixa disponibilidade de água no semiárido e no leste do Nordeste."
+    },
+    {
+      "fonte": "inmet",
+      "escopo_pt": "Piauí, dezembro e janeiro",
+      "texto": "O boletim prevê recuperação gradual da umidade do solo no sudoeste do Piauí, além de áreas da Bahia e do Maranhão."
+    },
+    {
+      "fonte": "inmet",
+      "escopo_pt": "Nordeste, agosto e setembro de 2026",
+      "texto": "O Monitor de Secas, citado no boletim, apontou o Nordeste com a seca mais grave do país nesses meses e a expectativa é de agravamento nos meses seguintes."
+    }
+  ],
+  "limites": [
+    "São leituras regionais de instituições oficiais, copiadas aqui como contexto.",
+    "Não são previsão do nosso modelo, que ainda não existe, e este painel não calcula previsão por município.",
+    "El Niño aumenta a chance de chuva abaixo da normal em parte do Nordeste, mas não garante seca em um município."
+  ]
+}
