@@ -1,0 +1,1035 @@
+{
+  "algoritmo_hash": "sha256",
+  "alvo": {
+    "escala_spi_meses": 3,
+    "horizonte_h": 1,
+    "janelas_spi": [
+      3,
+      6
+    ]
+  },
+  "ambiente": {
+    "bibliotecas": {
+      "PyYAML": "6.0.3",
+      "numpy": "2.5.4",
+      "pandas": "3.1.1",
+      "pyarrow": "26.0.1",
+      "pydantic": "2.14.3",
+      "scipy": "1.18.1"
+    },
+    "python": "3.14.8"
+  },
+  "arquivos": {
+    "climatologia_precip": {
+      "caminho": "artifacts/climatologia_precip.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes_calendario",
+        "mediana_mm",
+        "mediana_max_dia_mm",
+        "mediana_dias_chuva",
+        "n_amostras"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "mediana_dias_chuva": "float",
+        "mediana_max_dia_mm": "float",
+        "mediana_mm": "float",
+        "mes_calendario": "int8",
+        "n_amostras": "int16"
+      },
+      "linhas": 2592,
+      "sha256": "eafa6b28b48245f33c4b4b0d3d39e9ffda22cfdd36e84b2166ed072d8b69ffa4"
+    },
+    "cobertura_mensal": {
+      "caminho": "data/processed/cobertura_mensal.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "cobertura_dias",
+        "cobertura_pixels",
+        "valido",
+        "motivo"
+      ],
+      "dtypes": {
+        "cobertura_dias": "float",
+        "cobertura_pixels": "float",
+        "cod_ibge": "large_string",
+        "mes": "timestamp[ns]",
+        "motivo": "large_string",
+        "valido": "bool"
+      },
+      "linhas": 118584,
+      "sha256": "149039bcd041c2916896ed63ab19520b5be471ad5732a8f229f03eb1d66dd8c5"
+    },
+    "demo_observado": {
+      "caminho": "data/curated/demo_observado.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "spi3",
+        "spi3_invalid",
+        "spi3_baixa_conf",
+        "spi6",
+        "spi6_invalid",
+        "spi6_baixa_conf"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "mes": "timestamp[ns]",
+        "spi3": "float",
+        "spi3_baixa_conf": "bool",
+        "spi3_invalid": "bool",
+        "spi6": "float",
+        "spi6_baixa_conf": "bool",
+        "spi6_invalid": "bool"
+      },
+      "linhas": 118584,
+      "sha256": "e516a3abef622d09127d1f6d08fed538023b4de48f546b63e3b1ce6879d60d54"
+    },
+    "qualidade_municipio": {
+      "caminho": "data/processed/qualidade_municipio.parquet",
+      "colunas": [
+        "cod_ibge",
+        "frac_meses_validos",
+        "excluded",
+        "motivo"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "excluded": "bool",
+        "frac_meses_validos": "float",
+        "motivo": "large_string"
+      },
+      "linhas": 216,
+      "sha256": "0edaf0773db332b4f4537da5c61afb151c7d02d366e8bcd974011e6f5521ca71"
+    },
+    "raw_chirps/chirps_mensal_198101_198206.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_198101_198206.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "343982ffe9f42e7322a1c7a91a7e958f1861c2c0fb007b3c2b35ebd7e954df28"
+    },
+    "raw_chirps/chirps_mensal_198207_198312.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_198207_198312.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "aacdba64fb55085e2df14db528a09390d7b7f393d8408fc4c9068c8a0028695c"
+    },
+    "raw_chirps/chirps_mensal_198401_198506.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_198401_198506.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "fd275c7db0e476ff0de3bedb0680c735850ae6c13c18d0186d89bdd70c976056"
+    },
+    "raw_chirps/chirps_mensal_198507_198612.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_198507_198612.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "c3b4c692e3fb4ed4a8a93f34e24465b4f7c48307a67c66e4c180de96927a85ff"
+    },
+    "raw_chirps/chirps_mensal_198701_198806.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_198701_198806.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "511411ca4861ea0999bed78205e803e6a5950721349f5119bcdd70339bf0208e"
+    },
+    "raw_chirps/chirps_mensal_198807_198912.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_198807_198912.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "47185224ea3023b16a4e12407525a47bd5b3a27e1db148b5d9ea1644817d1d3b"
+    },
+    "raw_chirps/chirps_mensal_199001_199106.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_199001_199106.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "6f54dd1740c9f6d946f89ff4316cb201f2ca17d7a724e858efe0f32243b411ca"
+    },
+    "raw_chirps/chirps_mensal_199107_199212.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_199107_199212.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "bbf0c6d6ee81a73547aca0c5162d4e33c7ed1e232d5b2ff04345f580e2f3b6a1"
+    },
+    "raw_chirps/chirps_mensal_199301_199406.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_199301_199406.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "990d49f1b1211189ead65ad31a50420c3daee826ef059526d829eeb7417126b4"
+    },
+    "raw_chirps/chirps_mensal_199407_199512.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_199407_199512.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "b98eb6f9727182de58492f0b1163a33d612b0f3801b1cbb3ad5fc74a6995bede"
+    },
+    "raw_chirps/chirps_mensal_199601_199706.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_199601_199706.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "c8db87965305f5b2cae6aed42e7e7e684ee932db3be8fb40cad754d7b7c15115"
+    },
+    "raw_chirps/chirps_mensal_199707_199812.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_199707_199812.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "436397f66c7ac00f7129960b8beed68ff10fb0654f92d99260b8c3b370eca935"
+    },
+    "raw_chirps/chirps_mensal_199901_200006.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_199901_200006.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "29b06b0f12142484bfde81579d8cdb031d03309002eade287905df676b33ec67"
+    },
+    "raw_chirps/chirps_mensal_200007_200112.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_200007_200112.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "6830a26c77ec31e6d030220eadc25ec32342c81be1938178837fd7d9a2d746f1"
+    },
+    "raw_chirps/chirps_mensal_200201_200306.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_200201_200306.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "1df2971a1bbcae6f67b96fd95c621ab6aee4b2c3c2644be25daf1c9724a72c79"
+    },
+    "raw_chirps/chirps_mensal_200307_200412.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_200307_200412.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "4f484114834c4ae075b2cbdba425fdd0c3d1a45687da1825e7a3fc14eb0d7bf5"
+    },
+    "raw_chirps/chirps_mensal_200501_200606.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_200501_200606.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "859eeae3efb69b176c8e19c5bda0277200a37566aeb6e08389afe396faf3f248"
+    },
+    "raw_chirps/chirps_mensal_200607_200712.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_200607_200712.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "87a42604b23b2d718de4d3a0a730c3e6e41dc68c72cf21e5c6638aa4bac699c5"
+    },
+    "raw_chirps/chirps_mensal_200801_200906.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_200801_200906.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "78c286220a69f672d6284c84597330a81cb5d809eafdd9d4174407c29862964e"
+    },
+    "raw_chirps/chirps_mensal_200907_201012.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_200907_201012.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "65f5f68ab0830fcc9e2ddc914187c570540c52c1a2759f296f17a6ce1a35f4af"
+    },
+    "raw_chirps/chirps_mensal_201101_201206.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_201101_201206.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "496e4858ca320795e237d71bcb88875b12826e8067bb3b015b59acb4b1b94a3b"
+    },
+    "raw_chirps/chirps_mensal_201207_201312.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_201207_201312.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "1a73828ec6b33ae72eb5cced9f73fb0f0e86f663146ee05ad4c677cc17494a23"
+    },
+    "raw_chirps/chirps_mensal_201401_201506.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_201401_201506.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "09863cd00a5da10f11cbaf497fede06030fe20c35b408ed8160856293aac7199"
+    },
+    "raw_chirps/chirps_mensal_201507_201612.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_201507_201612.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "2674a90e21ec1390a79f8c635fcc88a570fe6497298ac12148c94c8c3359ecab"
+    },
+    "raw_chirps/chirps_mensal_201701_201806.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_201701_201806.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "867be001244a5db1df99988c50ecb88eecf550030a7f081f33d5a036e2a46547"
+    },
+    "raw_chirps/chirps_mensal_201807_201912.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_201807_201912.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "1c51f9cb4d8b262d3ae72d63621f68d5a7920facb11bf1955a87755eb85a1f22"
+    },
+    "raw_chirps/chirps_mensal_202001_202106.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_202001_202106.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "2750901f3b393df5d794b14e36b94313a67458ac48653cb50774d1430de1cee2"
+    },
+    "raw_chirps/chirps_mensal_202107_202212.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_202107_202212.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "8ae9b651253da238aeac3f482347837cacd827eb78479579e3e945c6450ffaca"
+    },
+    "raw_chirps/chirps_mensal_202301_202406.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_202301_202406.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "d6620c2c54511635a69754edf7d7932b266b0abed49eab0e183ad95e0cdf10a3"
+    },
+    "raw_chirps/chirps_mensal_202407_202512.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_202407_202512.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 3888,
+      "sha256": "83a388ef56c4f61313bbcbba6628585d4a33b40cb43489a3a30fff2e28f9306d"
+    },
+    "raw_chirps/chirps_mensal_202601_202609.parquet": {
+      "caminho": "data/raw/chirps/chirps_mensal_202601_202609.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes",
+        "precip_mm",
+        "precip_max_dia_mm",
+        "dias_chuva",
+        "dias_validos",
+        "dias_no_mes",
+        "pixels_validos_frac"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "dias_chuva": "float",
+        "dias_no_mes": "int16",
+        "dias_validos": "int16",
+        "mes": "timestamp[ns]",
+        "pixels_validos_frac": "float",
+        "precip_max_dia_mm": "float",
+        "precip_mm": "float"
+      },
+      "linhas": 1944,
+      "sha256": "376d066c2c2497f3402f532f2c6e75e83cc352f09d06d65f2676e3d772a84eae"
+    },
+    "referencia/malha_pi_2022.parquet": {
+      "caminho": "data/reference/malha_pi_2022.parquet",
+      "colunas": [
+        "cod_ibge",
+        "nome",
+        "uf",
+        "area_km2",
+        "geometry",
+        "situacao",
+        "no_escopo"
+      ],
+      "dtypes": {
+        "area_km2": "double",
+        "cod_ibge": "large_string",
+        "geometry": "binary",
+        "no_escopo": "bool",
+        "nome": "large_string",
+        "situacao": "large_string",
+        "uf": "large_string"
+      },
+      "linhas": 224,
+      "sha256": "db1de9488059e93f2fc584bdbe0e2680911b80a9518cad96f97f56a60b439dfc"
+    },
+    "referencia/malha_pi_2022_gee.geojson": {
+      "caminho": "data/reference/malha_pi_2022_gee.geojson",
+      "sha256": "bccef50d15630fcc37f793c6a4a4a25e6a09612a910fa417474b9d978dd9c0a9"
+    },
+    "referencia/municipios_semiarido.csv": {
+      "caminho": "data/reference/municipios_semiarido.csv",
+      "sha256": "88917f322536466040b4e60c5d192ab0b557d0263098ba70b01cf760b6e4bd84"
+    },
+    "referencia/referencia.sha256.json": {
+      "caminho": "data/reference/referencia.sha256.json",
+      "sha256": "f059796c0dcc34e2bcb2090431d869a3282292d9bcba435b402a2b14326b370b"
+    },
+    "spi_gamma_params": {
+      "caminho": "artifacts/spi_gamma_params.parquet",
+      "colunas": [
+        "cod_ibge",
+        "mes_calendario",
+        "escala_meses",
+        "q",
+        "shape",
+        "scale",
+        "n_amostras",
+        "n_positivos",
+        "valido"
+      ],
+      "dtypes": {
+        "cod_ibge": "large_string",
+        "escala_meses": "int8",
+        "mes_calendario": "int8",
+        "n_amostras": "int32",
+        "n_positivos": "int32",
+        "q": "double",
+        "scale": "double",
+        "shape": "double",
+        "valido": "bool"
+      },
+      "linhas": 5184,
+      "sha256": "908bf3b28df6970c34b294d7707f45875c5d02542135e2ea0bb646e945bca1ca"
+    }
+  },
+  "dataset_sha256": "7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab",
+  "escopo": {
+    "fonte_semiarido": "Res. CONDEL/SUDENE 150/2021 (1.427 municípios; 215 no PI) + transição da Res. 176/2024 (1 no PI: Luís Correia, fonte secundária); situação dos 50 municípios após 03/01/2025 não confirmada",
+    "incluir_transicao": true,
+    "malha_municipal_ano": 2022,
+    "modo": "semiarido"
+  },
+  "extras": {
+    "demo": {
+      "escalas_spi": [
+        3,
+        6
+      ],
+      "n_excluidos": 0,
+      "n_meses": 549,
+      "n_municipios": 216,
+      "spi_calibrado_ate": "2015-12",
+      "spi_treino_in_sample": true
+    }
+  },
+  "fontes": {
+    "chirps": {
+      "agregacao_mensal": "soma",
+      "banda": "precipitation",
+      "escala_m": 5566,
+      "gee_id": "UCSB-CHG/CHIRPS/DAILY",
+      "limiar_dia_chuva_mm": 1.0,
+      "reducer_espacial": "media",
+      "unidade": "mm/dia"
+    },
+    "mapbiomas": {
+      "colecao": 10,
+      "defasagem_anos": 1
+    },
+    "s2id": {
+      "cobrade": [
+        "1.4.1.1.0",
+        "1.4.1.2.0"
+      ],
+      "entra_como_feature": false,
+      "uso": "auditoria"
+    }
+  },
+  "gerado_em_utc": "2026-11-19T01:48:59Z",
+  "janela": {
+    "fim": "2026-09",
+    "inicio": "1981-01"
+  },
+  "maturity": "MVP experimental — em calibração com S2iD/TCE-PI",
+  "params_sha256": "492769e4986d150b2bdf6148bc649afe0454dca33065f4ebdf99626356303a08",
+  "projeto": {
+    "equipe": "V.I.G.I.A.",
+    "nome": "Piauí Resiliente",
+    "seed": 42,
+    "versao_params": "0.3.1"
+  },
+  "referencia": {
+    "contagens": {
+      "escopo": 216,
+      "fora": 8,
+      "malha": 224,
+      "res150": 215,
+      "transicao": 1
+    },
+    "conteudo_sha256": "60c8ceb4a3bb2bb8e5104bb7b4d1524d686c7b34c67d28eb978b104d71953ec6",
+    "entradas": {
+      "PI_Municipios_2022.zip": "08f7857890d90fde936e2d3011dfc63de6ddaf6366f18aaef5a4881b9dabc0eb",
+      "semiarido_res150_2021.csv": "c91cafd8095d30b9c7966319fe3de55bd2a2080701fc2f046d366dd99746e60e",
+      "semiarido_transicao_res176_2024.csv": "8866d92817351282404c5ab3cefebe0a121cc3b4cbbd8b7829328641b8ed09d8"
+    },
+    "parametros": {
+      "crs_gee": "EPSG:4326",
+      "crs_origem": "EPSG:4674",
+      "incluir_transicao": true,
+      "malha_ano": 2022,
+      "polo": "2207801",
+      "tolerancia_graus": 0.001
+    }
+  },
+  "split": {
+    "embargo_meses": 5,
+    "inicio": "1981-01",
+    "teste_fim": "2025-12",
+    "teste_ini": "2021-06",
+    "teste_liberado": false,
+    "treino_fim": "2015-12",
+    "val_fim": "2020-12",
+    "val_ini": "2016-06"
+  },
+  "versao_manifest": 1
+}
