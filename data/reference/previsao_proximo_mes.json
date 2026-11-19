@@ -1,0 +1,3315 @@
+{
+  "versao": 1,
+  "aviso": "MVP experimental, em calibração com S2iD/TCE-PI. É uma previsão com margem de erro, não uma certeza: na validação o modelo errou, em média, bem menos que a persistência, mas pegou só uma parte das secas reais.",
+  "gerado_em": "2026-11-19",
+  "origem": "2026-09",
+  "alvo": "2026-10",
+  "horizonte_meses": 1,
+  "alvo_ja_passou": true,
+  "dataset_sha256": "7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab",
+  "cabecas": [
+    {
+      "id": "spi3",
+      "escala": 3,
+      "nome_alvo": "alvo_spi3_h1",
+      "limiar_alerta": -1.0,
+      "margem": 0.662,
+      "margem_q": 0.8,
+      "margem_cobertura_validacao": 0.8,
+      "margem_cobertura_2a_metade": 0.76,
+      "margem_estavel": true,
+      "n_linhas_validacao": 6048,
+      "mae": 0.395,
+      "mae_persistencia": 0.638,
+      "mae_parcial_climatologica": 0.414,
+      "mae_mes_alvo": 0.562,
+      "mae_mes_alvo_persistencia": 0.579,
+      "acerto_classe": 0.809,
+      "acerto_sempre_normal": 0.701,
+      "secas_reais": 251,
+      "secas_pegas": 64,
+      "alarmes_falsos": 50,
+      "revocacao": 0.255,
+      "precisao": 0.561
+    },
+    {
+      "id": "spi6",
+      "escala": 6,
+      "nome_alvo": "alvo_spi6_h1",
+      "limiar_alerta": -0.95,
+      "margem": 0.549,
+      "margem_q": 0.8,
+      "margem_cobertura_validacao": 0.8,
+      "margem_cobertura_2a_metade": 0.713,
+      "margem_estavel": false,
+      "n_linhas_validacao": 6048,
+      "mae": 0.309,
+      "mae_persistencia": 0.473,
+      "mae_parcial_climatologica": 0.326,
+      "mae_mes_alvo": 0.323,
+      "mae_mes_alvo_persistencia": 0.578,
+      "acerto_classe": 0.843,
+      "acerto_sempre_normal": 0.669,
+      "secas_reais": 126,
+      "secas_pegas": 37,
+      "alarmes_falsos": 93,
+      "revocacao": 0.294,
+      "precisao": 0.285
+    }
+  ],
+  "resumo": {
+    "n_municipios": 216,
+    "n_alerta_algum": 9,
+    "n_alerta_spi3": 3,
+    "n_alerta_spi6": 6,
+    "n_baixa_conf_spi3": 91,
+    "n_baixa_conf_spi6": 74
+  },
+  "municipios": [
+    {
+      "cod_ibge": "2200053",
+      "spi3": {
+        "previsto": 0.33,
+        "dispersao": 0.04,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.14,
+        "dispersao": 0.04,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2200103",
+      "spi3": {
+        "previsto": -0.09,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.7,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2200202",
+      "spi3": {
+        "previsto": 0.16,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.61,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2200251",
+      "spi3": {
+        "previsto": -0.24,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.55,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2200277",
+      "spi3": {
+        "previsto": -0.08,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.57,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2200301",
+      "spi3": {
+        "previsto": -0.43,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.84,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2200400",
+      "spi3": {
+        "previsto": -1.1,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": true
+      },
+      "spi6": {
+        "previsto": -0.67,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2200459",
+      "spi3": {
+        "previsto": 0.15,
+        "dispersao": 0.11,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.17,
+        "dispersao": 0.09,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2200509",
+      "spi3": {
+        "previsto": 0.04,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.55,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2200608",
+      "spi3": {
+        "previsto": -0.01,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.71,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2200707",
+      "spi3": {
+        "previsto": 0.35,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.12,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2200905",
+      "spi3": {
+        "previsto": 0.11,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.89,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2200954",
+      "spi3": {
+        "previsto": 0.03,
+        "dispersao": 0.09,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.44,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201002",
+      "spi3": {
+        "previsto": -0.01,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.67,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201051",
+      "spi3": {
+        "previsto": 0.29,
+        "dispersao": 0.02,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.9,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201101",
+      "spi3": {
+        "previsto": 0.06,
+        "dispersao": 0.11,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.19,
+        "dispersao": 0.09,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201176",
+      "spi3": {
+        "previsto": 0.04,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.79,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201200",
+      "spi3": {
+        "previsto": -0.44,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.33,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201309",
+      "spi3": {
+        "previsto": 0.17,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.15,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201408",
+      "spi3": {
+        "previsto": -0.09,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.72,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201507",
+      "spi3": {
+        "previsto": -0.4,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.14,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201556",
+      "spi3": {
+        "previsto": 0.29,
+        "dispersao": 0.09,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.01,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201572",
+      "spi3": {
+        "previsto": -0.13,
+        "dispersao": 0.09,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.43,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201606",
+      "spi3": {
+        "previsto": -0.43,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.77,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201705",
+      "spi3": {
+        "previsto": 0.11,
+        "dispersao": 0.11,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.0,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201739",
+      "spi3": {
+        "previsto": 0.51,
+        "dispersao": 0.03,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.04,
+        "dispersao": 0.03,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201770",
+      "spi3": {
+        "previsto": -0.42,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.79,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201804",
+      "spi3": {
+        "previsto": -0.2,
+        "dispersao": 0.09,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.58,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201903",
+      "spi3": {
+        "previsto": -0.28,
+        "dispersao": 0.1,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.51,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201919",
+      "spi3": {
+        "previsto": 0.07,
+        "dispersao": 0.01,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.13,
+        "dispersao": 0.0,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201929",
+      "spi3": {
+        "previsto": 0.3,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.09,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201945",
+      "spi3": {
+        "previsto": -0.94,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.74,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201960",
+      "spi3": {
+        "previsto": -0.23,
+        "dispersao": 0.02,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.04,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2201988",
+      "spi3": {
+        "previsto": 0.03,
+        "dispersao": 0.1,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.03,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202000",
+      "spi3": {
+        "previsto": -0.09,
+        "dispersao": 0.02,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.03,
+        "dispersao": 0.0,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202026",
+      "spi3": {
+        "previsto": 0.35,
+        "dispersao": 0.01,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.59,
+        "dispersao": 0.0,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202059",
+      "spi3": {
+        "previsto": -0.65,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.55,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202075",
+      "spi3": {
+        "previsto": 0.08,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.5,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202091",
+      "spi3": {
+        "previsto": 0.05,
+        "dispersao": 0.04,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.5,
+        "dispersao": 0.03,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202109",
+      "spi3": {
+        "previsto": 0.39,
+        "dispersao": 0.09,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.32,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202117",
+      "spi3": {
+        "previsto": 0.38,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.02,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202133",
+      "spi3": {
+        "previsto": -0.09,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.52,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202174",
+      "spi3": {
+        "previsto": -0.37,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.03,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202208",
+      "spi3": {
+        "previsto": -1.03,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": true
+      },
+      "spi6": {
+        "previsto": -0.75,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202251",
+      "spi3": {
+        "previsto": 0.17,
+        "dispersao": 0.09,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.04,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202307",
+      "spi3": {
+        "previsto": 0.25,
+        "dispersao": 0.15,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.1,
+        "dispersao": 0.11,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202406",
+      "spi3": {
+        "previsto": -0.47,
+        "dispersao": 0.04,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.71,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202455",
+      "spi3": {
+        "previsto": 0.3,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.02,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202505",
+      "spi3": {
+        "previsto": 0.32,
+        "dispersao": 0.09,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.06,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202539",
+      "spi3": {
+        "previsto": -0.64,
+        "dispersao": 0.03,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.25,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202554",
+      "spi3": {
+        "previsto": 0.14,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.36,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202604",
+      "spi3": {
+        "previsto": -0.09,
+        "dispersao": 0.03,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.69,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202653",
+      "spi3": {
+        "previsto": -0.44,
+        "dispersao": 0.02,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.16,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202703",
+      "spi3": {
+        "previsto": -0.18,
+        "dispersao": 0.02,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.01,
+        "dispersao": 0.0,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202711",
+      "spi3": {
+        "previsto": -0.85,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.65,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202729",
+      "spi3": {
+        "previsto": 0.19,
+        "dispersao": 0.01,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.2,
+        "dispersao": 0.0,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202737",
+      "spi3": {
+        "previsto": -0.71,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.72,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202752",
+      "spi3": {
+        "previsto": 0.08,
+        "dispersao": 0.1,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.19,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202778",
+      "spi3": {
+        "previsto": 0.11,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.53,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202802",
+      "spi3": {
+        "previsto": 0.4,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.18,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202851",
+      "spi3": {
+        "previsto": 0.19,
+        "dispersao": 0.1,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.07,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2202901",
+      "spi3": {
+        "previsto": -0.09,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.31,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203008",
+      "spi3": {
+        "previsto": -0.31,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.43,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203107",
+      "spi3": {
+        "previsto": 0.34,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.03,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203206",
+      "spi3": {
+        "previsto": -0.04,
+        "dispersao": 0.09,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.28,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203230",
+      "spi3": {
+        "previsto": 0.03,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.31,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203255",
+      "spi3": {
+        "previsto": -0.11,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.47,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203271",
+      "spi3": {
+        "previsto": 0.43,
+        "dispersao": 0.03,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.2,
+        "dispersao": 0.03,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203305",
+      "spi3": {
+        "previsto": -0.52,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.53,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203354",
+      "spi3": {
+        "previsto": 0.06,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.1,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203404",
+      "spi3": {
+        "previsto": 0.01,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.72,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203420",
+      "spi3": {
+        "previsto": 0.26,
+        "dispersao": 0.02,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.06,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203453",
+      "spi3": {
+        "previsto": 0.25,
+        "dispersao": 0.09,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.0,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203503",
+      "spi3": {
+        "previsto": 0.1,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.82,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203602",
+      "spi3": {
+        "previsto": 0.0,
+        "dispersao": 0.13,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.14,
+        "dispersao": 0.1,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203701",
+      "spi3": {
+        "previsto": -0.46,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.27,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203750",
+      "spi3": {
+        "previsto": 0.08,
+        "dispersao": 0.11,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.05,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203800",
+      "spi3": {
+        "previsto": 0.32,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.01,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203859",
+      "spi3": {
+        "previsto": 0.32,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.46,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2203909",
+      "spi3": {
+        "previsto": 0.08,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.29,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2204006",
+      "spi3": {
+        "previsto": 0.06,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.81,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2204105",
+      "spi3": {
+        "previsto": 0.18,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.43,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2204154",
+      "spi3": {
+        "previsto": 0.13,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.46,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2204204",
+      "spi3": {
+        "previsto": 0.02,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.53,
+        "dispersao": 0.04,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2204303",
+      "spi3": {
+        "previsto": 0.31,
+        "dispersao": 0.02,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.3,
+        "dispersao": 0.01,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2204352",
+      "spi3": {
+        "previsto": -0.21,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.49,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2204402",
+      "spi3": {
+        "previsto": 0.04,
+        "dispersao": 0.1,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.28,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2204550",
+      "spi3": {
+        "previsto": 0.28,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.02,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2204600",
+      "spi3": {
+        "previsto": 0.08,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.64,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2204659",
+      "spi3": {
+        "previsto": 0.01,
+        "dispersao": 0.01,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.42,
+        "dispersao": 0.0,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2204709",
+      "spi3": {
+        "previsto": 0.09,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.67,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2204808",
+      "spi3": {
+        "previsto": -0.05,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.73,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2204907",
+      "spi3": {
+        "previsto": 0.32,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.45,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205003",
+      "spi3": {
+        "previsto": 0.14,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.45,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205102",
+      "spi3": {
+        "previsto": 0.26,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.03,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205151",
+      "spi3": {
+        "previsto": 0.38,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.41,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205201",
+      "spi3": {
+        "previsto": 0.0,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.45,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205250",
+      "spi3": {
+        "previsto": -0.08,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.72,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205276",
+      "spi3": {
+        "previsto": -0.93,
+        "dispersao": 0.04,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.7,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205300",
+      "spi3": {
+        "previsto": 0.02,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.33,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205359",
+      "spi3": {
+        "previsto": 0.08,
+        "dispersao": 0.11,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.05,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205409",
+      "spi3": {
+        "previsto": -0.53,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.28,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205458",
+      "spi3": {
+        "previsto": -0.67,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.07,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205508",
+      "spi3": {
+        "previsto": -0.87,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.56,
+        "dispersao": 0.0,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205516",
+      "spi3": {
+        "previsto": -0.18,
+        "dispersao": 0.02,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.46,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205524",
+      "spi3": {
+        "previsto": -0.09,
+        "dispersao": 0.09,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.27,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205532",
+      "spi3": {
+        "previsto": 0.39,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.17,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205540",
+      "spi3": {
+        "previsto": 0.07,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.61,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205557",
+      "spi3": {
+        "previsto": -1.01,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": true
+      },
+      "spi6": {
+        "previsto": -0.46,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205565",
+      "spi3": {
+        "previsto": 0.27,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.12,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205573",
+      "spi3": {
+        "previsto": -0.28,
+        "dispersao": 0.02,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.39,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205581",
+      "spi3": {
+        "previsto": -0.36,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.65,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205599",
+      "spi3": {
+        "previsto": -0.04,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.82,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205607",
+      "spi3": {
+        "previsto": 0.15,
+        "dispersao": 0.09,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.08,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205706",
+      "spi3": {
+        "previsto": -0.15,
+        "dispersao": 0.01,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.14,
+        "dispersao": 0.0,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205805",
+      "spi3": {
+        "previsto": -0.56,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.23,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205854",
+      "spi3": {
+        "previsto": -0.48,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.06,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205904",
+      "spi3": {
+        "previsto": 0.15,
+        "dispersao": 0.12,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.08,
+        "dispersao": 0.1,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2205953",
+      "spi3": {
+        "previsto": 0.44,
+        "dispersao": 0.03,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.43,
+        "dispersao": 0.03,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206050",
+      "spi3": {
+        "previsto": -0.14,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.49,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206100",
+      "spi3": {
+        "previsto": -0.41,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.1,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206209",
+      "spi3": {
+        "previsto": -0.61,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.01,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206308",
+      "spi3": {
+        "previsto": -0.07,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.57,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206357",
+      "spi3": {
+        "previsto": 0.16,
+        "dispersao": 0.01,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.19,
+        "dispersao": 0.0,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206407",
+      "spi3": {
+        "previsto": -0.22,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.68,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206506",
+      "spi3": {
+        "previsto": -0.25,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.57,
+        "dispersao": 0.04,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206605",
+      "spi3": {
+        "previsto": -0.2,
+        "dispersao": 0.09,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.4,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206654",
+      "spi3": {
+        "previsto": 0.0,
+        "dispersao": 0.12,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.23,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206670",
+      "spi3": {
+        "previsto": -0.55,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.36,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206696",
+      "spi3": {
+        "previsto": -0.22,
+        "dispersao": 0.02,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.22,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206704",
+      "spi3": {
+        "previsto": 0.18,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.25,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206720",
+      "spi3": {
+        "previsto": -0.4,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.51,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206753",
+      "spi3": {
+        "previsto": -0.85,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.58,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206803",
+      "spi3": {
+        "previsto": -0.37,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.04,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206902",
+      "spi3": {
+        "previsto": 0.2,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.7,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2206951",
+      "spi3": {
+        "previsto": -0.89,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.96,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": true
+      }
+    },
+    {
+      "cod_ibge": "2207009",
+      "spi3": {
+        "previsto": 0.07,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.6,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207108",
+      "spi3": {
+        "previsto": -0.03,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.68,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207207",
+      "spi3": {
+        "previsto": 0.16,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.38,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207306",
+      "spi3": {
+        "previsto": 0.47,
+        "dispersao": 0.11,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.01,
+        "dispersao": 0.09,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207355",
+      "spi3": {
+        "previsto": 0.15,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.12,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207405",
+      "spi3": {
+        "previsto": 0.27,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.12,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207504",
+      "spi3": {
+        "previsto": 0.18,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.49,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207553",
+      "spi3": {
+        "previsto": 0.14,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.55,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207603",
+      "spi3": {
+        "previsto": -0.07,
+        "dispersao": 0.1,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.24,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207702",
+      "spi3": {
+        "previsto": 0.19,
+        "dispersao": 0.01,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.22,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207751",
+      "spi3": {
+        "previsto": -0.01,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.72,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207777",
+      "spi3": {
+        "previsto": 0.22,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.57,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207793",
+      "spi3": {
+        "previsto": -0.78,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.73,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207801",
+      "spi3": {
+        "previsto": 0.37,
+        "dispersao": 0.04,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.21,
+        "dispersao": 0.04,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207850",
+      "spi3": {
+        "previsto": 0.31,
+        "dispersao": 0.13,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.11,
+        "dispersao": 0.1,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207900",
+      "spi3": {
+        "previsto": 0.21,
+        "dispersao": 0.01,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.22,
+        "dispersao": 0.0,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207934",
+      "spi3": {
+        "previsto": 0.32,
+        "dispersao": 0.11,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.02,
+        "dispersao": 0.09,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2207959",
+      "spi3": {
+        "previsto": 0.36,
+        "dispersao": 0.09,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.09,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2208007",
+      "spi3": {
+        "previsto": -0.05,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.56,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2208106",
+      "spi3": {
+        "previsto": -0.04,
+        "dispersao": 0.03,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.96,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": true
+      }
+    },
+    {
+      "cod_ibge": "2208205",
+      "spi3": {
+        "previsto": 0.18,
+        "dispersao": 0.02,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.64,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2208304",
+      "spi3": {
+        "previsto": -0.29,
+        "dispersao": 0.02,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.21,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2208403",
+      "spi3": {
+        "previsto": -0.25,
+        "dispersao": 0.03,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.41,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2208502",
+      "spi3": {
+        "previsto": -0.32,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.27,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2208601",
+      "spi3": {
+        "previsto": -0.25,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.96,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": true
+      }
+    },
+    {
+      "cod_ibge": "2208650",
+      "spi3": {
+        "previsto": 0.2,
+        "dispersao": 0.04,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.12,
+        "dispersao": 0.04,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2208700",
+      "spi3": {
+        "previsto": -0.3,
+        "dispersao": 0.11,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.5,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2208809",
+      "spi3": {
+        "previsto": 0.01,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.76,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2208858",
+      "spi3": {
+        "previsto": -0.12,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.32,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2208874",
+      "spi3": {
+        "previsto": 0.13,
+        "dispersao": 0.09,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.11,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209005",
+      "spi3": {
+        "previsto": 0.21,
+        "dispersao": 0.1,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.04,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209104",
+      "spi3": {
+        "previsto": 0.24,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.52,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209153",
+      "spi3": {
+        "previsto": -0.08,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.99,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": true
+      }
+    },
+    {
+      "cod_ibge": "2209302",
+      "spi3": {
+        "previsto": -0.01,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.34,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209351",
+      "spi3": {
+        "previsto": -0.01,
+        "dispersao": 0.09,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.56,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209377",
+      "spi3": {
+        "previsto": -0.04,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.66,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209401",
+      "spi3": {
+        "previsto": -0.2,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.62,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209450",
+      "spi3": {
+        "previsto": -0.15,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.84,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209500",
+      "spi3": {
+        "previsto": 0.32,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.4,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209559",
+      "spi3": {
+        "previsto": 0.27,
+        "dispersao": 0.1,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.1,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209609",
+      "spi3": {
+        "previsto": -0.39,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -1.11,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": true
+      }
+    },
+    {
+      "cod_ibge": "2209658",
+      "spi3": {
+        "previsto": 0.31,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.19,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209708",
+      "spi3": {
+        "previsto": 0.21,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.23,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209757",
+      "spi3": {
+        "previsto": -0.02,
+        "dispersao": 0.1,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.3,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209807",
+      "spi3": {
+        "previsto": 0.05,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.68,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209856",
+      "spi3": {
+        "previsto": -0.09,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.73,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209872",
+      "spi3": {
+        "previsto": 0.28,
+        "dispersao": 0.02,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.06,
+        "dispersao": 0.0,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209906",
+      "spi3": {
+        "previsto": -0.51,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -1.04,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": true
+      }
+    },
+    {
+      "cod_ibge": "2209955",
+      "spi3": {
+        "previsto": -0.03,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.76,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2209971",
+      "spi3": {
+        "previsto": -0.46,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.27,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210003",
+      "spi3": {
+        "previsto": 0.21,
+        "dispersao": 0.11,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.1,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210052",
+      "spi3": {
+        "previsto": -0.41,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.28,
+        "dispersao": 0.01,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210102",
+      "spi3": {
+        "previsto": 0.23,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.15,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210201",
+      "spi3": {
+        "previsto": 0.22,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.44,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210300",
+      "spi3": {
+        "previsto": -0.15,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.39,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210359",
+      "spi3": {
+        "previsto": 0.09,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.06,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210375",
+      "spi3": {
+        "previsto": -0.17,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.64,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210383",
+      "spi3": {
+        "previsto": -0.24,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.9,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210391",
+      "spi3": {
+        "previsto": 0.25,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.18,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210409",
+      "spi3": {
+        "previsto": 0.1,
+        "dispersao": 0.03,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.83,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210508",
+      "spi3": {
+        "previsto": 0.05,
+        "dispersao": 0.03,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.6,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210607",
+      "spi3": {
+        "previsto": 0.25,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.11,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210623",
+      "spi3": {
+        "previsto": -0.2,
+        "dispersao": 0.07,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.31,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210631",
+      "spi3": {
+        "previsto": 0.16,
+        "dispersao": 0.1,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.02,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210656",
+      "spi3": {
+        "previsto": -0.82,
+        "dispersao": 0.05,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.75,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210706",
+      "spi3": {
+        "previsto": 0.41,
+        "dispersao": 0.04,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.24,
+        "dispersao": 0.03,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210805",
+      "spi3": {
+        "previsto": 0.43,
+        "dispersao": 0.11,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.01,
+        "dispersao": 0.09,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210904",
+      "spi3": {
+        "previsto": 0.19,
+        "dispersao": 0.11,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.12,
+        "dispersao": 0.09,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210938",
+      "spi3": {
+        "previsto": -0.19,
+        "dispersao": 0.08,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.55,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210953",
+      "spi3": {
+        "previsto": 0.1,
+        "dispersao": 0.15,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.08,
+        "dispersao": 0.11,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2210979",
+      "spi3": {
+        "previsto": -0.12,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.78,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2211001",
+      "spi3": {
+        "previsto": -0.74,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.47,
+        "dispersao": 0.02,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2211100",
+      "spi3": {
+        "previsto": -0.73,
+        "dispersao": 0.04,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.4,
+        "dispersao": 0.0,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2211209",
+      "spi3": {
+        "previsto": 0.14,
+        "dispersao": 0.08,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.22,
+        "dispersao": 0.06,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2211308",
+      "spi3": {
+        "previsto": 0.18,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.74,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2211357",
+      "spi3": {
+        "previsto": 0.22,
+        "dispersao": 0.09,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": 0.04,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2211407",
+      "spi3": {
+        "previsto": 0.05,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.79,
+        "dispersao": 0.05,
+        "baixa_conf": false,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2211506",
+      "spi3": {
+        "previsto": 0.41,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.49,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2211605",
+      "spi3": {
+        "previsto": -0.15,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.57,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    },
+    {
+      "cod_ibge": "2211704",
+      "spi3": {
+        "previsto": 0.14,
+        "dispersao": 0.07,
+        "baixa_conf": true,
+        "alerta": false
+      },
+      "spi6": {
+        "previsto": -0.5,
+        "dispersao": 0.06,
+        "baixa_conf": true,
+        "alerta": false
+      }
+    }
+  ],
+  "modelo": {
+    "pasta": "artifacts/modelo_v2",
+    "n_membros": 5,
+    "receita_sha256": "ef33aba6b203e2b3ab3f89e4bebcdc77cf93a8d50a8afe7ff7ebe14767f451a6"
+  }
+}
