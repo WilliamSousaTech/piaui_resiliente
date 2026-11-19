@@ -166,3 +166,98 @@ def test_funciona_com_o_gerador_de_rascunho_e_grava_o_modelo_de_quem_respondeu()
     c = ClienteComReserva([Falso("gemini-x", erro=erro("limite")), Falso("groq-y", resposta)])
     r = rs.gerar_rascunho(f, lista, c, agora=datetime(2026, 11, 19, 12, 0, tzinfo=timezone.utc))
     assert r.modelo == "groq-y" and r.tentativas == 1
+
+
+# ------------------------------------------------------------------ descanso do provedor que falhou
+class Relogio:
+    def __init__(self, t=1000.0):
+        self.t = t
+
+    def __call__(self):
+        return self.t
+
+
+def test_sem_descanso_o_comportamento_antigo_continua_o_provedor_que_falhou_e_tentado_de_novo():
+    a, b = Falso("a", erro=erro("limite")), Falso("b", "texto-b")
+    c = ClienteComReserva([a, b])
+    c.gerar("S", "U")
+    c.gerar("S", "U")
+    assert len(a.chamadas) == 2 and c.em_descanso == ()
+
+
+def test_provedor_que_falhou_e_pulado_ate_o_descanso_acabar():
+    rel = Relogio()
+    a, b = Falso("a", erro=erro("limite")), Falso("b", "texto-b")
+    c = ClienteComReserva([a, b], descanso_s=300, relogio=rel)
+    c.gerar("S", "U")                                   # a falha e entra em descanso; b responde
+    assert len(a.chamadas) == 1 and c.em_descanso == ("a",)
+    rel.t += 299
+    c.gerar("S", "U")                                   # ainda em descanso: a nem é chamado
+    assert len(a.chamadas) == 1 and len(b.chamadas) == 2 and c.em_descanso == ("a",)
+    rel.t += 1                                          # 300 s exatos: o descanso acabou
+    c.gerar("S", "U")
+    assert len(a.chamadas) == 2 and c.em_descanso == ("a",)   # falhou de novo, volta ao descanso
+
+
+def test_pular_nao_gera_aviso_nem_entra_em_falhas():
+    rel, avisos = Relogio(), []
+    c = ClienteComReserva([Falso("a", erro=erro("limite")), Falso("b", "ok")], descanso_s=60, relogio=rel,
+                          aviso=lambda m, motivo: avisos.append(m))
+    c.gerar("S", "U")
+    c.gerar("S", "U")
+    assert avisos == ["a"] and c.falhas == [] and c.usados == {"b": 2}
+
+
+def test_se_todos_estao_em_descanso_tenta_todos_na_ordem_em_vez_de_travar():
+    rel = Relogio()
+    a, b = Falso("a", erro=erro("1")), Falso("b", erro=erro("2"))
+    c = ClienteComReserva([a, b], descanso_s=300, relogio=rel)
+    with pytest.raises(cl.ErroLLM):
+        c.gerar("S", "U")
+    assert c.em_descanso == ("a", "b")
+    a.erro, a.texto = None, "voltou"
+    assert c.gerar("S", "U") == "voltou"                # ambos em descanso: tenta de novo a partir do primeiro
+    assert c.em_descanso == ("b",)                      # a se recuperou e saiu do descanso
+
+
+def test_provedor_que_volta_a_responder_sai_do_descanso():
+    rel = Relogio()
+    a, b = Falso("a", erro=erro("x")), Falso("b", erro=erro("y"))
+    c = ClienteComReserva([a, b], descanso_s=300, relogio=rel)
+    with pytest.raises(cl.ErroLLM):
+        c.gerar("S", "U")
+    a.erro, a.texto = None, "ok-a"
+    c.gerar("S", "U")
+    assert "a" not in c.em_descanso
+    c.gerar("S", "U")                                   # a não está mais em descanso: é o primeiro de novo
+    assert len(a.chamadas) == 3
+
+
+def test_erro_final_menciona_quem_foi_pulado_e_por_que():
+    rel = Relogio()
+    a, b = Falso("a", erro=erro("limite do a")), Falso("b", "ok")
+    c = ClienteComReserva([a, b], descanso_s=300, relogio=rel)
+    c.gerar("S", "U")                                   # a entra em descanso
+    b.erro = erro("rede do b")
+    # a (em descanso) é pulado e b falha: nem todos estão em descanso, então só b é tentado
+    with pytest.raises(cl.ErroLLM) as e:
+        c.gerar("S", "U")
+    assert str(e.value) == "nenhum provedor respondeu: b: rede do b | a: em descanso (falhou antes: limite do a)"
+
+
+def test_passado_o_descanso_volta_a_ordem_original_da_lista():
+    rel = Relogio()
+    a, b, d = Falso("a", erro=erro("1")), Falso("b", erro=erro("2")), Falso("d", "texto-d")
+    c = ClienteComReserva([a, b, d], descanso_s=100, relogio=rel)
+    c.gerar("S", "U")
+    rel.t += 101                                        # só passou o descanso dos dois; ambos falham de novo
+    a.erro = None
+    a.texto = "texto-a"
+    assert c.gerar("S", "U") == "texto-a"
+    assert len(b.chamadas) == 1                         # a respondeu antes de b ser tentado
+
+
+@pytest.mark.parametrize("ruim", [-1, -0.001])
+def test_descanso_negativo_e_erro(ruim):
+    with pytest.raises(ValueError):
+        ClienteComReserva([Falso("a")], descanso_s=ruim)
