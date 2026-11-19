@@ -1,0 +1,44 @@
+<div class="wrap">
+  <section class="secao">
+    <h1 class="titulo-pagina">O projeto</h1>
+    <p class="sub">O Piauí Resiliente é um monitor de seca para o semiárido piauiense, feito pela equipe {{equipe_final}} Ele mostra onde e quando a chuva faltou e deixa claro o quanto cada leitura merece confiança.</p>
+  </section>
+
+  <section class="secao">
+    <h2>Onde estamos</h2>
+    <ul class="indisp-grande">
+      <li><b>Monitor da chuva observada</b><span>Pronto, neste site. Mapa dos {{n_mun}} municípios, linha do tempo desde {{ano_ini}} e série de cada município, com a confiança de cada leitura.</span></li>
+      <li><b>Antecedência contra os decretos</b><span>Em preparação. Compara o primeiro alerta com a data do decreto de estiagem ou seca. Falta confirmar o formato dos dados oficiais do S2iD.</span></li>
+      <li><b>Previsão com margem de erro</b><span>Indisponível. A rede neural de previsão está em calibração e só aparece depois de uma avaliação auditada.</span></li>
+      <li><b>Cartão do município e rascunho técnico</b><span>Em preparação. O rascunho para a Defesa Civil é um documento de apoio, escrito com IA e revisado por uma pessoa. Não tem valor jurídico e não substitui o plano do município.</span></li>
+    </ul>
+  </section>
+
+  <section class="secao">
+    <div class="dois-col" style="align-items:start">
+      <div class="leitura">
+        <h2>A marca</h2>
+        <p style="margin-top:12px">A gota nasce de um círculo de raio r com tangentes a 60°. O traço mede r ÷ 4, e o vazio entre o contorno e o fundo é de um traço. A linha do centro é o nível: acima, o que falta (terracota); abaixo, o que há (azul-petróleo). A gota vai do topo do “P” à base de “Resiliente”.</p>
+        <p>Por isso, neste site, terracota é sempre falta de chuva e azul-petróleo é chuva.</p>
+        <div class="cores">
+          <div><i style="background:#0F6E7A"></i>Azul-petróleo #0F6E7A</div>
+          <div><i style="background:#B4472A"></i>Terracota #B4472A</div>
+          <div><i style="background:#12262B"></i>Tinta #12262B</div>
+          <div><i style="background:#F6F1E8"></i>Creme #F6F1E8</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:center;padding:12px 0">
+        <svg viewBox="0 0 144 208" width="190" height="274" role="img" aria-label="Gota da marca Piauí Resiliente"><use href="#pr-gota"/></svg>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao leitura">
+    <h2>Como usar com cuidado</h2>
+    <ul style="margin-top:12px">
+      <li>Use o monitor para ver onde a chuva faltou. Não use para decidir sozinho sobre abastecimento ou decreto.</li>
+      <li>Leitura em pontilhado tem baixa confiança: onde quase não chove na época, poucos milímetros mudam muito o SPI. Para olhar a seca, prefira os meses da estação chuvosa (veja a página El Niño).</li>
+      <li>O site está em MVP experimental, em calibração com S2iD/TCE-PI. Os números podem mudar quando o método for ajustado.</li>
+    </ul>
+  </section>
+</div>

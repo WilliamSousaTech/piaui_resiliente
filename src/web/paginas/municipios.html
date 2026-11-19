@@ -1,0 +1,31 @@
+<div class="wrap">
+  <section class="secao">
+    <h1 class="titulo-pagina">Municípios</h1>
+    <p class="sub">Os {{n_mun}} municípios do semiárido piauiense em um mês à sua escolha. Clique no nome para abrir a série completa no monitor.</p>
+    <div class="filtros">
+      <div class="seg" role="group" aria-label="Escala do SPI" id="segEscala"></div>
+      <label>Mês <select class="campo" style="width:auto" id="selMes" aria-label="Mês"></select></label>
+      <label>Ano <select class="campo" style="width:auto" id="selAno" aria-label="Ano"></select></label>
+      <label class="busca"><span class="sr">Buscar município</span><input id="busca" placeholder="Buscar município" autocomplete="off"></label>
+      <label><input type="checkbox" id="soSeca"> Só em seca</label>
+      <label><input type="checkbox" id="soConf"> Só leituras confiáveis</label>
+    </div>
+    <p class="contagem" id="contagem" aria-live="polite"></p>
+    <div class="tabela-mun" style="margin-top:10px" tabindex="0" role="region" aria-label="Tabela dos municípios. Use as setas para rolar.">
+      <table>
+        <thead><tr>
+          <th><button type="button" data-col="nome">Município</button></th>
+          <th class="n"><button type="button" data-col="spi">SPI no mês</button></th>
+          <th>Classe</th>
+          <th class="n"><button type="button" data-col="chuva">Chuva no mês (mm)</button></th>
+          <th class="n"><button type="button" data-col="pct" title="Meses com SPI de −1,0 ou menos, entre as leituras confiáveis de {{ano_ini}} em diante">Meses em seca</button></th>
+          <th class="n"><button type="button" data-col="pior" title="Menor SPI entre as leituras confiáveis">Mês mais seco</button></th>
+          <th>Leitura</th>
+        </tr></thead>
+        <tbody id="corpo"></tbody>
+      </table>
+      <p class="vazio" id="vazioTab" style="padding:16px" hidden>Nenhum município com esses filtros.</p>
+    </div>
+    <p class="fonte-de" style="margin-top:12px">“Meses em seca” e “mês mais seco” contam só leituras confiáveis, de {{ano_ini}} até {{mes_fim}}. Até {{treino_fim_ano}} o SPI descreve o próprio período usado no ajuste.</p>
+  </section>
+</div>

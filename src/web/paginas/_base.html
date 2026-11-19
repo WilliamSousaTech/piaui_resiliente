@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR" data-pagina="{{pagina}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>{{titulo_pagina}} · Piauí Resiliente</title>
+<meta name="description" content="{{descricao}}">
+<link rel="icon" href="{{favicon}}">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=localStorage.getItem('pr-tema');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">{{simbolo}}</svg>
+<a class="pular" href="#conteudo">Ir para o conteúdo</a>
+<header class="topo">
+  <div class="wrap">
+    <a class="marca-link" href="index.html" aria-label="Piauí Resiliente, página inicial">
+      <svg class="gota" viewBox="0 0 144 208" aria-hidden="true"><use href="#pr-gota"/></svg>
+      <span class="nome"><b>Piauí</b><span>Resiliente</span></span>
+    </a>
+    <nav aria-label="Páginas do site">{{nav}}</nav>
+    <button class="btn btn-tema" id="btnTema" type="button" aria-label="Alternar tema claro e escuro">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="5.2"/><path d="M8 2.8v10.4"/><path d="M8 2.8a5.2 5.2 0 0 1 0 10.4z" fill="currentColor" stroke="none"/></svg><span>Tema</span>
+    </button>
+  </div>
+</header>
+<div class="aviso" role="note">
+  <div class="wrap">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 2 14.5 13.5h-13z" stroke-linejoin="round"/><path d="M8 6.5v3.2M8 11.6v.1" stroke-linecap="round"/></svg>
+    <span>{{aviso}}</span>
+  </div>
+</div>
+<main id="conteudo">
+{{conteudo}}
+</main>
+<footer class="rodape">
+  <div class="wrap">
+    <div>
+      <div class="nome"><b>Piauí</b><span>Resiliente</span></div>
+      <p>Monitor de seca do semiárido piauiense. Equipe {{equipe_final}}</p>
+      <p>Fontes de letra: Outfit e Atkinson Hyperlegible Next (licença SIL OFL).</p>
+    </div>
+    <div>
+      <h2>Fonte e período</h2>
+      <p>Chuva: CHIRPS v2.0 final (UCSB/CHC), coleção {{gee_id}} no Google Earth Engine, de {{periodo_ini}} a {{periodo_fim}}{{extraido}}. Malha municipal do IBGE ({{malha_ano}}).</p>
+      <p>Contexto do El Niño: CPC/NOAA e INMET, com fonte e data ao lado de cada número.</p>
+    </div>
+    <div>
+      <h2>Verificação e limites</h2>
+      <p>{{arquivos}} arquivos conferidos por SHA-256 em {{verificado_em}}. Conjunto de dados <button class="hash" type="button" data-cheio="{{sha}}" title="{{sha}}">{{sha_curto}}…</button>.</p>
+      <p>O SPI descreve falta de chuva e não prova colapso de manancial. Até {{treino_fim_ano}}, ele descreve o próprio período usado no ajuste. <a href="metodo.html">Método e limites</a>.</p>
+    </div>
+  </div>
+</footer>
+<div id="tip" role="tooltip"></div>
+<noscript><p style="padding:20px">Este site precisa de JavaScript para desenhar o mapa e os gráficos. Os dados estão na pasta assets.</p></noscript>
+<script src="assets/dados.js"></script>
+<script src="assets/core.js"></script>
+{{scripts}}
+</body>
+</html>

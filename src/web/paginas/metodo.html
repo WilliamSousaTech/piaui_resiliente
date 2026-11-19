@@ -1,0 +1,57 @@
+<div class="wrap">
+  <section class="secao">
+    <h1 class="titulo-pagina">Método e limites</h1>
+    <p class="sub">Tudo o que o site mostra vem de arquivos conferidos por SHA-256 (veja o rodapé). Esta página explica como cada número é feito e o que ele não diz.</p>
+  </section>
+
+  <section class="secao leitura">
+    <h2>O que o monitor mede</h2>
+    <p style="margin-top:12px">O SPI (Índice Padronizado de Precipitação) compara a chuva acumulada em {{escalas_txt}} meses com o que costuma cair, no mesmo município e na mesma época do ano. Zero é o normal. Valores negativos indicam falta de chuva; positivos, excesso. O monitor trata SPI de −1,0 ou menos como seca e abre no SPI-{{escala}}.</p>
+    <table style="margin-top:16px;max-width:560px"><thead><tr><th>Classe</th><th>Faixa do SPI</th></tr></thead><tbody>{{tabela_classes}}</tbody></table>
+  </section>
+
+  <section class="secao leitura">
+    <h2>Como o SPI é calculado</h2>
+    <ul style="margin-top:12px">
+      <li>A chuva é a soma mensal do CHIRPS v2.0 final, tirada da média dos pixels dentro de cada município.</li>
+      <li>Para cada município, mês do calendário e escala, o método ajusta uma distribuição Gama à chuva acumulada de {{ano_ini}} a {{treino_fim_ano}}. Meses sem chuva entram como probabilidade de zero.</li>
+      <li>Os parâmetros ficam fixos depois de {{treino_fim_ano}}. Os anos recentes são comparados a um histórico que não os inclui.</li>
+      <li>Município com cobertura de satélite abaixo do mínimo no período de ajuste aparece como “sem dado” ({{n_excluidos}} agora). Isso não significa ausência de seca.</li>
+    </ul>
+    <h3>Quando a leitura tem baixa confiança</h3>
+    <p>{{regra_bc}}</p>
+    <p>Esses meses aparecem em pontilhado no mapa e esmaecidos na matriz. Continuam nas contagens do mapa, mas ficam de fora de “meses em seca” e “mês mais seco” de cada município.</p>
+  </section>
+
+  <section class="secao">
+    <h2>O que o site ainda não mostra</h2>
+    <p class="sub">O que não tem dado oficial validado aparece como indisponível, nunca com valor de exemplo.</p>
+    <ul class="indisp-grande">
+      <li><b>Previsão do próximo mês</b><span>Indisponível: o modelo está em calibração. Só aparece depois de uma avaliação auditada, com margem de erro.</span></li>
+      <li><b>Antecedência em relação aos decretos</b><span>Indisponível: o formato dos dados oficiais do S2iD ainda não foi confirmado.</span></li>
+      <li><b>Plano de Contingência (MUNIC/IBGE)</b><span>Sem informação oficial carregada neste site.</span></li>
+      <li><b>Nível de reservatórios</b><span>Sem dado carregado. O SPI mede falta de chuva e não prova que um açude vai secar.</span></li>
+    </ul>
+  </section>
+
+  <section class="secao leitura">
+    <h2>Limites que você precisa conhecer</h2>
+    <ul style="margin-top:12px">
+      <li>O CHIRPS é uma estimativa feita com satélite e estações, não uma medição em um ponto. Município pequeno tem poucos pixels.</li>
+      <li>Até {{treino_fim_ano}}, o SPI descreve o próprio histórico usado no ajuste (in-sample): serve para ler o passado, não para avaliar o método.</li>
+      <li>Os meses depois de {{teste_fim}} são só observados e ficam fora de treino, validação e teste.</li>
+      <li>O SPI mede falta de chuva. Não mede reservatório, vazão de rio nem perda de safra.</li>
+      <li>O contexto do El Niño vem do CPC/NOAA e do INMET. Não é previsão do nosso modelo.</li>
+    </ul>
+  </section>
+
+  <section class="secao leitura">
+    <h2>Dados e verificação</h2>
+    <ul style="margin-top:12px">
+      <li><b>Chuva:</b> CHIRPS v2.0 final (UCSB/CHC), coleção {{gee_id}} no Google Earth Engine, de {{periodo_ini}} a {{periodo_fim}}{{extraido}}.</li>
+      <li><b>Municípios:</b> malha do IBGE ({{malha_ano}}); semiárido da Resolução CONDEL/SUDENE 150/2021, mais Luís Correia pela regra de transição da Resolução 176/2024 (fonte ainda em confirmação).</li>
+      <li><b>Conferência:</b> {{arquivos}} arquivos conferidos por SHA-256 em {{verificado_em}}. Conjunto de dados <code>{{sha}}</code>.</li>
+      <li><b>Reprodução:</b> o site é gerado com <code>python -m src.web.build_site</code> a partir do manifesto, sem rede.</li>
+    </ul>
+  </section>
+</div>

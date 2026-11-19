@@ -1,0 +1,49 @@
+<div class="wrap">
+  <section class="heroi">
+    <div class="texto">
+      <h1>Onde e quando a chuva faltou no semiárido do Piauí</h1>
+      <p class="lede">{{n_mun}} municípios, mês a mês desde {{ano_ini}}, com a confiança de cada leitura à vista.</p>
+      <ul class="como-ler" aria-label="Como ler o mapa">
+        <li><span class="sw" style="background:var(--c1)"></span><span><b>Terracota é falta de chuva.</b> O SPI compara a chuva dos últimos {{escala}} meses de cada município com o histórico dele. SPI de −1,0 ou menos é seca.</span></li>
+        <li><span class="sw" style="background:var(--c5)"></span><span><b>Azul-petróleo é chuva acima do normal.</b> Quanto mais escuro, mais extremo.</span></li>
+        <li><span class="sw bc"></span><span><b>Pontilhado é baixa confiança.</b> Na estiagem chove tão pouco que poucos milímetros mudam muito o índice.</span></li>
+      </ul>
+      <div class="acoes">
+        <a class="btn principal" href="monitor.html">Abrir o monitor</a>
+        <a class="btn" href="el-nino.html">Ver o contexto do El Niño</a>
+      </div>
+    </div>
+    <div class="mapa-quadro">
+      <div class="cabeca"><h2>Chuva já observada, não previsão</h2><span id="mapaMes"></span></div>
+      <svg id="mapa" role="img" aria-label="Mapa do semiárido piauiense colorido pela classe do SPI no mês de abertura"></svg>
+      <div id="legenda"></div>
+      <div class="ficha-rapida" id="fichaRapida" aria-live="polite"><p class="vazio">Passe o mouse ou toque em um município para ver a leitura do mês.</p></div>
+    </div>
+  </section>
+
+  <section class="secao">
+    <div class="agora">
+      <div>
+        <h2>Como está {{abertura_mes}}</h2>
+        <p class="sub">{{frase_abertura}}</p>
+        <div class="numeros">
+          <div><strong class="falta" id="nSeca">—</strong><small id="rotSeca"></small></div>
+          <div><strong id="nConf">—</strong><small id="rotConf"></small></div>
+          <div><strong id="nBaixa">—</strong><small id="rotBaixa"></small></div>
+        </div>
+      </div>
+      <div>
+        <h3 class="rotulo" id="rotMaisSecos"></h3>
+        <ul class="lista-mun" id="maisSecos"></ul>
+      </div>
+    </div>
+  </section>
+
+  {{enso_resumo}}
+
+  <section class="secao">
+    <h2>As maiores secas desde {{ano_ini}}</h2>
+    <p class="sub">Meses em que mais municípios estavam em seca, entre as leituras confiáveis do SPI-{{escala}}. Cada linha é um episódio diferente. Clique para ver o mês no monitor.</p>
+    <ul class="ranking" id="ranking"></ul>
+  </section>
+</div>

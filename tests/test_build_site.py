@@ -1,106 +1,24 @@
-"""Testes de src/web/build_site.py (Item 11). Sem internet; dados sintéticos só aqui (nunca em data/ nem no site).
-
-Janela real do params.yaml: 1981-01..2026-09 (549 meses). Três municípios de mentira (A, B, C).
-"""
+"""Testes de src/web/build_site.py (Item 11). Sem internet; dados sintéticos só em tests/ (dados_sinteticos.py)."""
 import ast
 import base64
+import dataclasses
 import json
+import os
 import re
 import shutil
-import subprocess
-from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
 
+from dados_sinteticos import (A, AGORA, B, C, MESES, NT, PARAMS_REAL, RAIZ, VERIFICADO, escrever_raw, feature,
+                              malha_tres, quadrado, raw_sintetico)
 from src.data import build_demo as bd
-from src.data import chirps_raw, manifest as mf
+from src.data import chirps_raw, contexto_enso as ce, manifest as mf
 from src.data.config import load_config
 from src.web import build_site as bs
-
-RAIZ = Path(__file__).resolve().parents[1]
-PARAMS_REAL = RAIZ / "params.yaml"
-TEMPLATE = RAIZ / "src" / "web" / "template.html"
-MESES = pd.period_range("1981-01", "2026-09", freq="M")
-NT = len(MESES)
-A, B, C = "2200001", "2200002", "2200003"
-AGORA = datetime(2026, 11, 19, 12, 30, 45, tzinfo=timezone.utc)
-VERIFICADO = datetime(2026, 11, 19, 15, 0, 0, tzinfo=timezone.utc)
-
-
-# ------------------------------------------------------------------ dados sintéticos
-def quadrado(lon, lat, lado=0.5):
-    return [[lon, lat], [lon + lado, lat], [lon + lado, lat - lado], [lon, lat - lado], [lon, lat]]
-
-
-def feature(cod, nome, geom):
-    return {"type": "Feature", "properties": {"cod_ibge": cod, "nome": nome, "situacao": "res150"}, "geometry": geom}
-
-
-def malha_tres():
-    """A no norte (lat maior), C no meio, B no sul; C é um MultiPolygon com um furo no primeiro polígono."""
-    furo = quadrado(-44.9, -6.6, 0.1)[::-1]
-    return {"type": "FeatureCollection", "features": [
-        feature(B, "Beta do Sul", {"type": "Polygon", "coordinates": [quadrado(-44.0, -8.0)]}),
-        feature(A, "Alfa do Norte", {"type": "Polygon", "coordinates": [quadrado(-44.0, -4.0)]}),
-        feature(C, "Tanque do Piauí", {"type": "MultiPolygon", "coordinates": [
-            [quadrado(-45.0, -6.0, 0.8), furo], [quadrado(-43.0, -6.0)]]}),
-    ]}
-
-
-def raw_sintetico(cods=(A, B, C), seed=0) -> pd.DataFrame:
-    rng = np.random.default_rng(seed)
-    quadros = []
-    for cod in cods:
-        p = rng.gamma(2.0, 60.0, NT).astype("float32")
-        p[rng.random(NT) < 0.1] = 0.0
-        quadros.append(pd.DataFrame({
-            "cod_ibge": cod, "mes": MESES.to_timestamp(), "precip_mm": p,
-            "precip_max_dia_mm": (p * 0.4).astype("float32"),
-            "dias_chuva": np.minimum(MESES.days_in_month, np.floor(p / 8)).astype("float32"),
-            "dias_validos": MESES.days_in_month.astype("int16"),
-            "dias_no_mes": MESES.days_in_month.astype("int16"),
-            "pixels_validos_frac": np.float32(1.0)}))
-    return pd.concat(quadros, ignore_index=True)
-
-
-def escrever_raw(raiz: Path, raw: pd.DataFrame, cods) -> None:
-    cfg = load_config(raiz / "params.yaml")
-    d = chirps_raw.diretorio_raw(cfg)
-    lotes = (("1981-01", "2000-12", "2026-11-19T00:40:00+00:00"), ("2001-01", "2026-09", "2026-11-18T23:10:00+00:00"))
-    for ini, fim, quando in lotes:
-        i, f = pd.Period(ini, "M"), pd.Period(fim, "M")
-        m = (raw["mes"] >= i.to_timestamp()) & (raw["mes"] <= f.to_timestamp())
-        chirps_raw.gravar_lote(raw[m].reset_index(drop=True), d, cods, i, f, meta={"extraido_em_utc": quando})
-
-
-@pytest.fixture(scope="module")
-def cfg():
-    return load_config(PARAMS_REAL)
-
-
-@pytest.fixture(scope="module")
-def raw_base():
-    return raw_sintetico()
-
-
-@pytest.fixture(scope="module")
-def insumos(cfg, raw_base):
-    r = bd.montar_demo(raw_base, cfg)
-    manifest = {"fontes": {"chirps": {"gee_id": "UCSB-CHG/CHIRPS/DAILY"}}, "projeto": {"versao_params": "0.3.1"},
-                "escopo": {"malha_municipal_ano": 2022}, "janela": {"inicio": "1981-01", "fim": "2026-09"},
-                "split": {"treino_fim": "2015-12", "teste_fim": "2025-12"},
-                "extras": {"demo": {"spi_calibrado_ate": "2015-12"}},
-                "dataset_sha256": "ab" * 32, "gerado_em_utc": "2026-11-19T12:30:45Z", "arquivos": {"x": {}, "y": {}}}
-    return bs.Insumos(demo=r.demo_observado, qualidade=r.qualidade_municipio, raw=raw_base, malha=malha_tres(),
-                      manifest=manifest, extraido_em=("2026-11-18T23:10:00Z", "2026-11-19T00:40:00Z"))
-
-
-@pytest.fixture(scope="module")
-def payload(insumos, cfg):
-    return bs.montar_payload(insumos, cfg, verificado_em=VERIFICADO)
+from src.web import destaques, paginas
 
 
 def decodificar(b64: str, dtype: str) -> np.ndarray:
@@ -131,7 +49,14 @@ def test_classes_tem_sete_entradas_com_cores_distintas_nos_dois_temas():
     assert len(bs.CLASSES) == 7
     assert len({c[3] for c in bs.CLASSES}) == 7 and len({c[4] for c in bs.CLASSES}) == 7
     for c in bs.CLASSES:
-        assert re.fullmatch(r"#[0-9a-f]{6}", c[3]) and re.fullmatch(r"#[0-9a-f]{6}", c[4])
+        assert re.fullmatch(r"#[0-9A-Fa-f]{6}", c[3]) and re.fullmatch(r"#[0-9A-Fa-f]{6}", c[4])
+
+
+def test_rampas_partem_das_cores_da_marca():
+    from src.web import marca
+    assert bs.CLASSES[1][3] == marca.TERRACOTA and bs.CLASSES[5][3] == marca.PETROLEO     # falta = terracota; excesso = petróleo
+    seca, umido = bs.CLASSES[:3], bs.CLASSES[4:]
+    assert all(c[5] for c in seca) and not any(c[5] for c in umido)
 
 
 # ================================================================== inteiros e base64
@@ -231,7 +156,8 @@ def test_grade_linha_faltando_sobrando_ou_repetida_e_erro(insumos):
 def test_chaves_e_tamanhos_do_pacote(payload, cfg):
     esperadas = {"titulo", "equipe", "maturidade", "viewBox", "escalas", "escala_alvo", "limites", "classes", "meses",
                  "municipios", "ordem", "spi", "cls", "baixa", "precip", "escala_spi", "escala_chuva", "fonte",
-                 "periodo", "n_excluidos", "verificacao", "regra_baixa"}
+                 "periodo", "n_excluidos", "verificacao", "regra_baixa", "n_municipios", "abertura", "pct_baixa_ultimo",
+                 "maiores_secas", "clima", "enso"}
     assert set(payload) == esperadas
     assert payload["escalas"] == [3, 6] and payload["escala_alvo"] == 3
     assert len(payload["meses"]) == NT and payload["meses"][0] == "1981-01" and payload["meses"][-1] == "2026-09"
@@ -370,29 +296,7 @@ def test_codigos_repetidos_na_malha_e_erro(insumos, cfg):
                           cfg, verificado_em=VERIFICADO)
 
 
-# ================================================================== template e HTML
-def test_template_tem_os_tres_marcadores_uma_vez():
-    t = TEMPLATE.read_text(encoding="utf-8")
-    for m in ("__DADOS__", "__FONTE__", "__TITULO__"):
-        assert t.count(m) == 1
-
-
-def test_template_sem_recurso_externo():
-    t = TEMPLATE.read_text(encoding="utf-8")
-    urls = set(re.findall(r"https?://[^\s\"')<]+", t))
-    assert urls <= {"http://www.w3.org/2000/svg"}, urls
-    assert not re.search(r"<script[^>]+\bsrc=|<link\b|@import|\bfetch\(|XMLHttpRequest|navigator\.sendBeacon", t)
-    assert "localStorage" not in t and "sessionStorage" not in t
-
-
-def test_template_leva_os_avisos_e_as_camadas_indisponiveis():
-    t = TEMPLATE.read_text(encoding="utf-8")
-    for texto in ("MVP experimental", "Não substitui alerta oficial", "Previsão do próximo mês", "Indisponível",
-                  "Antecedência em relação aos decretos", "Plano de Contingência", "in-sample",
-                  "fora de treino, validação e teste", "Mede falta de chuva, não prova que um açude vai secar"):
-        assert texto in t, texto
-
-
+# ================================================================== regra de baixa confiança
 def test_regra_de_baixa_confianca_vai_para_o_pacote_como_esta_no_params(payload, cfg):
     assert payload["regra_baixa"] == {"q_max": 0.5, "media_min_mm_por_mes": 10.0}
     assert payload["regra_baixa"] == {"q_max": cfg.spi.q_baixa_confianca, "media_min_mm_por_mes": cfg.spi.media_min_mm_por_mes}
@@ -404,82 +308,100 @@ def test_regra_de_baixa_confianca_segue_o_params_alterado(insumos, cfg):
     assert p["regra_baixa"] == {"q_max": 0.7, "media_min_mm_por_mes": 0.0}
 
 
-def test_template_sinaliza_baixa_confianca_no_mapa_na_matriz_e_na_ficha():
-    t = TEMPLATE.read_text(encoding="utf-8")
-    for texto in ("pontilhado", "esmaecido = baixa confiança", "Meses de baixa confiança",
-                  "Baixa confiança: pouca chuva esperada nesta época do ano",
-                  "Pouca chuva esperada nesta época do ano: poucos milímetros mudam muito o SPI, que informa pouco.",
-                  "Esses meses continuam nas contagens do mapa"):
-        assert texto in t, texto
-    for antigo in ("muitos zeros no histórico", "mais da metade dos anos de referência teve chuva zero"):
-        assert antigo not in t, antigo
-    assert 'id="pontilhado"' in t and 'id="gBc"' in t and "BX[k][m * NT + t] ? 105 : 255" in t
+# ================================================================== destaques, clima e El Niño no pacote
+def test_destaques_do_pacote_vem_dos_mesmos_arrays_que_a_tela_decodifica(payload):
+    assert payload["n_municipios"] == 3
+    cls = decodificar(payload["cls"]["3"], "uint8").reshape(3, NT)
+    bx = decodificar(payload["baixa"]["3"], "uint8").reshape(3, NT)
+    assert payload["abertura"] == destaques.mes_abertura(cls, bx) and 0 <= payload["abertura"] < NT
+    ultimo = cls[:, -1] != bs.SEM_DADO
+    assert payload["pct_baixa_ultimo"] == round(100 * bx[:, -1][ultimo].sum() / ultimo.sum())
+    assert payload["maiores_secas"] == [{**x, "mes": payload["meses"][x["t"]]} for x in destaques.maiores_secas(cls, bx)]
+    for x in payload["maiores_secas"]:
+        assert x["n_seca"] <= x["n_confiaveis"] <= x["n_validos"] <= 3 and x["mes"] <= payload["periodo"]["fim"]
 
 
-def test_template_nao_promete_previsao():
-    t = TEMPLATE.read_text(encoding="utf-8").lower()
-    assert "probabilidade de seca" not in t and "vai haver seca" not in t and "previsão para" not in t
+def test_clima_do_pacote_tem_forma_e_nao_usa_chuva_depois_do_treino(payload, insumos, cfg):
+    c = payload["clima"]
+    assert c["treino_fim"] == payload["periodo"]["treino_fim"]
+    assert len(c["climatologia"]) == 12 and all(v >= 0 for v in c["climatologia"])
+    est = c["estacao"]
+    assert est["largura"] == 4 and len(est["meses"]) == 4 and 0 < c["pct_estacao"] <= 100
+    # mexer na chuva DEPOIS do treino muda os anos mostrados, mas não a média de referência (sem vazamento)
+    raw = insumos.raw.copy()
+    depois = raw["mes"] > pd.Timestamp("2015-12-01")
+    raw.loc[depois, "precip_mm"] = raw.loc[depois, "precip_mm"] * np.float32(3.0)
+    p2 = bs.montar_payload(dataclasses.replace(insumos, raw=raw), cfg, verificado_em=VERIFICADO)
+    assert p2["clima"]["climatologia"] == c["climatologia"] and p2["clima"]["estacao"]["media_mm"] == est["media_mm"]
+    assert p2["clima"]["estacao"]["anos"] != est["anos"] and p2["precip"] != payload["precip"]
 
 
-def test_ids_usados_pelo_script_existem_no_html():
-    t = TEMPLATE.read_text(encoding="utf-8")
-    usados = set(re.findall(r"\$\('([A-Za-z0-9_]+)'\)", t)) | set(re.findall(r"getElementById\('([A-Za-z0-9_]+)'\)", t))
-    ids = set(re.findall(r"\bid=\"([A-Za-z0-9_]+)\"", t.split("<script>")[0]))
-    assert usados - ids == set(), usados - ids
+def test_enso_ausente_vai_nulo_e_presente_vai_validado(payload, insumos, cfg):
+    assert payload["enso"] is None
+    ctx = ce.carregar(RAIZ / ce.ARQUIVO_PADRAO)
+    p = bs.montar_payload(dataclasses.replace(insumos, enso=ctx), cfg, verificado_em=VERIFICADO)
+    assert p["enso"] == ce.para_pacote(ctx) and p["enso"]["fontes"]
+    json.dumps(p, allow_nan=False)
 
 
-@pytest.mark.skipif(shutil.which("node") is None, reason="node não instalado")
-def test_script_do_template_tem_sintaxe_valida(tmp_path):
-    t = TEMPLATE.read_text(encoding="utf-8")
-    js = t.rsplit("<script>", 1)[1].split("</script>")[0]
-    f = tmp_path / "painel.js"
-    f.write_text(js, encoding="utf-8")
-    r = subprocess.run(["node", "--check", str(f)], capture_output=True, text=True)
-    assert r.returncode == 0, r.stderr
+# ================================================================== pasta do site
+def test_fontes_embutidas_sao_woff2_com_licenca_ao_lado():
+    for fonte, licenca in ((bs.FONTE_CORPO, "AtkinsonHyperlegibleNext-OFL.txt"), (bs.FONTE_MARCA, "Outfit-OFL.txt")):
+        assert fonte.read_bytes()[:4] == b"wOF2" and (fonte.parent / licenca).is_file()
 
 
-def test_renderizar_troca_marcadores_e_escapa_fim_de_script(payload):
-    p = dict(payload)
-    p["titulo"] = "Piauí </script><b>"
-    t = "<title>__TITULO__</title><style>@font-face{src:url(data:font/woff2;base64,__FONTE__)}</style><script>__DADOS__</script>"
-    html = bs.renderizar(p, t, b"\x00\x01\x02")
-    assert "AAEC" in html and "__" not in html.replace("__proto__", "")
-    corpo = html.split("<script>")[1]
-    assert corpo.count("</script>") == 1                     # o "</" de dentro do JSON saiu escapado
-    assert json.loads(corpo.split("</script>")[0])["titulo"] == "Piauí </script><b>"
+def test_css_recebe_as_duas_fontes_e_nenhum_marcador_sobra():
+    css = bs._css(b"\x00\x01\x02", b"\x03\x04\x05")
+    assert "AAEC" in css and "AwQF" in css and "__FONTE_" not in css
 
 
-@pytest.mark.parametrize("quebrar", ["__DADOS__", "__FONTE__", "__TITULO__"])
-def test_renderizar_sem_marcador_ou_com_marcador_repetido_e_erro(payload, quebrar):
-    base = "__DADOS__ __FONTE__ __TITULO__"
+@pytest.mark.parametrize("quebrar", ["__FONTE_CORPO__", "__FONTE_MARCA__"])
+def test_css_sem_marcador_ou_com_marcador_repetido_e_erro(quebrar, tmp_path, monkeypatch):
+    base = "a{b:url(__FONTE_CORPO__)} c{d:url(__FONTE_MARCA__)}"
+    monkeypatch.setattr(bs, "ASSETS", tmp_path)
+    (tmp_path / "site.css").write_text(base.replace(quebrar, ""), encoding="utf-8")
     with pytest.raises(bs.SiteError, match=quebrar):
-        bs.renderizar(payload, base.replace(quebrar, ""), b"x")
+        bs._css(b"x", b"y")
+    (tmp_path / "site.css").write_text(base + " " + quebrar, encoding="utf-8")
     with pytest.raises(bs.SiteError, match=quebrar):
-        bs.renderizar(payload, base + " " + quebrar, b"x")
+        bs._css(b"x", b"y")
 
 
-def test_renderizar_recusa_nan(payload):
+def test_dados_js_e_json_puro_numa_atribuicao_e_recusa_nan(payload):
     p = dict(payload)
+    p["titulo"] = "Piauí </script> \u2028 fim"
+    js = bs._dados_js(p)
+    assert js.startswith("window.PR_DADOS=") and js.endswith(";\n") and "\u2028" not in js and "\u2029" not in js
+    assert json.loads(js[len("window.PR_DADOS="):-2])["titulo"] == p["titulo"]      # ida e volta sem perder nada
     p["viewBox"] = [1000.0, float("nan")]
     with pytest.raises(ValueError):
-        bs.renderizar(p, "__DADOS__ __FONTE__ __TITULO__", b"x")
+        bs._dados_js(p)
 
 
-def test_fonte_embutida_e_woff2_com_licenca_ao_lado():
-    assert bs.FONTE.read_bytes()[:4] == b"wOF2"
-    assert (bs.FONTE.parent / "AtkinsonHyperlegibleNext-OFL.txt").is_file()
+def test_montar_arquivos_tem_todas_as_paginas_e_so_os_assets_usados(payload):
+    a = bs.montar_arquivos(payload)
+    paginas_esperadas = {p.arquivo for p in paginas.PAGINAS}
+    assert paginas_esperadas == {"index.html", "monitor.html", "municipios.html", "el-nino.html", "metodo.html", "sobre.html"}
+    assets = {k for k in a if k.startswith("assets/")}
+    usados = {f"assets/{s}.js" for p in paginas.PAGINAS for s in p.scripts} | {"assets/core.js"}
+    assert assets == usados | {"assets/dados.js", "assets/site.css", "assets/marca/gota.svg"}
+    assert set(a) - assets == paginas_esperadas
+    assert all(isinstance(t, str) and t for t in a.values())
 
 
 # ================================================================== higiene do módulo
-def test_modulo_nao_depende_de_web_sql_nem_de_ml_e_nao_inventa_dados():
-    src = (RAIZ / "src" / "web" / "build_site.py").read_text(encoding="utf-8")
-    raiz_imports = set()
+@pytest.mark.parametrize("modulo", ["build_site.py", "paginas.py", "marca.py", "destaques.py"])
+def test_modulo_nao_depende_de_web_sql_nem_de_ml_e_nao_inventa_dados(modulo):
+    src = (RAIZ / "src" / "web" / modulo).read_text(encoding="utf-8")
+    importados = set()
     for n in ast.walk(ast.parse(src)):
         if isinstance(n, ast.Import):
-            raiz_imports |= {a.name.split(".")[0] for a in n.names}
+            importados |= {a.name for a in n.names}
         elif isinstance(n, ast.ImportFrom) and n.module:
-            raiz_imports.add(n.module.split(".")[0])
-    assert not raiz_imports & {"fastapi", "flask", "sqlite3", "sqlalchemy", "torch", "sklearn", "requests", "urllib"}
+            importados.add(n.module)
+    proibidos = {"fastapi", "flask", "sqlite3", "sqlalchemy", "torch", "sklearn", "requests", "httpx", "urllib3",
+                 "urllib.request", "http", "socket"}           # web, SQL, ML e rede; urllib.parse (só texto) pode
+    assert not [m for m in importados if any(m == x or m.startswith(x + ".") for x in proibidos)], importados
     assert "default_rng" not in src and "np.random" not in src and "random." not in src
 
 
@@ -517,32 +439,72 @@ def proj_com_excluido(tmp_path):
     return montar_proj(tmp_path, raw)
 
 
-def extrair(html: str) -> dict:
-    m = re.search(r'<script id="dados" type="application/json">(.*?)</script>', html, re.S)
-    return json.loads(m.group(1))
+def extrair(pasta: Path) -> dict:
+    txt = (pasta / "assets" / "dados.js").read_text(encoding="utf-8")
+    assert txt.startswith("window.PR_DADOS=") and txt.endswith(";\n")
+    return json.loads(txt[len("window.PR_DADOS="):-2])
 
 
-def test_ponta_a_ponta_grava_o_html_com_o_hash_do_manifest(proj):
+def lido(pasta: Path) -> dict[str, bytes]:
+    return {str(f.relative_to(pasta)): f.read_bytes() for f in sorted(pasta.rglob("*")) if f.is_file()}
+
+
+def test_ponta_a_ponta_grava_a_pasta_com_o_hash_do_manifest(proj):
     cfg, raiz = proj
     r = bs.gerar_site(cfg, agora=VERIFICADO)
-    destino = raiz / "site" / "piaui_resiliente.html"
-    assert Path(r["arquivo"]) == destino and destino.is_file()
-    assert r["municipios"] == 3 and r["meses"] == NT and r["excluidos"] == 0
-    html = destino.read_text(encoding="utf-8")
-    d = extrair(html)
+    destino = raiz / "site"
+    assert Path(r["pasta"]) == destino and Path(r["inicio"]) == destino / "index.html" and (destino / "index.html").is_file()
+    assert r["municipios"] == 3 and r["meses"] == NT and r["excluidos"] == 0 and r["arquivos"] == len(lido(destino))
+    d = extrair(destino)
     m = json.loads((raiz / "data" / "curated" / "manifest.json").read_text(encoding="utf-8"))
     assert d["verificacao"]["dataset_sha256"] == m["dataset_sha256"] == r["dataset_sha256"]
     assert d["verificacao"]["verificado_em"] == "2026-11-19T15:00:00Z"
     assert d["fonte"]["extraido_em"] == ["2026-11-18T23:10:00+00:00", "2026-11-19T00:40:00+00:00"]   # do mais antigo ao mais novo
-    assert not list((raiz / "site").glob("*.tmp"))
-    assert "MVP experimental" in html and "Indisponível" in html and "__DADOS__" not in html
+    assert not list(destino.rglob("*.tmp"))
+    for pagina in paginas.PAGINAS:
+        html = (destino / pagina.arquivo).read_text(encoding="utf-8")
+        assert "MVP experimental" in html and m["dataset_sha256"] in html and "{{" not in html
+    if os.name != "nt":
+        assert {(f.stat().st_mode & 0o777) for f in destino.rglob("*") if f.is_file()} == {0o644}   # servível por quem não é o dono
+
+
+def test_ponta_a_ponta_sem_arquivo_do_el_nino_a_camada_aparece_como_indisponivel(proj):
+    cfg, raiz = proj
+    assert not (raiz / ce.ARQUIVO_PADRAO).exists()
+    r = bs.gerar_site(cfg, agora=VERIFICADO)
+    assert r["enso"] is False and extrair(raiz / "site")["enso"] is None
+    html = (raiz / "site" / "el-nino.html").read_text(encoding="utf-8")
+    assert "indisponível" in html.lower() and "ensodisc" not in html
+
+
+def test_ponta_a_ponta_com_arquivo_do_el_nino_leva_as_fontes_e_a_data(proj):
+    cfg, raiz = proj
+    destino_ref = raiz / ce.ARQUIVO_PADRAO
+    destino_ref.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(RAIZ / ce.ARQUIVO_PADRAO, destino_ref)
+    r = bs.gerar_site(cfg, agora=VERIFICADO)
+    assert r["enso"] is True
+    d = extrair(raiz / "site")
+    assert d["enso"] == ce.para_pacote(ce.carregar(destino_ref))
+    html = (raiz / "site" / "el-nino.html").read_text(encoding="utf-8")
+    assert "cpc.ncep.noaa.gov" in html and "portal.inmet.gov.br" in html
+
+
+def test_ponta_a_ponta_arquivo_do_el_nino_invalido_nao_gera_site(proj):
+    cfg, raiz = proj
+    ref = raiz / ce.ARQUIVO_PADRAO
+    ref.parent.mkdir(parents=True, exist_ok=True)
+    ref.write_text('{"versao": 1}', encoding="utf-8")
+    with pytest.raises(ValueError):
+        bs.gerar_site(cfg, agora=VERIFICADO)
+    assert not (raiz / "site").exists()
 
 
 def test_ponta_a_ponta_municipio_excluido_aparece_sem_spi_e_com_motivo(proj_com_excluido):
     cfg, raiz = proj_com_excluido
     r = bs.gerar_site(cfg, agora=VERIFICADO)
     assert r["excluidos"] == 1
-    d = extrair((raiz / "site" / "piaui_resiliente.html").read_text(encoding="utf-8"))
+    d = extrair(raiz / "site")
     por = {m["cod"]: m for m in d["municipios"]}
     assert por[B]["exc"] is True and por[B]["motivo"].startswith("cobertura no treino")
     assert por[A]["exc"] is False and por[A]["motivo"] == "" and d["n_excluidos"] == 1
@@ -551,21 +513,47 @@ def test_ponta_a_ponta_municipio_excluido_aparece_sem_spi_e_com_motivo(proj_com_
         assert (decodificar(d["spi"][k], "<i2").reshape(3, NT)[i] == bs.NA16).all()
         assert (decodificar(d["cls"][k], "uint8").reshape(3, NT)[i] == bs.SEM_DADO).all()
     assert (decodificar(d["precip"], "<i2").reshape(3, NT)[i][:384] == bs.NA16).all()   # sem satélite até 2012-12
+    # o excluído não entra na média da chuva do clima, que seria puxada para baixo por meses sem satélite
+    assert all(v >= 0 for v in d["clima"]["climatologia"])
 
 
-def test_ponta_a_ponta_saida_escolhida(proj, tmp_path_factory):
+def test_ponta_a_ponta_saida_escolhida_e_uma_pasta(proj, tmp_path_factory):
     cfg, raiz = proj
-    alvo = tmp_path_factory.mktemp("fora") / "a" / "b.html"
+    alvo = tmp_path_factory.mktemp("fora") / "a" / "b"
     r = bs.gerar_site(cfg, alvo, agora=VERIFICADO)
-    assert Path(r["arquivo"]) == alvo and alvo.is_file() and not (raiz / "site").exists()
+    assert Path(r["pasta"]) == alvo and (alvo / "index.html").is_file() and not (raiz / "site").exists()
 
 
-def test_ponta_a_ponta_gerar_duas_vezes_da_o_mesmo_arquivo(proj):
+@pytest.mark.parametrize("nome", ["x.html", "x.HTM"])
+def test_saida_com_cara_de_arquivo_html_e_erro_e_nao_grava(proj, tmp_path, nome):
+    cfg, raiz = proj
+    with pytest.raises(bs.SiteError, match="pasta"):
+        bs.gerar_site(cfg, tmp_path / nome, agora=VERIFICADO)
+    assert not (tmp_path / nome).exists() and not (raiz / "site").exists()
+
+
+def test_ponta_a_ponta_gerar_duas_vezes_da_o_mesmo_conteudo(proj):
     cfg, raiz = proj
     bs.gerar_site(cfg, agora=VERIFICADO)
-    a = (raiz / "site" / "piaui_resiliente.html").read_bytes()
+    a = lido(raiz / "site")
     bs.gerar_site(cfg, agora=VERIFICADO)
-    assert (raiz / "site" / "piaui_resiliente.html").read_bytes() == a
+    assert lido(raiz / "site") == a and len(a) >= 14
+
+
+def test_erro_em_uma_pagina_nao_deixa_site_pela_metade(proj, monkeypatch):
+    cfg, raiz = proj
+    original, chamadas = paginas.renderizar_pagina, []
+
+    def quebra_na_terceira(pagina, *args, **kw):
+        chamadas.append(pagina.id)
+        if len(chamadas) == 3:
+            raise paginas.PaginaError("quebrou de propósito")
+        return original(pagina, *args, **kw)
+
+    monkeypatch.setattr(paginas, "renderizar_pagina", quebra_na_terceira)
+    with pytest.raises(paginas.PaginaError):
+        bs.gerar_site(cfg, agora=VERIFICADO)
+    assert len(chamadas) == 3 and not (raiz / "site").exists()
 
 
 @pytest.mark.parametrize("alvo", ["data/reference/malha_pi_2022_gee.geojson", "demo_observado"])
@@ -584,6 +572,7 @@ def test_lote_do_raw_alterado_nao_gera_site(proj):
     lote.write_bytes(lote.read_bytes() + b"\x00")
     with pytest.raises(mf.ManifestIntegridadeError):
         bs.gerar_site(cfg, agora=VERIFICADO)
+    assert not (raiz / "site").exists()
 
 
 def test_sem_manifest_nao_gera_site(proj):
@@ -605,26 +594,16 @@ def test_params_alterado_depois_do_manifest_nao_gera_site(proj):
 
 def test_cli_ok_imprime_aviso_e_resumo(proj, capsys):
     cfg, raiz = proj
-    assert bs.main(["--params", str(raiz / "params.yaml"), "--saida", str(raiz / "x.html")]) == 0
+    assert bs.main(["--params", str(raiz / "params.yaml"), "--saida", str(raiz / "saida")]) == 0
     out = capsys.readouterr().out
-    assert out.startswith("AVISO: MVP experimental") and "site gravado:" in out and "municípios=3" in out
-    assert (raiz / "x.html").is_file()
+    assert out.startswith("AVISO: MVP experimental") and "site gravado em" in out and "municípios=3" in out
+    assert f"abra: {raiz / 'saida' / 'index.html'}" in out and "sem data/reference/contexto_enso.json" in out
+    assert (raiz / "saida" / "index.html").is_file()
 
 
 def test_cli_com_erro_devolve_1_e_nao_grava(proj, capsys):
     cfg, raiz = proj
     p = bd.destino(cfg, "demo_observado")
     p.write_bytes(p.read_bytes() + b" ")
-    assert bs.main(["--params", str(raiz / "params.yaml"), "--saida", str(raiz / "x.html")]) == 1
-    assert "ERRO:" in capsys.readouterr().err and not (raiz / "x.html").exists()
-
-
-def test_template_conta_so_meses_confiaveis_na_ficha_e_declara_a_regra_no_rodape():
-    t = TEMPLATE.read_text(encoding="utf-8")
-    for texto in ("Meses em seca (SPI ≤ −1,0, só meses confiáveis):", "Mês mais seco (só meses confiáveis):",
-                  "deles com baixa confiança", "D.regra_baixa", "R.media_min_mm_por_mes", "R.q_max",
-                  "${regraBc} Esses meses continuam"):
-        assert texto in t, texto
-    # o mês de baixa confiança sai do "mês mais seco" e das contagens de seca: o `continue` vem antes de elas serem tocadas
-    i = t.index("total++; if (BX[k][i * NT + t]) { baixas++; continue; }")
-    assert t.index("secos++", i) > i and t.index("pior = x", i) > i
+    assert bs.main(["--params", str(raiz / "params.yaml"), "--saida", str(raiz / "saida")]) == 1
+    assert "ERRO:" in capsys.readouterr().err and not (raiz / "saida").exists()

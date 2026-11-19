@@ -1,16 +1,17 @@
-"""Gerador do site (Item 11): um único HTML, que funciona offline, a partir dos artefatos do manifest.
+"""Gerador do site (Item 11): uma pasta de páginas estáticas que funciona offline, a partir dos artefatos do manifest.
 
 Só abre o que o manifest lista e confere o SHA-256 antes (`manifest.verificar_manifest`). Não calcula
 SPI, não treina e não lê o teste congelado: apenas traduz `demo_observado`, `qualidade_municipio`, a
 chuva do RAW e a malha do GEE num pacote de dados (SPI e chuva em inteiros de 16 bits, classes em
-bytes) que o `template.html` desenha. Lógica de domínio e ML não dependem deste módulo.
+bytes), mais o contexto do El Niño (`contexto_enso.json`, transcrito de fontes oficiais), e monta as páginas.
+Lógica de domínio e ML não dependem deste módulo.
 
-Dados sintéticos existem só em `tests/`. O HTML gerado carrega o aviso de MVP, as limitações e o
+Dados sintéticos existem só em `tests/`. As páginas carregam o aviso de MVP, as limitações e o
 `dataset_sha256`; camadas sem dado oficial validado aparecem como "Indisponível".
 
 Uso (PowerShell, depois de `python -m src.data.build_demo`):
-    python -m src.web.build_site                      # grava site/piaui_resiliente.html
-    python -m src.web.build_site --saida outra.html
+    python -m src.web.build_site                      # grava a pasta site/ (abra site/index.html)
+    python -m src.web.build_site --saida outra_pasta
 """
 from __future__ import annotations
 
@@ -29,8 +30,10 @@ import numpy as np
 import pandas as pd
 
 from src.data import chirps_raw
+from src.data import contexto_enso as ce
 from src.data import manifest as mf
 from src.data.config import Config, load_config
+from src.web import destaques, marca, paginas
 
 NA16 = -32768                 # "sem dado" nos inteiros de 16 bits
 SEM_DADO = 255                # "sem dado" nas classes
@@ -39,20 +42,24 @@ ESCALA_CHUVA = 10             # mm x 10
 LARGURA_MAPA = 1000.0         # unidades do viewBox do SVG
 GEOJSON = "referencia/malha_pi_2022_gee.geojson"
 RAIZ_WEB = Path(__file__).resolve().parent
-TEMPLATE = RAIZ_WEB / "template.html"
-FONTE = RAIZ_WEB / "assets" / "AtkinsonHyperlegibleNext-latin-wght.woff2"
-SAIDA_PADRAO = Path("site") / "piaui_resiliente.html"
+ASSETS = RAIZ_WEB / "assets"
+FONTE_CORPO = ASSETS / "AtkinsonHyperlegibleNext-latin-wght.woff2"
+FONTE_MARCA = ASSETS / "Outfit-latin-wght.woff2"
+SAIDA_PADRAO = Path("site")
+JS_NUCLEO = ("core",)
 
 # Classes do SPI (McKee et al. 1993; a mesma divisão que a OMM usa). "Em seca" = SPI <= -1,0.
 # (id, rótulo, faixa mostrada, cor no tema claro, cor no tema escuro, é seca)
+# Duas rampas da marca: terracota para a falta de chuva, azul-petróleo para o excesso, com o neutro no meio.
+# O SPI-3 mais extremo é o mais escuro no tema claro e o mais claro no escuro (validado com o guia de visualização).
 CLASSES = (
-    ("seca_extrema", "Seca extrema", "−2,0 ou menos", "#810a0e", "#ff655a", True),
-    ("seca_severa", "Seca severa", "−1,99 a −1,5", "#d03e0e", "#d15227", True),
-    ("seca_moderada", "Seca moderada", "−1,49 a −1,0", "#f09c59", "#925019", True),
-    ("normal", "Próximo do normal", "−0,99 a 0,99", "#f0efec", "#383835", False),
-    ("umido_moderado", "Úmido moderado", "1,0 a 1,49", "#86b6ef", "#1c5cab", False),
-    ("muito_umido", "Muito úmido", "1,5 a 1,99", "#2a78d6", "#3987e5", False),
-    ("umido_extremo", "Extremamente úmido", "2,0 ou mais", "#104281", "#86b6ef", False),
+    ("seca_extrema", "Seca extrema", "−2,0 ou menos", "#6E1D0B", "#FF9068", True),
+    ("seca_severa", "Seca severa", "−1,99 a −1,5", marca.TERRACOTA, "#D0603E", True),
+    ("seca_moderada", "Seca moderada", "−1,49 a −1,0", "#E39A78", "#8A4A38", True),
+    ("normal", "Próximo do normal", "−0,99 a 0,99", "#E8E1D3", "#2A444B", False),
+    ("umido_moderado", "Úmido moderado", "1,0 a 1,49", "#78B6BF", "#1F5A63", False),
+    ("muito_umido", "Muito úmido", "1,5 a 1,99", marca.PETROLEO, "#2E93A0", False),
+    ("umido_extremo", "Extremamente úmido", "2,0 ou mais", "#073F47", "#74D4E0", False),
 )
 LIMITES = (-2.0, -1.5, -1.0, 1.0, 1.5, 2.0)   # seca: SPI <= limite; úmido: SPI >= limite
 
@@ -156,6 +163,7 @@ class Insumos:
     malha: dict
     manifest: dict
     extraido_em: tuple[str, str] | None
+    enso: ce.ContextoEnso | None = None
 
 
 def _grade(df: pd.DataFrame, cods: list[str], meses: pd.PeriodIndex, colunas: list[str], onde: str) -> pd.DataFrame:
@@ -192,22 +200,43 @@ def montar_payload(ins: Insumos, cfg: Config, *, verificado_em: datetime) -> dic
         m["motivo"] = str(row["motivo"]) if m["exc"] else ""
 
     spi, cls, baixa = {}, {}, {}
+    cls_mat, baixa_mat = {}, {}
     for k in escalas:
         v = demo[f"spi{k}"].to_numpy("float64")
         v = np.where(demo[f"spi{k}_invalid"].to_numpy(bool), np.nan, v)
         q = inteiros16(v, ESCALA_SPI)
         # a classe é a do número que a tela mostra (2 casas): nunca "−1,00" junto de "próximo do normal"
-        cls[str(k)] = em_base64(classificar(np.where(q == NA16, np.nan, q / ESCALA_SPI)))
-        spi[str(k)] = em_base64(q)
-        baixa[str(k)] = em_base64((demo[f"spi{k}_baixa_conf"].to_numpy(bool) & ~np.isnan(v)).astype("uint8"))
+        c = classificar(np.where(q == NA16, np.nan, q / ESCALA_SPI))
+        b = (demo[f"spi{k}_baixa_conf"].to_numpy(bool) & ~np.isnan(v)).astype("uint8")
+        cls[str(k)], spi[str(k)], baixa[str(k)] = em_base64(c), em_base64(q), em_base64(b)
+        cls_mat[k], baixa_mat[k] = c.reshape(nm, len(meses)), b.reshape(nm, len(meses))
 
     ordem = sorted(range(nm), key=lambda i: (-municipios[i]["lat"], municipios[i]["lon"]))   # norte -> sul
     for m in municipios:
         del m["lon"], m["lat"]
 
+    # destaques do site: só leituras observadas e confiáveis (ver destaques.py)
+    alvo = int(cfg.alvo.escala_spi_meses)
+    if alvo not in cls_mat:
+        raise SiteError(f"escala_alvo {alvo} não está nas escalas {escalas}")
+    t_abertura = destaques.mes_abertura(cls_mat[alvo], baixa_mat[alvo])
+    maiores = [{**x, "mes": str(meses[x["t"]])} for x in destaques.maiores_secas(cls_mat[alvo], baixa_mat[alvo])]
+    ultimo_valido = cls_mat[alvo][:, -1] != SEM_DADO
+    pct_baixa_ultimo = int(round(100 * baixa_mat[alvo][:, -1][ultimo_valido].sum() / max(1, ultimo_valido.sum())))
+    incluir = ~np.array([x["exc"] for x in municipios])
+    chuva_mat = chuva.reshape(nm, len(meses))
+    clima_mensal = destaques.climatologia_mensal(chuva_mat, meses, cfg.split.treino_fim, incluir)
+    estacao = destaques.estacao_chuvosa(chuva_mat, meses, cfg.split.treino_fim, incluir)
+    pct_estacao = round(100 * sum(clima_mensal[mm - 1] for mm in estacao["meses"]) / sum(clima_mensal), 1)
+
     m = ins.manifest
     demo_extras = (m.get("extras") or {}).get("demo", {})
     return {
+        "n_municipios": nm,
+        "abertura": int(t_abertura), "pct_baixa_ultimo": pct_baixa_ultimo, "maiores_secas": maiores,
+        "clima": {"climatologia": clima_mensal, "estacao": estacao, "pct_estacao": pct_estacao,
+                  "treino_fim": str(cfg.split.treino_fim)},
+        "enso": ce.para_pacote(ins.enso) if ins.enso is not None else None,
         "titulo": cfg.projeto.nome,
         "equipe": cfg.projeto.equipe,
         "maturidade": cfg.projeto.maturidade,
@@ -261,20 +290,41 @@ def carregar_insumos(cfg: Config) -> Insumos:
         raise SiteError(f"o manifest não lista {GEOJSON}")
     malha = json.loads(mf.caminho_verificado(cfg, GEOJSON).read_text(encoding="utf-8"))
     raw = pd.concat([chirps_raw.ler_lote(mf.caminho_verificado(cfg, n)) for n in lotes], ignore_index=True)
+    arq_enso = cfg.raiz / ce.ARQUIVO_PADRAO          # fora do manifest: contexto de fonte externa, com a própria data
+    enso = ce.carregar(arq_enso) if arq_enso.is_file() else None
     return Insumos(demo=ler("demo_observado"), qualidade=ler("qualidade_municipio"), raw=raw, malha=malha,
-                   manifest=m, extraido_em=_extracao(cfg, lotes))
+                   manifest=m, extraido_em=_extracao(cfg, lotes), enso=enso)
 
 
-def renderizar(payload: dict, template: str, fonte_woff2: bytes) -> str:
-    """Troca os três marcadores do template. Faltou marcador = erro (nada de HTML pela metade)."""
-    dados = json.dumps(payload, ensure_ascii=False, separators=(",", ":"), allow_nan=False).replace("</", "<\\/")
-    html = template
-    for marcador, valor in (("__DADOS__", dados), ("__FONTE__", base64.b64encode(fonte_woff2).decode("ascii")),
-                            ("__TITULO__", payload["titulo"])):
-        if html.count(marcador) != 1:
-            raise SiteError(f"o template precisa ter {marcador} exatamente uma vez")
-        html = html.replace(marcador, valor)
-    return html
+# ------------------------------------------------------------------ montagem da pasta do site
+def _dados_js(payload: dict) -> str:
+    j = json.dumps(payload, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+    return "window.PR_DADOS=" + j.replace("\u2028", "\\u2028").replace("\u2029", "\\u2029") + ";\n"
+
+
+def _css(fonte_corpo: bytes, fonte_marca: bytes) -> str:
+    css = (ASSETS / "site.css").read_text(encoding="utf-8")
+    for marcador, valor in (("__FONTE_CORPO__", base64.b64encode(fonte_corpo).decode("ascii")),
+                            ("__FONTE_MARCA__", base64.b64encode(fonte_marca).decode("ascii"))):
+        if css.count(marcador) != 1:
+            raise SiteError(f"site.css precisa ter {marcador} exatamente uma vez")
+        css = css.replace(marcador, valor)
+    return css
+
+
+def montar_arquivos(payload: dict, lista: tuple[paginas.Pagina, ...] = paginas.PAGINAS) -> dict[str, str]:
+    """Caminho relativo -> conteúdo de texto de tudo o que a pasta do site leva. Sem escrever nada em disco."""
+    arquivos: dict[str, str] = {
+        "assets/dados.js": _dados_js(payload),
+        "assets/site.css": _css(FONTE_CORPO.read_bytes(), FONTE_MARCA.read_bytes()),
+        "assets/marca/gota.svg": marca.svg_isolado(),
+    }
+    scripts = {*JS_NUCLEO, *(s for p in lista for s in p.scripts)}
+    for s in sorted(scripts):
+        arquivos[f"assets/{s}.js"] = (ASSETS / f"{s}.js").read_text(encoding="utf-8")
+    for p in lista:
+        arquivos[p.arquivo] = paginas.renderizar_pagina(p, lista, payload)
+    return arquivos
 
 
 def _gravar_atomico(destino: Path, texto: str) -> None:
@@ -283,6 +333,7 @@ def _gravar_atomico(destino: Path, texto: str) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
             f.write(texto)
+        os.chmod(tmp, 0o644)
         os.replace(tmp, destino)
     except BaseException:
         Path(tmp).unlink(missing_ok=True)
@@ -290,23 +341,28 @@ def _gravar_atomico(destino: Path, texto: str) -> None:
 
 
 def gerar_site(cfg: Config, saida: Path | None = None, *, agora: datetime | None = None) -> dict:
-    """Confere o manifest, monta o pacote e grava o HTML. Devolve um resumo (JSON puro)."""
+    """Confere o manifest, monta o pacote e grava a pasta do site. Devolve um resumo (JSON puro)."""
     agora = agora or datetime.now(timezone.utc)
     ins = carregar_insumos(cfg)
     payload = montar_payload(ins, cfg, verificado_em=agora)
-    html = renderizar(payload, TEMPLATE.read_text(encoding="utf-8"), FONTE.read_bytes())
+    arquivos = montar_arquivos(payload)                          # tudo montado na memória antes de gravar qualquer coisa
     destino = Path(saida) if saida else cfg.raiz / SAIDA_PADRAO
-    _gravar_atomico(destino, html)
-    return {"arquivo": str(destino), "bytes": destino.stat().st_size, "municipios": len(payload["municipios"]),
+    if destino.suffix.lower() in (".html", ".htm"):
+        raise SiteError(f"a saída agora é uma pasta com várias páginas, não um arquivo: {destino}")
+    for rel, texto in arquivos.items():
+        _gravar_atomico(destino / rel, texto)
+    return {"pasta": str(destino), "inicio": str(destino / "index.html"), "arquivos": len(arquivos),
+            "bytes": sum(len(t.encode("utf-8")) for t in arquivos.values()), "municipios": len(payload["municipios"]),
             "meses": len(payload["meses"]), "excluidos": payload["n_excluidos"],
-            "dataset_sha256": payload["verificacao"]["dataset_sha256"], "maturity": payload["maturidade"]}
+            "dataset_sha256": payload["verificacao"]["dataset_sha256"], "maturity": payload["maturidade"],
+            "enso": payload["enso"] is not None}
 
 
 def main(argv: list[str] | None = None) -> int:       # python -m src.web.build_site
     ap = argparse.ArgumentParser(prog="python -m src.web.build_site",
-                                 description="Gera o site (HTML único, offline) a partir dos artefatos do manifest.")
+                                 description="Gera o site (pasta de páginas estáticas, offline) a partir dos artefatos do manifest.")
     ap.add_argument("--params", default="params.yaml")
-    ap.add_argument("--saida", default=None, help=f"padrão: {SAIDA_PADRAO}")
+    ap.add_argument("--saida", default=None, help=f"pasta de saída; padrão: {SAIDA_PADRAO}")
     a = ap.parse_args(argv)
     try:
         r = gerar_site(load_config(a.params), Path(a.saida) if a.saida else None)
@@ -314,8 +370,9 @@ def main(argv: list[str] | None = None) -> int:       # python -m src.web.build_
         print(f"ERRO: {e}", file=sys.stderr)
         return 1
     print(f"AVISO: {r['maturity']}")
-    print(f"site gravado: {r['arquivo']} ({r['bytes'] / 1e6:.2f} MB) | municípios={r['municipios']} "
+    print(f"site gravado em {r['pasta']} ({r['arquivos']} arquivos, {r['bytes'] / 1e6:.2f} MB) | municípios={r['municipios']} "
           f"meses={r['meses']} excluídos={r['excluidos']} | dataset_sha256={r['dataset_sha256'][:16]}…")
+    print(f"abra: {r['inicio']}" + ("" if r["enso"] else " | AVISO: sem data/reference/contexto_enso.json; a camada do El Niño aparece como indisponível"))
     return 0
 
 
