@@ -28,7 +28,7 @@
 <div class="aviso" role="note">
   <div class="wrap">
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 2 14.5 13.5h-13z" stroke-linejoin="round"/><path d="M8 6.5v3.2M8 11.6v.1" stroke-linecap="round"/></svg>
-    <span><b>MVP experimental.</b> Em calibração com S2iD/TCE-PI. Não substitui alerta oficial: o monitor mostra a chuva já observada; a única previsão está na página Previsão, com margem de erro.</span>
+    <span><b>MVP experimental.</b> Em calibração com S2iD/TCE-PI. Não substitui alerta oficial: o SPI e o mapa mostram a chuva já observada; a previsão do modelo está na página Previsão, com margem de erro, e a ficha do Monitor traz a previsão de chuva da Open-Meteo, outra fonte.</span>
   </div>
 </div>
 <main id="conteudo">
@@ -59,6 +59,16 @@
 
   <section class="secao leitura"><h2>Segunda fonte de chuva, só para conferir</h2><p style="margin-top:12px">O CHIRPS, que alimenta o modelo, termina em setembro de 2026 e por isso ainda não mostra como foi outubro de 2026. O site tem duas camadas, e elas não se misturam:</p><ul style="margin-top:12px"><li><b>Núcleo auditável.</b> A chuva do CHIRPS e a rede neural PyTorch treinada do zero. Tudo é gerado offline e conferido por SHA-256 (veja o rodapé).</li><li><b>Conferência com outra fonte.</b> A chuva diária de 01/08/2026 a 31/10/2026 foi buscada em 20/11/2026 na API de histórico da Open-Meteo (reanálise), no centro do município, e guardada num arquivo com fonte, licença e data. Ela não entra no treino, não prevê nada e não altera os dados nem o SHA-256.</li><li><b>Como ler.</b> A chuva de outubro de 2026 de cada município é posta ao lado dos outubros de 1981 a 2015 do CHIRPS: o desvio em relação ao normal (a mediana do mês) e a posição no histórico. Como as fontes são diferentes, a leitura é por grupo, municípios com sinal contra sem sinal.</li><li><b>Limite.</b> Não é o acerto oficial da previsão. A conferência com o CHIRPS fica para quando ele cobrir outubro de 2026, e o teste final continua fechado.</li></ul></section>
 
+  <section class="secao leitura">
+    <h2>Duas camadas: a verificada e a ao vivo</h2>
+    <p class="sub">O Monitor junta duas coisas diferentes e mantém as duas separadas.</p>
+    <ul style="margin-top:12px">
+      <li><b>Camada verificada.</b> CHIRPS, SPI e previsão do modelo, gerados antes da publicação e conferidos por SHA-256 (veja “Dados e verificação”). Abre sem internet.</li>
+      <li><b>Camada ao vivo.</b> Na ficha do município, o Monitor consulta a Open-Meteo (modelo meteorológico, CC BY 4.0) pela internet de quem abriu a página: chuva estimada dos últimos 30 dias, previsão de 16 dias e umidade do solo na camada de 0 a 1 cm. A consulta fica guardada no navegador por 30 minutos. Sem internet, o painel mostra a última consulta guardada, marcada como tal, ou um aviso com o botão “Tentar de novo”.</li>
+      <li><b>O que a camada ao vivo não faz.</b> Não entra no treino nem na previsão do modelo, não muda o SPI e não entra no hash de integridade. “Ao vivo” quer dizer consultada agora, não medida agora: a chuva dos dias que passaram é estimativa de modelo, não pluviômetro, e a previsão perde precisão a cada dia à frente.</li>
+    </ul>
+  </section>
+
   <section class="secao">
     <h2>O que o site ainda não mostra</h2>
     <p class="sub">O que não tem dado oficial validado aparece como indisponível, nunca com valor de exemplo.</p>
@@ -86,8 +96,8 @@
     <ul style="margin-top:12px">
       <li><b>Chuva:</b> CHIRPS v2.0 final (UCSB/CHC), coleção UCSB-CHG/CHIRPS/DAILY no Google Earth Engine, de janeiro de 1981 a setembro de 2026, extraído em 17/11/2026 23:55 a 18/11/2026 21:18.</li>
       <li><b>Municípios:</b> malha do IBGE (2022); semiárido da Resolução CONDEL/SUDENE 150/2021, mais Luís Correia pela regra de transição da Resolução 176/2024 (fonte ainda em confirmação).</li>
-      <li><b>Conferência:</b> 40 arquivos conferidos por SHA-256 em 20/11/2026 13:39. Conjunto de dados <code>7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab</code>.</li>
-      <li><b>Reprodução:</b> o site é gerado com <code>python -m src.web.build_site</code> a partir do manifesto, sem rede.</li>
+      <li><b>Conferência:</b> 40 arquivos conferidos por SHA-256 em 20/11/2026 14:17. Conjunto de dados <code>7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab</code>.</li>
+      <li><b>Reprodução:</b> o site é gerado com <code>python -m src.web.build_site</code> a partir do manifesto, sem rede. Só o painel ao vivo do Monitor usa a internet, depois, no navegador.</li>
     </ul>
   </section>
 </div>
@@ -107,7 +117,7 @@
     </div>
     <div>
       <h2>Verificação e limites</h2>
-      <p>40 arquivos conferidos por SHA-256 em 20/11/2026 13:39. Conjunto de dados <button class="hash" type="button" data-cheio="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab" title="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab">7043e6c2f9e012d2…</button>.</p>
+      <p>40 arquivos conferidos por SHA-256 em 20/11/2026 14:17. Conjunto de dados <button class="hash" type="button" data-cheio="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab" title="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab">7043e6c2f9e012d2…</button>.</p>
       <p>O SPI descreve falta de chuva e não prova colapso de manancial. Até 2015, ele descreve o próprio período usado no ajuste. <a href="metodo.html">Método e limites</a>.</p>
     </div>
   </div>

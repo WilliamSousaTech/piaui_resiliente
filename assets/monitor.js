@@ -222,7 +222,7 @@ $('tl').addEventListener('keydown', (ev) => {
 });
 
 /* seleção, busca, tabela */
-function selecionar(i) { S.sel = i; mapa.selecionar(i); desenharFicha(); atualizarMatrizSel(); $('busca').value = i >= 0 ? D.municipios[i].nome : ''; gravarHash(); }
+function selecionar(i) { S.sel = i; mapa.selecionar(i); desenharFicha(); atualizarMatrizSel(); $('busca').value = i >= 0 ? D.municipios[i].nome : ''; gravarHash(); document.dispatchEvent(new CustomEvent('pr:municipio', { detail: { i } })); }
 $('busca').addEventListener('change', (ev) => { const q = semAcento(ev.target.value.trim()); const i = D.municipios.findIndex((m) => semAcento(m.nome) === q); if (i >= 0) selecionar(i); });
 const atualizarMatrizSel = () => { const r = S.sel >= 0 ? linhaDe[S.sel] : -1; [ovR1, ovR2].forEach((l) => { l.style.display = r < 0 ? 'none' : ''; l.setAttribute('y1', r + .5); l.setAttribute('y2', r + .5); }); };
 document.addEventListener('pr:tema', () => { PAL = P.paleta(); desenharMatriz(); });
