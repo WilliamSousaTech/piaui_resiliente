@@ -57,11 +57,13 @@
     <p>Esses meses aparecem em pontilhado no mapa e esmaecidos na matriz. Continuam nas contagens do mapa, mas ficam de fora de “meses em seca” e “mês mais seco” de cada município.</p>
   </section>
 
+  <section class="secao leitura"><h2>Segunda fonte de chuva, só para conferir</h2><p style="margin-top:12px">O CHIRPS, que alimenta o modelo, termina em setembro de 2026 e por isso ainda não mostra como foi outubro de 2026. O site tem duas camadas, e elas não se misturam:</p><ul style="margin-top:12px"><li><b>Núcleo auditável.</b> A chuva do CHIRPS e a rede neural PyTorch treinada do zero. Tudo é gerado offline e conferido por SHA-256 (veja o rodapé).</li><li><b>Conferência com outra fonte.</b> A chuva diária de 01/08/2026 a 31/10/2026 foi buscada em 20/11/2026 na API de histórico da Open-Meteo (reanálise), no centro do município, e guardada num arquivo com fonte, licença e data. Ela não entra no treino, não prevê nada e não altera os dados nem o SHA-256.</li><li><b>Como ler.</b> A chuva de outubro de 2026 de cada município é posta ao lado dos outubros de 1981 a 2015 do CHIRPS: o desvio em relação ao normal (a mediana do mês) e a posição no histórico. Como as fontes são diferentes, a leitura é por grupo, municípios com sinal contra sem sinal.</li><li><b>Limite.</b> Não é o acerto oficial da previsão. A conferência com o CHIRPS fica para quando ele cobrir outubro de 2026, e o teste final continua fechado.</li></ul></section>
+
   <section class="secao">
     <h2>O que o site ainda não mostra</h2>
     <p class="sub">O que não tem dado oficial validado aparece como indisponível, nunca com valor de exemplo.</p>
     <ul class="indisp-grande">
-      <li><b>Previsão do próximo mês</b><span>Só como experimento: a página Previsão mostra o SPI de outubro de 2026 com margem de erro. O teste final ainda não foi aberto e o alarme de seca pega só uma parte das secas reais.</span></li>
+      <li><b>Previsão do próximo mês</b><span>Só como experimento: a página Previsão mostra o SPI de outubro de 2026 com margem de erro. O teste final ainda não foi aberto e o alarme de seca pega só uma parte das secas reais. A página Previsão traz também uma conferência indicativa de outubro de 2026 com outra fonte de chuva.</span></li>
       <li><b>Antecedência em relação aos decretos</b><span>Indisponível: o formato dos dados oficiais do S2iD ainda não foi confirmado.</span></li>
       <li><b>Plano de Contingência (MUNIC/IBGE)</b><span>Sem informação oficial carregada neste site.</span></li>
       <li><b>Nível de reservatórios</b><span>Sem dado carregado. O SPI mede falta de chuva e não prova que um açude vai secar.</span></li>
@@ -84,7 +86,7 @@
     <ul style="margin-top:12px">
       <li><b>Chuva:</b> CHIRPS v2.0 final (UCSB/CHC), coleção UCSB-CHG/CHIRPS/DAILY no Google Earth Engine, de janeiro de 1981 a setembro de 2026, extraído em 17/11/2026 23:55 a 18/11/2026 21:18.</li>
       <li><b>Municípios:</b> malha do IBGE (2022); semiárido da Resolução CONDEL/SUDENE 150/2021, mais Luís Correia pela regra de transição da Resolução 176/2024 (fonte ainda em confirmação).</li>
-      <li><b>Conferência:</b> 40 arquivos conferidos por SHA-256 em 19/11/2026 16:12. Conjunto de dados <code>7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab</code>.</li>
+      <li><b>Conferência:</b> 40 arquivos conferidos por SHA-256 em 20/11/2026 13:39. Conjunto de dados <code>7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab</code>.</li>
       <li><b>Reprodução:</b> o site é gerado com <code>python -m src.web.build_site</code> a partir do manifesto, sem rede.</li>
     </ul>
   </section>
@@ -105,7 +107,7 @@
     </div>
     <div>
       <h2>Verificação e limites</h2>
-      <p>40 arquivos conferidos por SHA-256 em 19/11/2026 16:12. Conjunto de dados <button class="hash" type="button" data-cheio="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab" title="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab">7043e6c2f9e012d2…</button>.</p>
+      <p>40 arquivos conferidos por SHA-256 em 20/11/2026 13:39. Conjunto de dados <button class="hash" type="button" data-cheio="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab" title="7043e6c2f9e012d2ec1fc288cfc787625ce67676a1199795b0ee693f5d52aaab">7043e6c2f9e012d2…</button>.</p>
       <p>O SPI descreve falta de chuva e não prova colapso de manancial. Até 2015, ele descreve o próprio período usado no ajuste. <a href="metodo.html">Método e limites</a>.</p>
     </div>
   </div>
