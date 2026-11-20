@@ -374,6 +374,9 @@ def html_previsao_aviso(pac: dict | None, payload: dict) -> Html:
         data = (f"O mês previsto, {esc(alvo)}, já passou: a chuva medida que o site tem termina em {esc(origem)}. Esta página mostra "
                 f"o que o modelo previu com o último mês disponível e não serve para decidir hoje. Quando a chuva de {esc(alvo)} "
                 f"entrar nos dados, ela será a primeira conferência real da previsão, fora da validação.")
+        if tem_conferencia(payload.get("conferencia"), pac):
+            data += (f" Enquanto isso, a seção “O que choveu em {esc(MESES[int(pac['alvo'][5:7]) - 1])}” traz uma conferência "
+                     f"indicativa, feita com a chuva de outra fonte.")
     else:
         data = (f"O mês previsto, {esc(alvo)}, ainda não tem chuva medida no site, que termina em {esc(origem)}. Quando ela entrar "
                 f"nos dados, será a primeira conferência real da previsão, fora da validação.")
@@ -456,6 +459,103 @@ def html_previsao_legenda(pac: dict | None) -> Html:
                 f'<li><b>Linha fina</b>: SPI zero, a chuva normal.</li></ul></div>')
 
 
+def _sinal_br(x: float, casas: int = 1) -> str:
+    """Desvio com sinal explícito: +0,7 / −1,4 / 0,0."""
+    return f"+{num_br(x, casas)}" if round(x, casas) > 0 else num_br(x, casas)
+
+
+def tem_conferencia(conf: dict | None, pac: dict | None) -> bool:
+    """A conferência só aparece (e só é citada nos outros textos) quando há previsão e pelo menos um município com sinal e dado."""
+    return bool(conf and pac and conf["grupos"]["com_sinal"]["n_com_dado"])
+
+
+def html_previsao_conferencia(conf: dict | None, pac: dict | None, municipios: list[dict]) -> Html:
+    """Seção "O que choveu em <mês>": a chuva do mês previsto vista por OUTRA fonte (Open-Meteo). Só formata o arquivo já
+    validado (src/data/conferencia.py): nenhum número é calculado aqui, e a seção diz que é indicativa."""
+    if not tem_conferencia(conf, pac):
+        return Html("")
+    nomes = {m["cod"]: m["nome"] for m in municipios}
+    faltam = [r["cod_ibge"] for r in conf["municipios"] if r["cod_ibge"] not in nomes]
+    if faltam:
+        raise PaginaError(f"conferência de município que não está no site: {faltam[:5]}")
+    g1, g2 = conf["grupos"]["com_sinal"], conf["grupos"]["sem_sinal"]
+    base, fonte = conf["base_historica"], conf["fonte_conferencia"]
+    mes = MESES[int(conf["mes_alvo"][5:7]) - 1]
+    ano_ini, ano_fim = base["periodo"][:4], base["periodo"][-7:-3]
+    lim = num_br(base["limiar_seco_percentil"], 0)
+    resto = (f" Nos outros {g2['n_com_dado']}, foram {g2['n_secos']} ({_pct_br(g2['fracao_secos'])}%)." if g2["n_com_dado"] else "")
+    fatos = [f'<div><strong>{g1["n_secos"]} de {g1["n_com_dado"]}</strong><span>municípios com sinal de seca tiveram um {mes} entre '
+             f'os {lim}% mais secos de {ano_ini} a {ano_fim}.{resto}</span></div>']
+    if g1["mediana_anomalia_mm"] is not None:
+        outros = (f" Nos outros {g2['n']}, {_sinal_br(g2['mediana_anomalia_mm'])} mm." if g2["mediana_anomalia_mm"] is not None else "")
+        fatos.append(f'<div><strong>{_sinal_br(g1["mediana_anomalia_mm"])} mm</strong><span>desvio mediano da chuva de {mes} em relação '
+                     f'ao normal do mês nos municípios com sinal; {g1["n_abaixo_da_normal"]} de {g1["n"]} ficaram abaixo do normal.{outros}</span></div>')
+    meses_ok = [(k, v) for k, v in sorted(conf["comparacao_fontes"].items()) if v["n"] and v["vies_medio_mm"] is not None]
+    if meses_ok:
+        nomes_m = lista_pt([MESES[int(k[5:7]) - 1] for k, _ in meses_ok], "e")
+        vies = lista_pt([_sinal_br(v["vies_medio_mm"]) for _, v in meses_ok], "e")
+        corrs = list(dict.fromkeys(num_br(v["correlacao"], 2) for _, v in meses_ok if v["correlacao"] is not None))
+        fraca = (f" A correlação entre elas, município a município, é {lista_pt(corrs, 'e')}: por isso a leitura é por grupo."
+                 if corrs else "")
+        fatos.append(f'<div><strong>{vies} mm</strong><span>diferença média entre as duas fontes em {esc(nomes_m)} (Open-Meteo menos CHIRPS), '
+                     f'os meses em que ambas existem.{esc(fraca)}</span></div>')
+    linhas = []
+    marcados = sorted((r for r in conf["municipios"] if r["sinal_modelo"]),
+                      key=lambda r: (r["percentil"] if r["percentil"] is not None else 1e9, nomes[r["cod_ibge"]]))
+    for r in marcados:
+        chuva = r["chuva_mm"][conf["mes_alvo"]]
+        nome = f'<th scope="row"><a href="monitor.html#m={esc(r["cod_ibge"])}">{esc(nomes[r["cod_ibge"]])}</a></th>'
+        if chuva is None:
+            linhas.append(f'<tr>{nome}<td colspan="6"><span class="sem-sinal">dias sem dado na outra fonte: sem conferência</span></td></tr>')
+            continue
+        pct = (f'{num_br(r["pct_normal"], 0)}%' if r["pct_normal"] is not None
+               else '<span aria-hidden="true">—</span><span class="sr"> (normal baixa demais para uma porcentagem)</span>')
+        pos = f'{num_br(100 - r["percentil"], 0)}%' if r["percentil"] is not None else "—"
+        seco = r["percentil"] is not None and r["percentil"] <= base["limiar_seco_percentil"]
+        selo = (f'<span class="selo atencao">{esc(mes.capitalize())} seco</span>' if seco
+                else '<span class="sem-sinal">Fora da faixa seca</span>')
+        linhas.append(f'<tr>{nome}<td>{num_br(chuva, 1)}</td><td>{num_br(r["normal_mm"], 1) if r["normal_mm"] is not None else "—"}</td>'
+                      f'<td>{_sinal_br(r["anomalia_mm"]) if r["anomalia_mm"] is not None else "—"}</td><td>{pct}</td><td>{pos}</td><td>{selo}</td></tr>')
+    avisos = "".join(f"<li>{esc(a)}</li>" for a in conf["avisos"])
+    return Html(
+        f'<section class="secao"><h2>O que choveu em {esc(mes)} nos municípios com sinal</h2>'
+        f'<p class="sub"><b>Conferência indicativa, não o acerto oficial.</b> A chuva vem de outra fonte (reanálise da Open-Meteo), não do '
+        f'CHIRPS que treinou o modelo. Mostra se os municípios que a IA marcou tiveram mesmo um {esc(mes)} seco.</p>'
+        f'<div class="fatos">{"".join(fatos)}</div>'
+        f'<div class="tabela-mun" style="margin-top:18px" tabindex="0" role="region" '
+        f'aria-label="Chuva de {esc(mes)} nos municípios com sinal de seca. Use as setas para rolar."><table><thead><tr>'
+        f'<th scope="col">Município</th><th scope="col">Choveu em {esc(mes)} (mm)</th><th scope="col">Normal do mês (mm)</th>'
+        f'<th scope="col">Desvio (mm)</th><th scope="col">% do normal</th>'
+        f'<th scope="col">Mais seco que (% dos {esc(mes)}s de {ano_ini} a {ano_fim})</th><th scope="col">Leitura</th>'
+        f'</tr></thead><tbody>{"".join(linhas)}</tbody></table></div>'
+        f'<div class="leitura" style="margin-top:14px"><ul>{avisos}</ul>'
+        f'<p>Chuva diária de {esc(dia_br(fonte["periodo"][0]))} a {esc(dia_br(fonte["periodo"][1]))}, buscada em {esc(dia_br(conf["gerado_em"]))}, '
+        f'no {esc(fonte["ponto"])}. <a href="{esc(fonte["url"])}" rel="noopener noreferrer">{esc(fonte["atribuicao"])}</a>. '
+        f'Normal e histórico: {esc(base["fonte"])}, {esc(base["normal"])} ({esc(base["periodo"])}).</p></div></section>')
+
+
+def html_metodo_conferencia(conf: dict | None, pac: dict | None) -> Html:
+    """Parágrafo do Método sobre a segunda fonte de chuva: o que ela é, o que não é e por que não mexe nos dados."""
+    if not tem_conferencia(conf, pac):
+        return Html("")
+    f, base = conf["fonte_conferencia"], conf["base_historica"]
+    mes, mes_nome = mes_extenso(conf["mes_alvo"]), MESES[int(conf["mes_alvo"][5:7]) - 1]
+    return Html(
+        f'<section class="secao leitura"><h2>Segunda fonte de chuva, só para conferir</h2>'
+        f'<p style="margin-top:12px">O CHIRPS, que alimenta o modelo, termina em {esc(mes_extenso(pac["origem"]))} e por isso ainda não mostra '
+        f'como foi {esc(mes)}. O site tem duas camadas, e elas não se misturam:</p><ul style="margin-top:12px">'
+        f'<li><b>Núcleo auditável.</b> A chuva do CHIRPS e a rede neural PyTorch treinada do zero. Tudo é gerado offline e conferido por '
+        f'SHA-256 (veja o rodapé).</li>'
+        f'<li><b>Conferência com outra fonte.</b> A chuva diária de {esc(dia_br(f["periodo"][0]))} a {esc(dia_br(f["periodo"][1]))} foi buscada '
+        f'em {esc(dia_br(conf["gerado_em"]))} na API de histórico da Open-Meteo (reanálise), no {esc(f["ponto"])}, e guardada num arquivo com fonte, '
+        f'licença e data. Ela não entra no treino, não prevê nada e não altera os dados nem o SHA-256.</li>'
+        f'<li><b>Como ler.</b> A chuva de {esc(mes)} de cada município é posta ao lado dos {esc(mes_nome)}s de '
+        f'{esc(base["periodo"][:4])} a {esc(base["periodo"][-7:-3])} do CHIRPS: o desvio em relação ao normal (a mediana do mês) e a posição '
+        f'no histórico. Como as fontes são diferentes, a leitura é por grupo, municípios com sinal contra sem sinal.</li>'
+        f'<li><b>Limite.</b> Não é o acerto oficial da previsão. A conferência com o CHIRPS fica para quando ele cobrir {esc(mes)}, e o '
+        f'teste final continua fechado.</li></ul></section>')
+
+
 def valores_previsao(payload: dict) -> dict:
     """Valores dos modelos que falam da previsão. Sem previsão no pacote, o site continua dizendo que ela está indisponível."""
     pac = payload.get("previsao")
@@ -466,6 +566,8 @@ def valores_previsao(payload: dict) -> dict:
                  f"erro. Foi avaliada apenas na validação; o teste final ainda não foi aberto.")
         indisp = (f"Só como experimento: a página Previsão mostra o SPI de {alvo} com margem de erro. O teste final ainda não foi "
                   f"aberto e o alarme de seca pega só uma parte das secas reais.")
+        if tem_conferencia(payload.get("conferencia"), pac):
+            indisp += f" A página Previsão traz também uma conferência indicativa de {alvo} com outra fonte de chuva."
     else:
         sobre = "Indisponível. A rede neural de previsão está em calibração e só aparece depois de uma avaliação auditada."
         indisp = INDISPONIVEL_PREVISAO
@@ -475,6 +577,8 @@ def valores_previsao(payload: dict) -> dict:
         "previsao_aviso": html_previsao_aviso(pac, payload), "previsao_fatos": html_previsao_fatos(pac),
         "previsao_tabela": html_previsao_tabela(pac, payload["municipios"]), "previsao_confianca": html_previsao_confianca(pac, payload),
         "previsao_legenda": html_previsao_legenda(pac),
+        "previsao_conferencia": html_previsao_conferencia(payload.get("conferencia"), pac, payload["municipios"]),
+        "metodo_conferencia": html_metodo_conferencia(payload.get("conferencia"), pac),
         "previsao_membros": pac["modelo"]["n_membros"] if pac else 0,
         "previsao_sobre": sobre, "previsao_metodo": indisp,
     }

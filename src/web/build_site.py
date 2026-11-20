@@ -30,6 +30,7 @@ import numpy as np
 import pandas as pd
 
 from src.data import chirps_raw
+from src.data import conferencia as conf_mod
 from src.data import contexto_enso as ce
 from src.data import manifest as mf
 from src.data import previsao as prev_mod
@@ -169,6 +170,7 @@ class Insumos:
     enso: ce.ContextoEnso | None = None
     planejamento: dict | None = None          # rascunhos de IA já revisados (src/ia/arquivo.py), ou None
     previsao: prev_mod.Previsao | None = None  # previsão do próximo mês (src/model/prever.py), já conferida, ou None
+    conferencia: conf_mod.Conferencia | None = None   # chuva do mês previsto em outra fonte (Open-Meteo), conferida contra a previsão, ou None
     avisos: tuple[str, ...] = ()              # o que ficou de fora e por quê (mostrado pela CLI)
 
 
@@ -245,6 +247,7 @@ def montar_payload(ins: Insumos, cfg: Config, *, verificado_em: datetime) -> dic
         "enso": ce.para_pacote(ins.enso) if ins.enso is not None else None,
         "planejamento": ins.planejamento,         # só vira página (não vai para o dados.js)
         "previsao": prev_mod.para_pacote(ins.previsao) if ins.previsao is not None else None,   # idem
+        "conferencia": conf_mod.para_pacote(ins.conferencia) if ins.conferencia is not None else None,   # idem: só vira HTML
         "tem_previsao": ins.previsao is not None,                 # este sim vai ao navegador: o monitor muda o texto de "indisponível"
         "titulo": cfg.projeto.nome,
         "equipe": cfg.projeto.equipe,
@@ -320,6 +323,22 @@ def _previsao(cfg: Config, dataset_sha256: str, cods) -> tuple[prev_mod.Previsao
     return prev, []
 
 
+def _conferencia(cfg: Config, prev: prev_mod.Previsao | None, cods) -> tuple[conf_mod.Conferencia | None, list[str]]:
+    """Conferência com a chuva real do mês previsto (outra fonte). Só existe junto com a previsão. Fica fora do manifest,
+    como o El Niño: é dado de fonte externa, com a própria data, fonte e licença. Arquivo ausente: sem aviso. Inválido ou de
+    outra previsão: a seção não aparece e a CLI diz por quê."""
+    caminho = cfg.raiz / conf_mod.ARQUIVO_PADRAO
+    if prev is None or not caminho.is_file():
+        return None, []
+    try:
+        conf = conf_mod.carregar(caminho)
+        sinal = {m.cod_ibge for m in prev.municipios if m.spi3.alerta or m.spi6.alerta}
+        conf_mod.conferir_previsao(conf, prev.dataset_sha256, prev.alvo, sinal, cods)
+    except conf_mod.ConferenciaError as e:
+        return None, [f"conferência de {prev.alvo} ignorada: {e}"]
+    return conf, []
+
+
 def carregar_insumos(cfg: Config, *, incluir_nao_revisados: bool = True) -> Insumos:
     """Confere o manifest inteiro (SHA-256 de tudo, inclusive `params.yaml`) e lê só o que ele lista."""
     m = mf.verificar_manifest(cfg)
@@ -334,15 +353,17 @@ def carregar_insumos(cfg: Config, *, incluir_nao_revisados: bool = True) -> Insu
     arq_enso = cfg.raiz / ce.ARQUIVO_PADRAO          # fora do manifest: contexto de fonte externa, com a própria data
     enso = ce.carregar(arq_enso) if arq_enso.is_file() else None
     plan, avisos = _planejamento(cfg, m["dataset_sha256"], incluir_nao_revisados=incluir_nao_revisados)
-    prev, avisos_prev = _previsao(cfg, m["dataset_sha256"], [f["properties"]["cod_ibge"] for f in malha["features"]])
+    cods_malha = [f["properties"]["cod_ibge"] for f in malha["features"]]
+    prev, avisos_prev = _previsao(cfg, m["dataset_sha256"], cods_malha)
+    conf, avisos_conf = _conferencia(cfg, prev, cods_malha)
     return Insumos(demo=ler("demo_observado"), qualidade=ler("qualidade_municipio"), raw=raw, malha=malha,
-                   manifest=m, extraido_em=_extracao(cfg, lotes), enso=enso, planejamento=plan, previsao=prev,
-                   avisos=tuple([*avisos, *avisos_prev]))
+                   manifest=m, extraido_em=_extracao(cfg, lotes), enso=enso, planejamento=plan, previsao=prev, conferencia=conf,
+                   avisos=tuple([*avisos, *avisos_prev, *avisos_conf]))
 
 
 # ------------------------------------------------------------------ montagem da pasta do site
 def _dados_js(payload: dict) -> str:
-    dados = {k: v for k, v in payload.items() if k not in ("planejamento", "previsao")}   # viram HTML, não vão ao navegador como dado
+    dados = {k: v for k, v in payload.items() if k not in ("planejamento", "previsao", "conferencia")}   # viram HTML, não vão ao navegador como dado
     j = json.dumps(dados, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
     return "window.PR_DADOS=" + j.replace("\u2028", "\\u2028").replace("\u2029", "\\u2029") + ";\n"
 
@@ -405,6 +426,7 @@ def gerar_site(cfg: Config, saida: Path | None = None, *, agora: datetime | None
             "enso": payload["enso"] is not None, "planejamento": len((payload["planejamento"] or {}).get("rascunhos", [])),
             "planejamento_revisados": sum(r["revisado"] for r in (payload["planejamento"] or {}).get("rascunhos", [])),
             "previsao": payload["previsao"]["alvo"] if payload["previsao"] else None,
+            "conferencia": payload["conferencia"]["mes_alvo"] if payload["conferencia"] else None,
             "avisos": list(ins.avisos)}
 
 
@@ -431,6 +453,8 @@ def main(argv: list[str] | None = None) -> int:       # python -m src.web.build_
         print(f"página Planejamento: {r['planejamento']} rascunho(s), {r['planejamento_revisados']} revisado(s) por pessoa")
     if r["previsao"]:
         print(f"página Previsão: previsão de {r['previsao']} (experimental, com margem de erro)")
+    if r["conferencia"]:
+        print(f"página Previsão: conferência indicativa de {r['conferencia']} com outra fonte de chuva (Open-Meteo)")
     print(f"abra: {r['inicio']}" + ("" if r["enso"] else " | AVISO: sem data/reference/contexto_enso.json; a camada do El Niño aparece como indisponível"))
     return 0
 

@@ -157,7 +157,7 @@ def test_chaves_e_tamanhos_do_pacote(payload, cfg):
     esperadas = {"titulo", "equipe", "maturidade", "viewBox", "escalas", "escala_alvo", "limites", "classes", "meses",
                  "municipios", "ordem", "spi", "cls", "baixa", "precip", "escala_spi", "escala_chuva", "fonte",
                  "periodo", "n_excluidos", "verificacao", "regra_baixa", "n_municipios", "abertura", "pct_baixa_ultimo",
-                 "maiores_secas", "clima", "enso", "planejamento", "previsao", "tem_previsao"}
+                 "maiores_secas", "clima", "enso", "planejamento", "previsao", "conferencia", "tem_previsao"}
     assert set(payload) == esperadas
     assert payload["escalas"] == [3, 6] and payload["escala_alvo"] == 3
     assert len(payload["meses"]) == NT and payload["meses"][0] == "1981-01" and payload["meses"][-1] == "2026-09"
