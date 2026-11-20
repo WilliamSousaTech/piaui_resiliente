@@ -325,8 +325,8 @@ def test_todos_os_links_internos_e_assets_existem(site):
             assert f'id="{ancora}"' in h, (arquivo, ancora)
 
 
-def test_links_externos_so_para_as_fontes_do_arquivo_do_el_nino_e_com_noopener(site, payload_enso):
-    permitidas = set()
+def test_links_externos_so_para_as_fontes_do_arquivo_do_el_nino_e_a_atribuicao_da_open_meteo_e_com_noopener(site, payload_enso):
+    permitidas = {"https://open-meteo.com/"}              # atribuição (CC BY 4.0) do painel ao vivo do Monitor
     for f in payload_enso["enso"]["fontes"]:
         permitidas |= {f["url"], f.get("url_documento")} - {None}
     achados = set()
@@ -392,17 +392,24 @@ def test_monitor_conta_so_leituras_confiaveis_e_diz_isso(site):
 
 
 # ================================================================== a pasta do site: offline
-def test_site_e_100_por_cento_offline(site):
+def test_site_e_offline_exceto_o_painel_ao_vivo_do_monitor(site):
+    """Nenhum recurso externo é carregado e nenhum script chama a rede, menos `aovivo.js`, que só pode falar com a Open-Meteo."""
     for caminho, texto in site.items():
         if caminho == "assets/marca/gota.svg":
             continue
         assert not re.search(r"<script[^>]+\bsrc=\"https?:", texto), caminho
         assert not re.search(r"<link\b[^>]+href=\"https?:", texto), caminho
         assert not re.search(r"@import|url\(\s*['\"]?https?:", texto), caminho
-        assert not re.search(r"\b(fetch|XMLHttpRequest|WebSocket|EventSource|importScripts)\b|navigator\.sendBeacon|\bimport\(", texto), caminho
+        if caminho != "assets/aovivo.js":
+            assert not re.search(r"\b(fetch|XMLHttpRequest|WebSocket|EventSource|importScripts)\b|navigator\.sendBeacon|\bimport\(", texto), caminho
+        assert not re.search(r"\b(XMLHttpRequest|WebSocket|EventSource|importScripts)\b|navigator\.sendBeacon|\bimport\(", texto), caminho
         assert not re.search(r"<(img|iframe|embed|object|video|audio|source)\b[^>]*\bsrc=\"https?:", texto), caminho
-    js = "".join(t for c, t in site.items() if c.endswith(".js") and c != "assets/dados.js")
+    js = "".join(t for c, t in site.items() if c.endswith(".js") and c not in ("assets/dados.js", "assets/aovivo.js"))
     assert set(re.findall(r"https?://[^\s'\"`)]+", js)) <= {"http://www.w3.org/2000/svg"}
+    assert set(re.findall(r"https?://[^\s'\"`)]+", site["assets/aovivo.js"])) == {"https://api.open-meteo.com/v1/forecast"}
+    quem_chama = [c for c, t in site.items() if re.search(r"\bfetch\b", t)]
+    assert quem_chama == ["assets/aovivo.js"], quem_chama                        # a única porta para fora
+    assert [c for c in site if c.endswith(".html") and "aovivo.js" in site[c]] == ["monitor.html"]      # e só o Monitor a carrega
 
 
 def test_regiao_rolavel_da_tabela_e_acessivel_por_teclado(site):

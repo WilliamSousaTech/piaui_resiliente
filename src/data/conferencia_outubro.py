@@ -28,7 +28,6 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Callable
@@ -36,12 +35,13 @@ from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
-from shapely.geometry import shape
 
 from src.data import chirps_raw
 from src.data import manifest as mf
+from src.data import pontos as pontos_mod
 from src.data import previsao as prev_mod
 from src.data.config import Config, ConfigError, load_config
+from src.data.pontos import LAT_PI, LON_PI, Ponto  # noqa: F401  (re-exportados)
 from src.data.spi import SpiError, para_matriz
 
 URL_API = "https://archive-api.open-meteo.com/v1/archive"
@@ -57,7 +57,6 @@ MINIMO_NORMAL_MM = 5.0                # abaixo disto a "% da normal" explode com
 MINIMO_ANOS = 20                      # percentil só com pelo menos 20 anos de histórico
 LIMIAR_SECO_PERCENTIL = 25.0          # "mês seco" = percentil <= 25
 MAX_DIA_MM = 500.0                    # acima disto o valor diário é tratado como inválido
-LAT_PI, LON_PI = (-11.0, -2.5), (-46.2, -40.2)        # caixa do Piauí: pega coordenada trocada ou fora do estado
 USER_AGENT = "piaui-resiliente/conferencia (projeto academico; uso nao comercial)"
 
 AVISOS = (
@@ -75,39 +74,13 @@ class ConferenciaError(ValueError):
     """Entrada inválida, API recusou, resposta fora do formato ou previsão incompatível com os dados."""
 
 
-@dataclass(frozen=True)
-class Ponto:
-    cod_ibge: str
-    nome: str
-    lat: float
-    lon: float
-
-
 # ---------------------------------------------------------------- pontos e período
 def pontos_da_malha(malha: dict) -> list[Ponto]:
-    """Um ponto por município: o centroide; se ele cair fora do polígono (forma côncava), um ponto interno."""
-    if not isinstance(malha, dict) or not isinstance(malha.get("features"), list) or not malha["features"]:
-        raise ConferenciaError("malha sem 'features'")
-    pontos, vistos = [], set()
-    for f in malha["features"]:
-        try:
-            cod = str(f["properties"]["cod_ibge"])
-            nome = str(f["properties"].get("nome", cod))
-            geom = shape(f["geometry"])
-        except (KeyError, TypeError, ValueError, AttributeError) as e:
-            raise ConferenciaError(f"feição da malha inválida: {e!r}") from e
-        if geom.is_empty or not geom.is_valid:
-            raise ConferenciaError(f"geometria vazia ou inválida em {cod}")
-        c = geom.centroid
-        if not geom.contains(c):
-            c = geom.representative_point()
-        if not (LAT_PI[0] <= c.y <= LAT_PI[1] and LON_PI[0] <= c.x <= LON_PI[1]):
-            raise ConferenciaError(f"{cod}: ponto (lat {c.y:.3f}, lon {c.x:.3f}) fora do Piauí; confira a ordem lon/lat")
-        if cod in vistos:
-            raise ConferenciaError(f"cod_ibge repetido na malha: {cod}")
-        vistos.add(cod)
-        pontos.append(Ponto(cod, nome, round(c.y, 4), round(c.x, 4)))
-    return sorted(pontos, key=lambda p: p.cod_ibge)
+    """Um ponto por município (ver `src.data.pontos`); erros da malha viram `ConferenciaError`."""
+    try:
+        return pontos_mod.pontos_da_malha(malha)
+    except pontos_mod.PontosError as e:
+        raise ConferenciaError(str(e)) from e
 
 
 def periodo_busca(alvo: pd.Period, hoje: date) -> tuple[date, date]:

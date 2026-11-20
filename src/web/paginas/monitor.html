@@ -39,6 +39,29 @@
       <div class="graf" id="grafChuva"></div>
       <div class="graf sem-tit"><div class="eixo" id="eixoMun"></div></div>
       <div class="stats" id="munStats"></div>
+      <section class="ao-vivo" id="aoVivo" aria-labelledby="aoVivoT" hidden>
+        <h3 class="rotulo" id="aoVivoT">Chuva recente e previsão de 16 dias</h3>
+        <p class="ao-status" id="aoStatus" aria-live="polite"></p>
+        <div id="aoConteudo" hidden>
+          <div class="stats" id="aoStats"></div>
+          <div class="graf-grande ao-graf" id="aoGraf"></div>
+          <ul class="ao-leg" aria-label="Legenda do gráfico">
+            <li><i class="sw-passado"></i>Chuva estimada nos dias que passaram</li>
+            <li><i class="sw-prev"></i>Previsão</li>
+            <li><i class="sw-seco"></i>Dia sem chuva</li>
+          </ul>
+          <details class="ao-tab">
+            <summary id="aoResumoTab">Ver os dias em tabela</summary>
+            <div class="ao-tab-corpo" tabindex="0" role="region" aria-label="Chuva por dia, em milímetros, nos últimos 30 e nos próximos 16 dias">
+              <table><thead><tr><th>Dia</th><th class="n">Chuva (mm)</th><th>Origem</th></tr></thead><tbody id="aoCorpo"></tbody></table>
+            </div>
+          </details>
+        </div>
+        <button class="btn" id="aoRetry" type="button" hidden>Tentar de novo</button>
+        <p class="nota ao-nota">Camada experimental, separada da série verificada acima: não altera o SPI nem o hash de integridade. É estimativa de um modelo
+          meteorológico para o centro do município, não medição de pluviômetro nem o CHIRPS do SPI. A previsão perde precisão a cada dia à frente.</p>
+        <p class="proveniencia">Weather data by <a href="https://open-meteo.com/" rel="noopener noreferrer">Open-Meteo.com</a> (CC BY 4.0). O navegador consulta a Open-Meteo para o município aberto nesta ficha, uma vez a cada 30 minutos.</p>
+      </section>
     </div>
     <ul class="indisp" id="indisp"></ul>
   </section>

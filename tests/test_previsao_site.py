@@ -73,7 +73,7 @@ def test_sem_previsao_o_site_continua_dizendo_que_ela_esta_indisponivel(payload)
 def test_com_previsao_o_aviso_do_topo_o_metodo_e_o_sobre_apontam_para_a_pagina(com_prev):
     for nome in ("metodo", "sobre", "inicio"):
         h = pagina(com_prev, nome)
-        assert "a única previsão está na página Previsão, com margem de erro" in h
+        assert "a previsão do modelo está na página Previsão, com margem de erro" in h and "previsão de chuva da Open-Meteo, outra fonte" in h
         assert '<a href="previsao.html">Previsão</a>' in h
     sobre, metodo = pagina(com_prev, "sobre"), pagina(com_prev, "metodo")
     assert "Disponível só como experimento, na página Previsão" in sobre and "o teste final ainda não foi aberto" in sobre

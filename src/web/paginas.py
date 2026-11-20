@@ -49,7 +49,7 @@ PAGINAS = (
            ("inicio",), "inicio.html"),
     Pagina("monitor", "monitor.html", "Monitor", "Monitor",
            "Mapa, linha do tempo e série de cada município do semiárido piauiense, com a classe do SPI e a confiança da leitura.",
-           ("monitor",), "monitor.html"),
+           ("aovivo", "monitor"), "monitor.html"),
     Pagina("municipios", "municipios.html", "Municípios", "Municípios",
            "Tabela dos municípios do semiárido piauiense em um mês: SPI, classe, chuva e confiança da leitura.",
            ("municipios",), "municipios.html"),
@@ -159,9 +159,11 @@ def html_nav(paginas: tuple[Pagina, ...], atual: str) -> Html:
 def html_aviso(maturidade: str, com_previsao: bool = False) -> Html:
     resto = re.sub(r"^MVP experimental\s*[—-]?\s*", "", maturidade, flags=re.I).strip()
     resto = (resto[:1].upper() + resto[1:]).rstrip(".") + ". " if resto else ""
-    fecho = ("Não substitui alerta oficial: o monitor mostra a chuva já observada; a única previsão está na página Previsão, "
-             "com margem de erro." if com_previsao else
-             "Não substitui alerta oficial: mostra a chuva já observada, não uma previsão.")
+    fecho = ("Não substitui alerta oficial: o SPI e o mapa mostram a chuva já observada; a previsão do modelo está na página "
+             "Previsão, com margem de erro, e a ficha do Monitor traz a previsão de chuva da Open-Meteo, outra fonte."
+             if com_previsao else
+             "Não substitui alerta oficial: o SPI e o mapa mostram a chuva já observada, não uma previsão; a ficha do Monitor "
+             "traz a previsão de chuva da Open-Meteo, outra fonte.")
     return Html(f"<b>MVP experimental.</b> {esc(resto)}{fecho}")
 
 

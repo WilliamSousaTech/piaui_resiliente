@@ -296,6 +296,33 @@ def test_codigos_repetidos_na_malha_e_erro(insumos, cfg):
                           cfg, verificado_em=VERIFICADO)
 
 
+# ================================================================== coordenada de cada município (painel ao vivo)
+def test_cada_municipio_leva_um_ponto_dentro_do_proprio_poligono(payload):
+    from shapely.geometry import Point, shape
+    formas = {f["properties"]["cod_ibge"]: shape(f["geometry"]) for f in malha_tres()["features"]}
+    assert len(payload["municipios"]) == 3
+    for m in payload["municipios"]:
+        assert isinstance(m["lat"], float) and isinstance(m["lon"], float)
+        assert -11.0 <= m["lat"] <= -2.5 and -46.2 <= m["lon"] <= -40.2
+        assert formas[m["cod"]].contains(Point(m["lon"], m["lat"])), m["cod"]        # C é MultiPolygon com furo
+    assert [m["cod"] for m in payload["municipios"]] == sorted(formas)                # ordem por código, sem mexer em "ordem"
+
+
+def test_coordenada_chega_ao_navegador_com_4_casas(proj):
+    cfg, raiz = proj
+    bs.gerar_site(cfg, agora=VERIFICADO)
+    for m in extrair(raiz / "site")["municipios"]:
+        assert m["lat"] == round(m["lat"], 4) and m["lon"] == round(m["lon"], 4)
+
+
+def test_malha_fora_do_piaui_derruba_o_build_com_mensagem_clara(insumos, cfg):
+    malha = malha_tres()
+    malha["features"][0] = feature(B, "Beta do Sul", {"type": "Polygon", "coordinates": [quadrado(-60.0, -8.0)]})
+    with pytest.raises(bs.SiteError, match="fora do Piauí"):
+        bs.montar_payload(bs.Insumos(insumos.demo, insumos.qualidade, insumos.raw, malha, insumos.manifest, None),
+                          cfg, verificado_em=VERIFICADO)
+
+
 # ================================================================== regra de baixa confiança
 def test_regra_de_baixa_confianca_vai_para_o_pacote_como_esta_no_params(payload, cfg):
     assert payload["regra_baixa"] == {"q_max": 0.5, "media_min_mm_por_mes": 10.0}

@@ -250,6 +250,33 @@ p{margin:0}
 .stats{display:flex;flex-wrap:wrap;gap:4px 28px;margin:10px 0 0;color:var(--ink2);font-size:13px}
 .stats b{color:var(--ink);font-weight:650}
 .vazio{color:var(--ink2);margin:0 0 10px}
+
+/* Monitor: painel ao vivo (Open-Meteo). Terracota = dia sem chuva, azul-petróleo = chuva; previsão = o mesmo azul, esmaecido */
+.ao-vivo{margin-top:20px;padding-top:14px;border-top:1px solid var(--grid)}
+.ao-vivo .rotulo{margin-bottom:4px}
+.ao-status{margin:0 0 8px;color:var(--ink2);font-size:13px}
+.ao-status.velho{padding:7px 10px;border-radius:6px;background:var(--wash)}
+.ao-graf{margin-top:8px}
+.ao-graf .b-prev{fill-opacity:.45;stroke:var(--bar);stroke-width:1;vector-effect:non-scaling-stroke}
+.ao-graf .t-seco{fill:var(--dry)}
+.ao-graf .b-falta{fill:none;stroke:var(--muted);stroke-width:1}
+.ao-graf .l-hoje{stroke:var(--ink);stroke-width:1.2;stroke-dasharray:3 3}
+.ao-graf .ao-marca{fill:var(--wash)}
+.ao-leg{list-style:none;margin:6px 0 10px;padding:0;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12.5px;color:var(--ink2)}
+.ao-leg li{display:flex;align-items:center;gap:6px}
+.ao-leg i{display:inline-block;width:12px;height:12px;border-radius:2px;flex:none}
+.ao-leg .sw-passado{background:var(--bar)}
+.ao-leg .sw-prev{background:color-mix(in srgb,var(--bar) 45%,transparent);border:1px solid var(--bar);box-sizing:border-box}
+.ao-leg .sw-seco{height:3px;background:var(--dry)}
+.ao-tab{margin:6px 0 10px;font-size:13px}
+.ao-tab summary{cursor:pointer;color:var(--link);font-weight:600}
+.ao-tab-corpo{margin-top:8px;border:1px solid var(--grid);border-radius:8px;background:var(--surface);overflow:auto;max-height:240px}
+.ao-tab-corpo table{border-collapse:collapse;width:100%;font-size:12.5px}
+.ao-tab-corpo th,.ao-tab-corpo td{padding:5px 10px;text-align:left;border-bottom:1px solid var(--grid)}
+.ao-tab-corpo th{position:sticky;top:0;background:var(--surface);font-weight:650}
+.ao-tab-corpo .n{text-align:right;font-variant-numeric:tabular-nums}
+.ao-nota{margin:10px 0 0;font-size:12.5px}
+.ao-vivo .proveniencia{margin-top:6px}
 .indisp{list-style:none;margin:14px 0 0;padding:10px 0 0;border-top:1px solid var(--grid);display:grid;gap:8px}
 .indisp li{display:grid;grid-template-columns:18px 1fr;gap:8px;color:var(--ink2);font-size:13px}
 .indisp svg{width:16px;height:16px;margin-top:1px}

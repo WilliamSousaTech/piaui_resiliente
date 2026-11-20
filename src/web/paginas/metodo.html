@@ -25,6 +25,16 @@
 
   {{metodo_conferencia}}
 
+  <section class="secao leitura">
+    <h2>Duas camadas: a verificada e a ao vivo</h2>
+    <p class="sub">O Monitor junta duas coisas diferentes e mantém as duas separadas.</p>
+    <ul style="margin-top:12px">
+      <li><b>Camada verificada.</b> CHIRPS, SPI e previsão do modelo, gerados antes da publicação e conferidos por SHA-256 (veja “Dados e verificação”). Abre sem internet.</li>
+      <li><b>Camada ao vivo.</b> Na ficha do município, o Monitor consulta a Open-Meteo (modelo meteorológico, CC BY 4.0) pela internet de quem abriu a página: chuva estimada dos últimos 30 dias, previsão de 16 dias e umidade do solo na camada de 0 a 1 cm. A consulta fica guardada no navegador por 30 minutos. Sem internet, o painel mostra a última consulta guardada, marcada como tal, ou um aviso com o botão “Tentar de novo”.</li>
+      <li><b>O que a camada ao vivo não faz.</b> Não entra no treino nem na previsão do modelo, não muda o SPI e não entra no hash de integridade. “Ao vivo” quer dizer consultada agora, não medida agora: a chuva dos dias que passaram é estimativa de modelo, não pluviômetro, e a previsão perde precisão a cada dia à frente.</li>
+    </ul>
+  </section>
+
   <section class="secao">
     <h2>O que o site ainda não mostra</h2>
     <p class="sub">O que não tem dado oficial validado aparece como indisponível, nunca com valor de exemplo.</p>
@@ -53,7 +63,7 @@
       <li><b>Chuva:</b> CHIRPS v2.0 final (UCSB/CHC), coleção {{gee_id}} no Google Earth Engine, de {{periodo_ini}} a {{periodo_fim}}{{extraido}}.</li>
       <li><b>Municípios:</b> malha do IBGE ({{malha_ano}}); semiárido da Resolução CONDEL/SUDENE 150/2021, mais Luís Correia pela regra de transição da Resolução 176/2024 (fonte ainda em confirmação).</li>
       <li><b>Conferência:</b> {{arquivos}} arquivos conferidos por SHA-256 em {{verificado_em}}. Conjunto de dados <code>{{sha}}</code>.</li>
-      <li><b>Reprodução:</b> o site é gerado com <code>python -m src.web.build_site</code> a partir do manifesto, sem rede.</li>
+      <li><b>Reprodução:</b> o site é gerado com <code>python -m src.web.build_site</code> a partir do manifesto, sem rede. Só o painel ao vivo do Monitor usa a internet, depois, no navegador.</li>
     </ul>
   </section>
 </div>

@@ -1,4 +1,4 @@
-"""Gerador do site (Item 11): uma pasta de páginas estáticas que funciona offline, a partir dos artefatos do manifest.
+"""Gerador do site (Item 11): uma pasta de páginas estáticas que funciona offline (só o painel ao vivo do Monitor usa a internet, e é opcional), a partir dos artefatos do manifest.
 
 Só abre o que o manifest lista e confere o SHA-256 antes (`manifest.verificar_manifest`). Não calcula
 SPI, não treina e não lê o teste congelado: apenas traduz `demo_observado`, `qualidade_municipio`, a
@@ -33,6 +33,7 @@ from src.data import chirps_raw
 from src.data import conferencia as conf_mod
 from src.data import contexto_enso as ce
 from src.data import manifest as mf
+from src.data import pontos as pontos_mod
 from src.data import previsao as prev_mod
 from src.data.config import Config, load_config
 from src.ia import arquivo as ia_arquivo
@@ -220,8 +221,15 @@ def montar_payload(ins: Insumos, cfg: Config, *, verificado_em: datetime) -> dic
         cls_mat[k], baixa_mat[k] = c.reshape(nm, len(meses)), b.reshape(nm, len(meses))
 
     ordem = sorted(range(nm), key=lambda i: (-municipios[i]["lat"], municipios[i]["lon"]))   # norte -> sul
+    try:       # ponto (lat, lon) dentro de cada município: o painel ao vivo do Monitor consulta a Open-Meteo por ele
+        pontos = {p.cod_ibge: p for p in pontos_mod.pontos_da_malha(ins.malha)}
+    except pontos_mod.PontosError as e:
+        raise SiteError(f"malha sem coordenada utilizável: {e}") from e
+    if set(pontos) != set(cods):
+        raise SiteError("pontos da malha e municípios do site não coincidem")
     for m in municipios:
-        del m["lon"], m["lat"]
+        del m["lon"], m["lat"]            # centro da caixa (só servia para ordenar); o que vai ao navegador é o ponto interno
+        m["lat"], m["lon"] = pontos[m["cod"]].lat, pontos[m["cod"]].lon
 
     # destaques do site: só leituras observadas e confiáveis (ver destaques.py)
     alvo = int(cfg.alvo.escala_spi_meses)

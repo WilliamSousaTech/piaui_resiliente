@@ -102,8 +102,8 @@ def test_nome_de_municipio_e_escapado_na_conferencia(com_conf):
 
 def test_sem_conferencia_nada_aparece(com_prev):
     h = pagina(com_prev)
-    assert "O que choveu" not in h and "Open-Meteo" not in h and "{{" not in h
-    assert "conferência indicativa" not in h
+    assert "O que choveu" not in h and "Weather data by" not in h and "{{" not in h        # o aviso do topo cita a Open-Meteo (painel ao vivo); a seção e a atribuição não
+    assert "conferência indicativa" not in h and "reanálise" not in h
 
 
 def test_conferencia_de_municipio_que_nao_esta_no_site_e_erro(com_conf):
@@ -136,13 +136,21 @@ def test_metodo_explica_a_segunda_fonte_so_quando_ha_conferencia(com_conf, com_p
     assert "A página Previsão traz também uma conferência indicativa de outubro de 2026" in h
     assert "{{" not in h
     sem = pagina(com_prev, "metodo")
-    assert "Segunda fonte de chuva" not in sem and "Open-Meteo" not in sem
+    assert "Segunda fonte de chuva" not in sem and "Conferência com outra fonte." not in sem and "conferência indicativa" not in sem
+    assert "Duas camadas: a verificada e a ao vivo" in sem and "Duas camadas: a verificada e a ao vivo" in h      # a camada ao vivo não depende do arquivo
 
 
 def test_nenhuma_promessa_de_tempo_real(com_conf):
+    """Nada de "tempo real" em lugar nenhum. A Previsão não fala em "ao vivo"; o Método só em uma seção, que diz o que a camada não faz."""
     for id_ in ("previsao", "metodo"):
         h = pagina(com_conf, id_).lower()
-        assert "tempo real" not in h and "ao vivo" not in h
+        assert "tempo real" not in h
+    assert "ao vivo" not in pagina(com_conf, "previsao").lower()
+    metodo = pagina(com_conf, "metodo")
+    secao = metodo[metodo.index("Duas camadas"):metodo.index("O que o site ainda não mostra")]
+    resto = metodo.replace(secao, "").lower()                                   # fora dessa seção, só a nota da "Reprodução" cita o painel
+    assert resto.count("ao vivo") == 1 and "só o painel ao vivo do monitor usa a internet" in resto
+    assert "consultada agora, não medida agora" in secao and "não entra no hash de integridade" in secao
 
 
 # ------------------------------------------------------------------ gerador do site
